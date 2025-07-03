@@ -20,11 +20,12 @@
           <v-form @submit.prevent>
             <v-row dense justify="center">
               <v-col cols="12">
-                <v-text-field 
-  outlined
-  color="primary"
-  label="Mi campo"
-></v-text-field>
+                <v-text-field
+                  label="E-mail"
+                  variant="outlined"
+                  type="text"
+                  density="compact"
+                />
               </v-col>
 
               <v-col cols="12">
