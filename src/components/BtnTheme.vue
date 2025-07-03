@@ -1,14 +1,20 @@
 <template>
-  <v-btn size="x-small" icon="mdi-brightness-6" @click="handleAction">
-    <v-icon />
-    <v-tooltip activator="parent" location="start">
-      Utilizar modo: {{ isDark ? "Obscuro" : "Claro" }}
-    </v-tooltip>
-  </v-btn>
+  <v-row align="center" justify="center" class="my-2">
+    <v-icon :color="!isDark ? 'orange' : 'grey'">mdi-white-balance-sunny</v-icon>
+    <v-switch
+      v-model="isDarkLocal"
+      hide-details
+      inset
+      class="mx-2"
+      color="primary"
+      style="margin-top: -10px;"
+    />
+    <v-icon :color="isDark ? 'blue-grey' : 'grey'">mdi-weather-night</v-icon>
+  </v-row>
 </template>
 
 <script setup>
-import { computed, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useTheme } from "vuetify";
 import { useAuthStore } from "@/store/index.js";
 
@@ -17,15 +23,14 @@ const authStore = useAuthStore();
 
 const isDark = computed(() => authStore.conf.theme_dark);
 
-const handleAction = () => {
-  authStore.themeDarkAction();
-};
+const isDarkLocal = ref(isDark.value);
 
-watch(
-  isDark,
-  (newVal) => {
-    theme.global.name.value = newVal ? "dark" : "light";
-  },
-  { immediate: true }
-);
+watch(isDarkLocal, (val) => {
+  authStore.themeDarkAction(); 
+  theme.global.name.value = val ? "dark" : "light";
+});
+
+watch(isDark, (val) => {
+  isDarkLocal.value = val;
+}, { immediate: true });
 </script>

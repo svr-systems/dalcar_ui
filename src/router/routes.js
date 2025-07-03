@@ -17,6 +17,12 @@ const routes = [
 
   //general
   {
+  path: '/home',
+  name: 'home',
+  component: () => import('@/views/general/Home.vue')
+}
+,
+  {
     path: "/",
     name: "main",
     component: () => import("@/views/general/Main.vue"),

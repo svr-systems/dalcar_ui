@@ -3,7 +3,6 @@
     <v-col cols="12" md="4">
       <v-card elevation="12" class="pa-6 text-center">
         <v-card-text>
-          <!-- Logo -->
           <v-img
             src="https://static.wixstatic.com/media/dbaee8_453933def9284ef29a843fa1c7645a89~mv2.png/v1/crop/x_0,y_133,w_500,h_198/fill/w_500,h_198,al_c,q_85,enc_avif,quality_auto/Logotipos.png"
             max-width="600"
@@ -12,7 +11,6 @@
             contain
           />
 
-          <!-- Formulario -->
           <v-form @submit.prevent>
             <v-row dense justify="center">
               <v-col cols="12">
@@ -39,7 +37,13 @@
               </v-col>
 
               <v-col cols="12">
-                <v-btn block size="large" color="blue-darken-3" class="white--text" type="submit">
+                <v-btn
+                  block
+                  size="large"
+                  color="blue-darken-3"
+                  class="white--text"
+                  @click.prevent="onLogin"
+                >
                   Iniciar sesión
                 </v-btn>
               </v-col>
@@ -66,7 +70,7 @@ const password = ref('')
 
 function onLogin() {
   if (usuario.value === 'admin' && password.value === '1234') {
-    router.push({ name: '' })
+    router.push({ name: 'home' })
   }
 }
 </script>
