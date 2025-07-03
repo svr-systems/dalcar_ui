@@ -1,0 +1,9 @@
+.v-theme--dark.v-application {
+  background: #1e1e1e !important;
+}
+.v-icon {
+  vertical-align: baseline !important;
+}
+.text-description {
+  white-space: pre-line;
+}
