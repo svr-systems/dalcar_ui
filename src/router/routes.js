@@ -14,14 +14,51 @@ const routes = [
     },
   },
   //module
-
+  {
+    path: "/modulo/usuarios",
+    name: "module/usuarios",
+    component: () => import("@/views/module/Users/ListUsers.vue"),
+    meta: {
+      title: "Usuarios",
+      icon: "mdi-account-group",
+    },
+  },
+  {
+    path: "/modulo/usuarios/:id",
+    name: "users-view",
+    component: () => import("@/views/module/Users/ShowUser.vue"),
+    props: true,
+    meta: {
+      title: "Detalle Usuario",
+      icon: "mdi-account",
+    },
+  },
+  {
+    path: "/modulo/usuarios/:id",
+    name: "users-edit",
+    component: () => import("@/views/module/Users/EditUser.vue"),
+    props: true,
+    meta: {
+      title: "Editar Usuario",
+      icon: "mdi-account",
+    },
+  },
+  {
+    path: "/modulo/usuarios/agregar",
+    name: "module/usuarios/agregar",
+    component: () => import("@/views/module/Users/AddUser.vue"),
+    meta: {
+      title: "Agregar usuario",
+      icon: "mdi-account",
+    },
+  },
   //general
   {
-  path: '/home',
-  name: 'home',
-  component: () => import('@/views/general/Home.vue')
-}
-,
+    path: '/home',
+    name: 'home',
+    component: () => import('@/views/general/Home.vue')
+  }
+  ,
   {
     path: "/",
     name: "main",

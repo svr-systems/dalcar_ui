@@ -2,10 +2,7 @@
   <v-app>
     <Alert ref="alert" />
     <Confirm ref="confirm" />
-    <v-app-bar v-if="auth" density="compact" :elevation="2">
-      <BtnTheme />
-      <BtnLogout />
-    </v-app-bar>
+    <SideBar v-if="authStore.auth"/>
     <v-main>
       <v-container>
         <router-view :key="$route.fullPath" />
@@ -22,6 +19,7 @@ import BtnTheme from "@/components/BtnTheme.vue";
 import BtnLogout from "@/components/BtnLogout.vue";
 import Alert from "@/components/Alert.vue";
 import Confirm from "@/components/Confirm.vue";
+import SideBar from "@/components/SideBar.vue"
 
 const router = useRouter();
 const authStore = useAuthStore();

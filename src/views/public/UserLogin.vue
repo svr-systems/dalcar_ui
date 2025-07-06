@@ -63,13 +63,16 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import InpPassword from '@/components/InpPassword.vue'
+import {useAuthStore} from '@/store/index.js'
 
 const router = useRouter()
 const usuario = ref('')
 const password = ref('')
+const authStore = useAuthStore();
 
-function onLogin() {
+const onLogin = () => {
   if (usuario.value === 'admin' && password.value === '1234') {
+    authStore.loginAction("1234");
     router.push({ name: 'home' })
   }
 }
