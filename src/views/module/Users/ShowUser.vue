@@ -59,7 +59,10 @@ const employeeId = Number(route.params.id)
 const employee = computed(() => employees.getEmployee(employeeId))
 
 function toggleActive() {
-  employees.deactivateEmployee(employeeId)
-  router.push({ name: 'users' })
+  if (employee.value.active) {
+    employees.deactivateEmployee(employeeId)
+  } else {
+    employees.restoreEmployee(employeeId)
+  }
 }
 </script>

@@ -17,7 +17,7 @@ const routes = [
   {
     path: "/modulo/usuarios",
     name: "module/usuarios",
-    component: () => import("@/views/module/Users/ListUsers.vue"),
+    component: () => import("@/views/module/users/Listusers.vue"),
     meta: {
       title: "Usuarios",
       icon: "mdi-account-group",
@@ -26,7 +26,7 @@ const routes = [
   {
     path: "/modulo/usuarios/:id",
     name: "users-view",
-    component: () => import("@/views/module/Users/ShowUser.vue"),
+    component: () => import("@/views/module/users/ShowUser.vue"),
     props: true,
     meta: {
       title: "Detalle Usuario",
@@ -36,7 +36,7 @@ const routes = [
   {
     path: "/modulo/usuarios/:id",
     name: "users-edit",
-    component: () => import("@/views/module/Users/EditUser.vue"),
+    component: () => import("@/views/module/users/EditUser.vue"),
     props: true,
     meta: {
       title: "Editar Usuario",
@@ -46,7 +46,7 @@ const routes = [
   {
     path: "/modulo/usuarios/agregar",
     name: "module/usuarios/agregar",
-    component: () => import("@/views/module/Users/AddUser.vue"),
+    component: () => import("@/views/module/users/AddUser.vue"),
     meta: {
       title: "Agregar usuario",
       icon: "mdi-account",
