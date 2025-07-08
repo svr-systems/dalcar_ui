@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted } from 'vue'
 
 const props = defineProps({
   label: String,
@@ -22,18 +22,18 @@ const props = defineProps({
   rules: Array,
   counter: Boolean,
   disabled: Boolean,
-});
+})
 
-const visible = ref(false);
+const visible = ref(false)
 
-const emit = defineEmits(["update:model"]);
+const emit = defineEmits(['update:model'])
 
 const val = computed({
   get() {
-    return props.model;
+    return props.model
   },
   set(value) {
-    emit("update:model", value);
+    emit('update:model', value)
   },
-});
+})
 </script>

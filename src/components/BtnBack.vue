@@ -5,5 +5,5 @@
 <script setup>
 defineProps({
   route: Object,
-});
+})
 </script>

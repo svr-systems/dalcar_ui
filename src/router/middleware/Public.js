@@ -1,13 +1,12 @@
-import { useAuthStore } from "@/store";
+import { useStore } from '@/store'
 
 export default function Public(to, from, next) {
-  const authStore = useAuthStore();
-  const isAuthenticated = !!authStore.auth;
+  const store = useStore()
+  const isAuthenticated = !!store.auth
 
-  //Para que un usuario que ya ha iniciado sesión no pueda volver a pantallas publicas (login o registro).
   if (isAuthenticated) {
-    return next({ name: "module/consultations" });
+    return next({ name: 'home' })
   } else {
-    return next();
+    return next()
   }
 }

@@ -18,12 +18,7 @@
         </v-tooltip>
         <v-tooltip location="right">
           <template v-slot:activator="{ props: activatorProps }">
-            <v-btn
-              v-bind="activatorProps"
-              size="x-small"
-              icon
-              @click.prevent="docDwd"
-            >
+            <v-btn v-bind="activatorProps" size="x-small" icon @click.prevent="docDwd">
               <v-icon size="small">mdi-download</v-icon>
             </v-btn>
           </template>
@@ -75,9 +70,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { getBlob, getDateTime } from "@/general";
-import CardTitle from "@/components/CardTitle.vue";
+import { ref, onMounted } from 'vue'
+import { getBlob, getDateTime } from '@/general'
+import CardTitle from '@/components/CardTitle.vue'
 
 //Props
 const props = defineProps({
@@ -87,28 +82,28 @@ const props = defineProps({
     type: Boolean,
     default: undefined,
   },
-});
+})
 
 //Refs
-const doc_obj = ref(null);
-const img_prop = ref(false);
-const img_dlg = ref(false);
+const doc_obj = ref(null)
+const img_prop = ref(false)
+const img_dlg = ref(false)
 
 //Métodos
 const docDwd = () => {
-  const link = document.createElement("a");
-  link.setAttribute("target", "_blank");
-  link.href = doc_obj.value;
-  link.download = `${getDateTime("", "", "")}.${props.val.ext}`;
-  link.click();
-};
+  const link = document.createElement('a')
+  link.setAttribute('target', '_blank')
+  link.href = doc_obj.value
+  link.download = `${getDateTime('', '', '')}.${props.val.ext}`
+  link.click()
+}
 
 onMounted(() => {
   if (props.val) {
-    doc_obj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext));
+    doc_obj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
   }
-  img_prop.value = props.img !== undefined;
-});
+  img_prop.value = props.img !== undefined
+})
 </script>
 
 <style scoped>

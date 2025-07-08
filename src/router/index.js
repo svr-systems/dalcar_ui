@@ -2,10 +2,11 @@ import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router
 import routes from './routes'
 
 const router = createRouter({
-  history: process.env.NODE_ENV === 'production' 
-    ? createWebHashHistory(import.meta.env.BASE_URL)
-    : createWebHistory(import.meta.env.BASE_URL),
-  routes
+  history:
+    process.env.NODE_ENV === 'production'
+      ? createWebHashHistory(import.meta.env.BASE_URL)
+      : createWebHistory(import.meta.env.BASE_URL),
+  routes,
 })
 
 router.beforeEach((to, from, next) => {

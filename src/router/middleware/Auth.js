@@ -1,15 +1,15 @@
-import { useAuthStore } from "@/store";
+import { useStore } from '@/store'
 
 export default function Auth(to, from, next) {
-  const authStore = useAuthStore();
-  const isAuthenticated = !!authStore.auth;
+  const store = useStore()
+  const isAuthenticated = !!store.auth
 
   if (isAuthenticated) {
-    return next();
+    return next()
   } else {
     return next({
-      name: "login",
-      query: { redirect: to.fullPath },// Pasa en la URL a dónde quería ir el usuario (to.fullPath) para redirigirlo al login para que se autentique primero y ahora sí despues llevar automáticamente al usuario a la página que quería visitar originalmente.
-    });
+      name: 'login',
+      query: { redirect: to.fullPath },
+    })
   }
 }

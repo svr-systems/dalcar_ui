@@ -17,8 +17,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { getBlob, getDateTime } from "@/general";
+import { ref, onMounted } from 'vue'
+import { getBlob, getDateTime } from '@/general'
 
 //Props
 const props = defineProps({
@@ -36,32 +36,31 @@ const props = defineProps({
   },
   color: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+})
 
 //Refs
-const doc_obj = ref(null);
-
+const doc_obj = ref(null)
 
 //Métodos
 //Esto crea un <a> temporal y dispara la descarga automáticamente.
 const docDwd = () => {
-  if (!doc_obj.value) return;
+  if (!doc_obj.value) return
 
-  const link = document.createElement("a");
-  link.setAttribute("target", "_blank");
-  link.href = doc_obj.value;
-  link.download = `${getDateTime("", "", "")}.${props.val.ext}`;
-  link.click();
-};
+  const link = document.createElement('a')
+  link.setAttribute('target', '_blank')
+  link.href = doc_obj.value
+  link.download = `${getDateTime('', '', '')}.${props.val.ext}`
+  link.click()
+}
 
 //Crea un Blob a partir del contenido y la extensión del documento.
 onMounted(() => {
   if (props.val) {
-    doc_obj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext));
+    doc_obj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
   }
-});
+})
 </script>
 
 <style scoped>

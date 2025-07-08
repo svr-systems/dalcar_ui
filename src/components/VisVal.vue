@@ -4,7 +4,7 @@
       {{ lab }}
     </div>
     <div v-if="val != 'undefined'">
-      {{ val ? val : "-" }}
+      {{ val ? val : '-' }}
     </div>
     <div v-if="sub != 'undefined'" class="text-caption">
       <small>{{ sub }}</small>
@@ -17,5 +17,5 @@ const props = defineProps({
   lab: String,
   val: [String, Number, Boolean],
   sub: String,
-});
+})
 </script>

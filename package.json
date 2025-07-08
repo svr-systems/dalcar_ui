@@ -1,6 +1,6 @@
 {
-  "name": "frontend-templete",
-  "version": "0.0.0",
+  "name": "frontend-template",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {

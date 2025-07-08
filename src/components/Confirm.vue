@@ -4,11 +4,7 @@
       <v-card-text>
         <v-row dense class="text-center">
           <v-col cols="12">
-            <v-icon
-              color="warning"
-              size="48"
-              icon="mdi-alert-octagon-outline"
-            />
+            <v-icon color="warning" size="48" icon="mdi-alert-octagon-outline" />
           </v-col>
           <v-col cols="12">
             <h3 class="font-weight-light">
@@ -18,9 +14,8 @@
           <v-col cols="12" class="pt-3">
             <v-btn
               size="small"
-              variant="flat"
+              variant="tonal"
               icon="mdi-close"
-              color="error"
               class="mr-2"
               @click="handleAction(false)"
             />
@@ -40,25 +35,25 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref } from 'vue'
 
-const visible = ref(false);
-const msg = ref("");
-const resolve = ref(null);
+const visible = ref(false)
+const msg = ref('')
+const resolve = ref(null)
 
 const show = (message) => {
-  msg.value = message;
-  visible.value = true;
+  msg.value = message
+  visible.value = true
 
   return new Promise((rsp) => {
-    resolve.value = rsp;
-  });
-};
+    resolve.value = rsp
+  })
+}
 
 const handleAction = (response) => {
-  resolve.value?.(response);
-  visible.value = false;
-};
+  resolve.value?.(response)
+  visible.value = false
+}
 
-defineExpose({ show });
+defineExpose({ show })
 </script>
