@@ -1,6 +1,8 @@
 <template>
   <div>
     <v-app-bar density="compact" :elevation="2">
+      <v-app-bar-nav-icon v-if="isMobile" @click.stop="drawer = !drawer" />
+
       <v-toolbar-title>{{ APP_NAME }}</v-toolbar-title>
       <v-spacer />
       <v-btn icon variant="text">
@@ -11,7 +13,13 @@
       </v-btn>
     </v-app-bar>
 
-    <v-navigation-drawer expand-on-hover rail>
+    <v-navigation-drawer
+      v-model="drawer"
+      :permanent="!isMobile"
+      :temporary="isMobile"
+      :expand-on-hover="!isMobile"
+      rail
+    >
       <v-list nav>
         <v-list-item
           v-for="(drawer_item, i) in drawer_items"
@@ -44,12 +52,8 @@
             <v-img v-if="store.auth.user.avatar_b64" :src="store.auth.user.avatar_b64" cover />
             <v-icon v-else size="80">mdi-account-circle</v-icon>
           </v-avatar>
-          <div class="text-subtitle-1 mb-1">
-            {{ store.auth.user.full_name }}
-          </div>
-          <div class="text-body-2 mb-1">
-            {{ store.auth.user.email }}
-          </div>
+          <div class="text-subtitle-1 mb-1">{{ store.auth.user.full_name }}</div>
+          <div class="text-body-2 mb-1">{{ store.auth.user.email }}</div>
           <div class="text-caption">
             {{ store.auth.user.role.name }} | {{ store.auth.user.uiid }}
           </div>
@@ -66,10 +70,11 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { APP_NAME, URL_API, getHdrs, getRsp, getErr, getRules } from '@/general'
+import { useDisplay } from 'vuetify'
+import { APP_NAME, URL_API, getHdrs, getErr } from '@/general'
 import { useStore } from '@/store/index.js'
 import CardTitle from '@/components/CardTitle.vue'
 import BtnTheme from '@/components/BtnTheme.vue'
@@ -78,9 +83,15 @@ const router = useRouter()
 const store = useStore()
 const confirm = inject('confirm')
 const alert = inject('alert')
-
+const display = useDisplay()
+const isMobile = computed(() => display.smAndDown.value)
 const user_dlg = ref(false)
 const user_ldg = ref(false)
+const drawer = ref(!isMobile.value)
+console.log(display);
+
+
+
 const drawer_items = [
   {
     title: 'Inicio',
@@ -96,7 +107,6 @@ const drawer_items = [
 
 const logout = async () => {
   user_ldg.value = true
-
   try {
     await axios.get(URL_API + '/auth/logout', getHdrs(store.getAuth?.token))
     user_dlg.value = false
@@ -109,4 +119,9 @@ const logout = async () => {
     user_ldg.value = false
   }
 }
+
+watch(isMobile, (val) => {
+  drawer.value = !val
+})
 </script>
+
