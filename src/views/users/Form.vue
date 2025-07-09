@@ -106,46 +106,6 @@
             </v-card>
           </v-col>
           <v-col cols="12">
-            <v-card>
-              <v-card-title class="card_title_border">
-                <v-row dense>
-                  <v-col cols="10">
-                    <CardTitle text="CONTACTO" sub />
-                  </v-col>
-                  <v-col cols="2" class="text-right" />
-                </v-row>
-              </v-card-title>
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Teléfono fijo*"
-                      v-model="item.phone"
-                      dense
-                      outlined
-                      :rules="rules.phone"
-                      type="text"
-                      maxlength="10"
-                      counter
-                    />
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Teléfono móvil*"
-                      v-model="item.movil_phone"
-                      dense
-                      outlined
-                      :rules="rules.phone"
-                      type="text"
-                      maxlength="10"
-                      counter
-                    />
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12">
             <div class="text-right">
               <v-tooltip left>
                 <template v-slot:activator="{ props }">

@@ -9,13 +9,21 @@ import '@mdi/font/css/materialdesignicons.css'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import router from '@/router'
+import { useStore } from '@/store'
 
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+const app = createApp(App)
+app.use(pinia)
+
+const store = useStore()
+
 const vuetify = createVuetify({
   components,
   directives,
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: store.conf.theme_dark ? 'dark' : 'light',
   },
   locale: {
     locale: 'es',
@@ -24,13 +32,9 @@ const vuetify = createVuetify({
   },
 })
 
-const app = createApp(App)
-
 app.config.productionTip = false
 app.config.globalProperties.$window = window
 
 app.use(vuetify)
-app.use(pinia)
 app.use(router)
-pinia.use(piniaPluginPersistedstate)
 app.mount('#app')
