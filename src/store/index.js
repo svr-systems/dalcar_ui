@@ -28,6 +28,8 @@ export const useStore = defineStore('auth', {
   getters: {
     getAuth: (state) => state.auth,
     getConf: (state) => state.conf,
+    getUser: (state) => state.auth?.user || null,
+    isAdmin: (state) => state.auth?.user?.role_id === 1,
   },
 
   persist: true,

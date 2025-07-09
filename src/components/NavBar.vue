@@ -88,7 +88,6 @@ const isMobile = computed(() => display.smAndDown.value)
 const user_dlg = ref(false)
 const user_ldg = ref(false)
 const drawer = ref(!isMobile.value)
-console.log(display);
 
 
 

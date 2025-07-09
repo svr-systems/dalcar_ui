@@ -1,60 +1,170 @@
 <template>
-  <v-card elevation="24">
+  <v-card elevation="24" :disabled="ldg" :loading="ldg">
     <v-card-title>
-      <BtnBack :route="{ name: 'module/usuarios' }" />
-      <CardTitle text="Agregar Empleado" icon="mdi-account-plus" />
+      <v-row dense>
+        <v-col cols="10">
+          <BtnBack :route="{ name: 'users' }" />
+          <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
+        </v-col>
+        <v-col cols="2" class="text-right" />
+      </v-row>
     </v-card-title>
-
-    <v-card-text>
-      <v-form ref="form" v-model="valid" @submit.prevent="submit">
-        <v-row dense>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="item.name"
-              label="Nombre"
-              dense
-              :rules="[(v) => !!v || 'El nombre es requerido']"
-              required
-            />
+    <v-card-text v-if="item">
+      <v-form @submit.prevent ref="item_form" lazy-validation>
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title class="card_title_border">
+                <v-row dense>
+                  <v-col cols="10">
+                    <CardTitle :text="'GENERAL' + (store_mode ? '' : ' | ' + item.uiid)" sub />
+                  </v-col>
+                  <v-col cols="2" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Nombre"
+                      v-model="item.name"
+                      dense
+                      outlined
+                      type="text"
+                      :rules="rules.txt_rqd"
+                      maxlength="50"
+                      counter
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="A. paterno"
+                      v-model="item.surname_p"
+                      dense
+                      outlined
+                      type="text"
+                      :rules="rules.txt_rqd"
+                      maxlength="25"
+                      counter
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="A. materno*"
+                      v-model="item.surname_m"
+                      dense
+                      outlined
+                      type="text"
+                      :rules="rules.txt"
+                      maxlength="25"
+                      counter
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
           </v-col>
-
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="item.surname_p"
-              label="Apellido Paterno"
-              dense
-              :rules="[(v) => !!v || 'El apellido paterno es requerido']"
-              required
-            />
+          <v-col cols="12">
+            <v-card>
+              <v-card-title class="card_title_border">
+                <v-row dense>
+                  <v-col cols="10">
+                    <CardTitle text="CUENTA" sub />
+                  </v-col>
+                  <v-col cols="2" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="E-mail"
+                      v-model="item.email"
+                      dense
+                      outlined
+                      type="text"
+                      :rules="rules.email_rqd"
+                      maxlength="65"
+                      counter
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-select
+                      label="Rol"
+                      v-model="item.role_id"
+                      dense
+                      outlined
+                      :rules="rules.rqd"
+                      :items="roles"
+                      item-title="name"
+                      item-value="id"
+                      :loading="roles_ldg"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
           </v-col>
-
-          <v-col cols="12" md="4">
-            <v-text-field v-model="item.surname_m" label="Apellido Materno" dense />
+          <v-col cols="12">
+            <v-card>
+              <v-card-title class="card_title_border">
+                <v-row dense>
+                  <v-col cols="10">
+                    <CardTitle text="CONTACTO" sub />
+                  </v-col>
+                  <v-col cols="2" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Teléfono fijo*"
+                      v-model="item.phone"
+                      dense
+                      outlined
+                      :rules="rules.phone"
+                      type="text"
+                      maxlength="10"
+                      counter
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Teléfono móvil*"
+                      v-model="item.movil_phone"
+                      dense
+                      outlined
+                      :rules="rules.phone"
+                      type="text"
+                      maxlength="10"
+                      counter
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
           </v-col>
-
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="item.email"
-              label="Email"
-              dense
-              :rules="[
-                (v) => !!v || 'El email es requerido',
-                (v) => /.+@.+\..+/.test(v) || 'Ingresa un email válido',
-              ]"
-              required
-            />
+          <v-col cols="12">
+            <div class="text-right">
+              <v-tooltip left>
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    fab
+                    icon
+                    size="x-small"
+                    :color="store_mode ? 'success' : 'warning'"
+                    @click.prevent="handleAction"
+                    :loading="ldg"
+                  >
+                    <v-icon> mdi-check</v-icon>
+                  </v-btn>
+                </template>
+                Confirmar
+              </v-tooltip>
+            </div>
           </v-col>
-
-          <v-col cols="12" md="6">
-            <v-text-field v-model="item.phone" label="Teléfono" dense />
-          </v-col>
-        </v-row>
-
-        <v-row justify="end" class="my-1 pr-4">
-          <v-btn color="success" icon size="x-small" type="submit" :loading="ldg" :disabled="ldg">
-            <v-icon>mdi-check</v-icon>
-            <v-tooltip activator="parent" location="start"> Confirmar </v-tooltip>
-          </v-btn>
         </v-row>
       </v-form>
     </v-card-text>
@@ -62,31 +172,101 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useEmployeeStore } from '@/store/index.js'
-import { useRouter } from 'vue-router'
-import CardTitle from '@/components/CardTitle.vue'
+import { ref, onMounted, inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { URL_API, getHdrs, getRsp, getErr, getRules, getObj, getFormData } from '@/general'
+import { getUserObj, getUserModuleObj } from '@/objects'
+import { useStore } from "@/store/index.js";
+import axios from 'axios'
 import BtnBack from '@/components/BtnBack.vue'
+import CardTitle from '@/components/CardTitle.vue'
 
-const employees = useEmployeeStore()
+const route = useRoute()
 const router = useRouter()
-const ldg = ref(false)
-const valid = ref(false)
+const alert = inject('alert')
+const confirm = inject('confirm')
+const store = useStore()
 
-const item = ref({
-  name: '',
-  surname_p: '',
-  surname_m: '',
-  email: '',
-  phone: '',
-})
+const routeName = 'users'
+const id = ref(route.params.id ? atob(route.params.id) : null)
+const ldg = ref(true)
+const store_mode = ref(true)
+const item = ref(null)
+const rules = getRules()
+const roles = ref([])
+const roles_ldg = ref(true)
 
-function submit() {
-  if (!valid.value) return
-
-  ldg.value = true
-  employees.addEmployee(item.value)
-  ldg.value = false
-  router.push({ name: 'module/usuarios' })
+const getCatalogs = async () => {
+  try {
+    const rolesResponse = await axios.get(URL_API + '/system/roles', getHdrs(store.getAuth?.token))
+    roles.value = getRsp(rolesResponse).data.items
+    roles_ldg.value = false
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  }
 }
+
+const getItem = async () => {
+  store_mode.value = id.value == null
+
+  if (store_mode.value) {
+    item.value = getUserObj()
+    item.value.user_module = getUserModuleObj()
+    ldg.value = false
+  } else {
+    try {
+      const response = await axios.get(
+        URL_API + '/system/' + routeName + '/' + id.value,
+        getHdrs(store.getAuth?.token)
+      )
+      item.value = getRsp(response).data.item
+      ldg.value = false
+    } catch (err) {
+      alert?.show('error', getErr(err))
+    }
+  }
+}
+
+const handleAction = async () => {
+  if (item_form.value.validate()) {
+    const confirmed = await confirm?.show(
+      '¿Confirma ' + (store_mode.value ? 'agregar' : 'editar') + ' registro?'
+    )
+
+    if (confirmed) {
+      ldg.value = true
+      const obj = getObj(item.value, store_mode.value)
+
+      try {
+        const response = await axios.post(
+          URL_API + '/system/' + routeName + (store_mode.value ? '' : '/' + obj.id),
+          getFormData(obj),
+          getHdrs(store.getAuth?.token, true)
+        )
+        const rsp = getRsp(response)
+        alert?.show('success', rsp.msg)
+
+        router.push({
+          name: routeName + '/show',
+          params: {
+            id: btoa(store_mode.value ? rsp.data.item.id : id.value),
+          },
+        })
+      } catch (err) {
+        alert?.show('error', getErr(err))
+      } finally {
+        ldg.value = false
+      }
+    }
+  } else {
+    alert?.show('error', 'Revisa los detalles señalados')
+  }
+}
+
+const item_form = ref(null)
+
+onMounted(() => {
+  getCatalogs()
+  getItem()
+})
 </script>

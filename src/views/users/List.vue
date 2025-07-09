@@ -1,111 +1,215 @@
 <template>
-  <v-card>
-    <v-card-title class="d-flex justify-space-between">
-      <CardTitle text="Empleados" icon="mdi-account-group" />
-      <v-btn color="success" size="x-small" @click.prevent="Add" icon>
-        <v-icon>mdi-plus</v-icon>
-        <v-tooltip activator="parent" location="start"> Agregar empleado </v-tooltip>
-      </v-btn>
-    </v-card-title>
-
-    <v-card-text>
-      <v-row dense class="mb-2">
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="search"
-            label="Buscar empleado..."
-            clearable
-            dense
-            prepend-inner-icon="mdi-magnify"
-          />
+  <v-card elevation="24" :disabled="ldg">
+    <v-card-title>
+      <v-row dense>
+        <v-col cols="10">
+          <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
-        <v-col cols="12" md="6">
-          <v-select
-            v-model="filterStatus"
-            :items="filterOptions"
-            label="Filtrar por estado"
-            dense
-            clearable
-          />
+        <v-col cols="2" class="text-right">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                fab
+                icon
+                size="x-small"
+                color="success"
+                :to="{ name: routeName + '/store' }"
+              >
+                <v-icon> mdi-plus </v-icon>
+              </v-btn>
+            </template>
+            <span>Agregar</span>
+          </v-tooltip>
         </v-col>
       </v-row>
-
-      <v-data-table :headers="headers" :items="filteredEmployees" dense class="elevation-1">
-        <template #item.active="{ item }">
-          <v-icon :color="item.active ? 'success' : 'error'">
-            {{ item.active ? 'mdi-check' : 'mdi-close' }}
-          </v-icon>
-        </template>
-
-        <template #item.action="{ item }">
-          <v-btn
-            variant="text"
-            color="warning"
-            icon
-            size="x-small"
-            :to="{ name: 'users-view', params: { id: item.id } }"
+    </v-card-title>
+    <v-card-text>
+      <v-row dense>
+        <v-col cols="12" md="9" class="pb-0">
+          <v-row dense>
+            <v-col v-if="store.getAuth?.user?.role_id == 1" cols="12" md="3" class="pb-0">
+              <v-select
+                label="Mostrar"
+                v-model="active"
+                dense
+                :items="active_opts"
+                item-title="name"
+                item-value="id"
+                :disabled="items.length > 0"
+              />
+            </v-col>
+            <v-col cols="12" md="3" class="pb-0">
+              <v-select
+                label="Filtro"
+                v-model="filter"
+                dense
+                :items="filter_opts"
+                item-title="name"
+                item-value="id"
+                :disabled="items.length > 0"
+              />
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="12" md="3" class="pb-0">
+          <v-text-field
+            label="Buscar"
+            v-model="items_srch"
+            dense
+            type="text"
+            :disabled="items.length == 0"
           >
-            <v-icon>mdi-eye</v-icon>
-            <v-tooltip activator="parent" location="start"> Detalles </v-tooltip>
+            <template v-slot:append>
+              <v-icon small> mdi-magnify </v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-btn
+            v-if="items.length == 0"
+            block
+            color="info"
+            x-small
+            :loading="ldg"
+            @click.prevent="getItems"
+          >
+            Aplicar parámetros
+            <v-icon x-small right> mdi-database-search-outline </v-icon>
           </v-btn>
-        </template>
-      </v-data-table>
+          <v-btn v-else block x-small @click.prevent="items = []">
+            Cambiar parámetros
+            <v-icon x-small right> mdi-database-refresh-outline </v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row dense>
+        <v-col cols="12">
+          <v-data-table
+            :items="items"
+            :search="items_srch"
+            :headers="items_hdrs"
+            :loading="ldg"
+            :items-per-page="15"
+            density="compact"
+          >
+            <template v-slot:item.key="{ item }">
+              <b>{{ item.key + 1 }}</b>
+            </template>
+            <template v-slot:item.action="{ item }">
+              <div class="text-right">
+                <v-tooltip left>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      icon
+                      size="x-small"
+                      :color="item.active ? '' : 'error'"
+                      :to="{
+                        name: routeName + '/show',
+                        params: { id: encodeId(item.id) },
+                      }"
+                    >
+                      <v-icon> mdi-eye </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Detalle</span>
+                </v-tooltip>
+              </div>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup>
-import { useEmployeeStore } from '@/store/index.js'
+import { ref, onMounted, inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useStore } from "@/store/index.js";
+import { URL_API, getHdrs, getRsp, getErr } from '@/general'
+import axios from 'axios'
 import CardTitle from '@/components/CardTitle.vue'
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import VisVal from '@/components/VisVal.vue'
 
-const employees = useEmployeeStore()
+const route = useRoute()
 const router = useRouter()
+const store = useStore()
+const alert = inject('alert')
 
-const headers = ref([
-  { title: '#', value: 'id' },
-  { title: 'Nombre', value: 'name' },
-  { title: 'Apellido Paterno', value: 'surname_p' },
-  { title: 'Email', value: 'email' },
-  { title: 'Activo', value: 'active' },
-  { title: 'Acciones', value: 'action', sortable: false },
-])
+const routeName = 'users'
+const ldg = ref(false)
+const items = ref([])
+const items_srch = ref('')
+const items_hdrs = ref([])
+const active = ref(1)
+const active_opts = ref([])
+const filter = ref(0)
+const filter_opts = ref([])
 
-const search = ref('')
-const filterStatus = ref('active')
-const filterOptions = [
-  { title: 'Todos', value: 'all' },
-  { title: 'Activos', value: 'active' },
-  { title: 'Inactivos', value: 'inactive' },
-]
+const encodeId = (id) => window.btoa(id);
 
-const filteredEmployees = computed(() => {
-  let list = employees.employees
+const getItems = async () => {
+  ldg.value = true
+  items.value = []
 
-  if (filterStatus.value === 'active') {
-    list = list.filter((e) => e.active)
-  } else if (filterStatus.value === 'inactive') {
-    list = list.filter((e) => !e.active)
-  }
-
-  if (search.value) {
-    const term = search.value.toLowerCase()
-    list = list.filter(
-      (e) =>
-        e.name.toLowerCase().includes(term) ||
-        e.surname_p.toLowerCase().includes(term) ||
-        e.surname_m?.toLowerCase().includes(term) ||
-        e.email.toLowerCase().includes(term) ||
-        e.phone?.toLowerCase().includes(term) ||
-        String(e.id).includes(term)
+  try {
+    const response = await axios.get(
+      `${URL_API}/system/${routeName}?active=${active.value}&filter=${filter.value}`,
+      getHdrs(store.getAuth?.token)
     )
+    const rsp = getRsp(response)
+    items.value = rsp.data.items
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    ldg.value = false
   }
-
-  return list
-})
-
-const Add = () => {
-  router.push({ name: 'module/usuarios/agregar' })
 }
+
+onMounted(() => {
+  active_opts.value = [
+    { id: 1, name: 'ACTIVOS' },
+    { id: 0, name: 'INACTIVOS' },
+  ]
+
+  filter_opts.value = [{ id: 0, name: 'TODOS' }]
+
+  items_hdrs.value = [
+    {
+      title: '#',
+      key: "key",
+      filterable: false,
+      sortable: false,
+      width: '60',
+    },
+    {
+      title: 'Nombre',
+      key: 'full_name',
+    },
+    {
+      title: 'E-mail',
+      key: 'email',
+    },
+    {
+      title: 'Rol',
+      key: 'role.name',
+    },
+    {
+      title: 'ID',
+      key: 'uiid',
+    },
+    {
+      key: 'action',
+      title: '',
+      filterable: false,
+      sortable: false,
+      width: '60',
+    },
+  ]
+
+  getItems()
+})
 </script>
