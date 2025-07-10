@@ -102,6 +102,11 @@ const drawer_items = [
     icon: 'mdi-account',
     link: 'users',
   },
+    {
+    title: 'Especialidades',
+    icon: 'mdi-medication',
+    link: 'specialties',
+  },
 ]
 
 const logout = async () => {

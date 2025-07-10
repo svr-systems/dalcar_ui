@@ -59,7 +59,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject } from 'vue'
+import { ref, inject, onBeforeUnmount, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -104,4 +104,18 @@ const handleAction = async () => {
     isLoading.value = false
   }
 }
+
+const onKeyDown = (e) => {
+  if (e.key === 'Enter') {
+    handleAction()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeyDown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeyDown)
+})
 </script>

@@ -46,6 +46,49 @@ const routes = [
       middleware: Auth,
     },
   },
+  //SPECIALTIES
+  {
+    path: '/especialidades',
+    name: 'specialties',
+    component: () => import('@/views/specialties/List.vue'),
+    meta: {
+      title: 'Usuarios',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/especialidades/agregar',
+    name: 'specialties/store',
+    component: () => import('@/views/specialties/Form.vue'),
+    meta: {
+      title: 'Usuario | Agregar',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/especialidades/:id',
+    name: 'specialties/show',
+    component: () => import('@/views/specialties/Show.vue'),
+    props: true,
+    meta: {
+      title: 'Usuario',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/especialidades/:id/editar',
+    name: 'specialties/update',
+    component: () => import('@/views/specialties/Form.vue'),
+    props: true,
+    meta: {
+      title: 'Usuario | Editar',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
   //GENERAL
   {
     path: '/inicio',
