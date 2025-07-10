@@ -18,7 +18,7 @@
         </v-tooltip>
         <v-tooltip location="right">
           <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" size="x-small" icon @click.prevent="docDwd">
+            <v-btn v-bind="activatorProps" variant="text" size="x-small" icon @click.prevent="docDwd">
               <v-icon size="small">mdi-download</v-icon>
             </v-btn>
           </template>
@@ -45,11 +45,11 @@
                   <v-btn
                     v-bind="activatorProps"
                     icon
+                    variant="text"
                     size="small"
-                    color="primary"
                     @click.prevent="img_dlg = false"
                   >
-                    <v-icon size="small">mdi-close</v-icon>
+                    <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </template>
                 <span>Cerrar</span>

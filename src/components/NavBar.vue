@@ -89,8 +89,6 @@ const user_dlg = ref(false)
 const user_ldg = ref(false)
 const drawer = ref(!isMobile.value)
 
-
-
 const drawer_items = [
   {
     title: 'Inicio',
@@ -102,10 +100,15 @@ const drawer_items = [
     icon: 'mdi-account',
     link: 'users',
   },
-    {
+  {
     title: 'Especialidades',
     icon: 'mdi-medication',
     link: 'specialties',
+  },
+  {
+    title: 'Hospitales',
+    icon: 'mdi-hospital-building',
+    link: 'hospitals',
   },
 ]
 

@@ -89,6 +89,49 @@ const routes = [
       middleware: Auth,
     },
   },
+  //HOSPITALS
+  {
+    path: '/hospitales',
+    name: 'hospitals',
+    component: () => import('@/views/hospitals/List.vue'),
+    meta: {
+      title: 'Usuarios',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/hospitales/agregar',
+    name: 'hospitals/store',
+    component: () => import('@/views/hospitals/Form.vue'),
+    meta: {
+      title: 'Usuario | Agregar',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/hospitales/:id',
+    name: 'hospitals/show',
+    component: () => import('@/views/hospitals/Show.vue'),
+    props: true,
+    meta: {
+      title: 'Usuario',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
+  {
+    path: '/hospitales/:id/editar',
+    name: 'hospitals/update',
+    component: () => import('@/views/hospitals/Form.vue'),
+    props: true,
+    meta: {
+      title: 'Usuario | Editar',
+      icon: 'mdi-account',
+      middleware: Auth,
+    },
+  },
   //GENERAL
   {
     path: '/inicio',
