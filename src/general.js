@@ -1,5 +1,5 @@
 export const APP_NAME = 'Frontend-Template'
-export const APP_VERSION = '1.25.0708'
+export const APP_VERSION = '1.25.0710'
 
 // URL base de la API
 const URL = 'https://solmetec.mx/app'
@@ -31,6 +31,16 @@ export const getRsp = (rsp) => {
   return rsp.data
 }
 
+// Devuelve un id en b64
+export const getEncodeId = (id) => {
+  return window.btoa(id)
+}
+
+// Devuelve un id en b64
+export const getDecodeId = (id) => {
+  return window.atob(id)
+}
+
 // Captura y muestra en consola los errores devueltos por la API.
 export const getErr = (obj) => {
   const err = {
@@ -41,6 +51,11 @@ export const getErr = (obj) => {
   console.log(err.err)
 
   return err.msg
+}
+
+// Devuelve el año actual
+export const getCurrentYear = () => {
+  return new Date().getFullYear()
 }
 
 // Genera fechas con hora utilizando diferentes separadores de ser requerido (ej. "2025-06-13 08:24:05")

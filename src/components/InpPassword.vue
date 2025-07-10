@@ -1,39 +1,47 @@
 <template>
   <v-text-field
     :label="label"
-    v-model="val"
+    @update:model-value="emitValue"
+    :model-value="modelValue"
+    :type="isVisible ? 'text' : 'password'"
     variant="outlined"
-    :type="visible ? 'text' : 'password'"
+    density="compact"
+    prepend-inner-icon="mdi-lock"
+    :append-inner-icon="isVisible ? 'mdi-eye-off' : 'mdi-eye'"
     maxlength="50"
     :rules="rules"
     :counter="counter"
     :disabled="disabled"
-    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-    @click:append-inner="visible = !visible"
+    @click:append-inner="toggleVisibility"
+    autocomplete="current-password"
+    hide-details="auto"
   />
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+// Importaciones
+import { ref } from 'vue'
 
+// Definición de props y eventos
 const props = defineProps({
+  modelValue: String,
   label: String,
-  model: String,
   rules: Array,
   counter: Boolean,
   disabled: Boolean,
 })
 
-const visible = ref(false)
+const emit = defineEmits(['update:modelValue'])
 
-const emit = defineEmits(['update:model'])
+// Estado interno
+const isVisible = ref(false)
 
-const val = computed({
-  get() {
-    return props.model
-  },
-  set(value) {
-    emit('update:model', value)
-  },
-})
+// Funciones
+const toggleVisibility = () => {
+  isVisible.value = !isVisible.value
+}
+
+const emitValue = (val) => {
+  emit('update:modelValue', val)
+}
 </script>

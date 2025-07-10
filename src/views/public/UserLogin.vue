@@ -1,46 +1,50 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" md="4" class="mt-11">
-      <v-card elevation="24" class="py-4 px-4" :loading="ldg" :disabled="ldg">
+      <v-card elevation="24" class="py-4 px-4" :loading="isLoading" :disabled="isLoading">
         <v-card-text class="text-center">
           <v-row>
             <v-col cols="12" class="pb-6">
-              <img :src="logo" width="70%" alt="Logo" />
+              <img :src="logo" width="60%" alt="Logo" />
             </v-col>
             <v-col cols="12">
-              <v-form @submit.prevent="handleAction" ref="itemForm">
+              <v-form ref="formRef" @submit.prevent="handleAction">
                 <v-row dense>
                   <v-col cols="12">
                     <v-text-field
                       label="E-mail"
                       v-model="item.email"
+                      type="email"
                       variant="outlined"
-                      type="text"
                       density="compact"
+                      prepend-inner-icon="mdi-email-outline"
                       maxlength="50"
                       :rules="rules.email_rqd"
+                      autocomplete="email"
+                      hide-details="auto"
                     />
                   </v-col>
                   <v-col cols="12">
                     <InpPassword
                       label="Contraseña"
-                      :model-value="item.password"
-                      @update:model-value="(val) => (item.password = val)"
-                      density="compact"
+                      v-model="item.password"
                       :rules="rules.rqd"
+                      autocomplete="current-password"
                     />
                   </v-col>
                   <v-col cols="12">
-                    <v-btn block size="small" color="success" type="submit">
+                    <v-btn block size="x-small" color="success" type="submit" :loading="isLoading">
                       Iniciar sesión
                     </v-btn>
                   </v-col>
+
                   <v-col cols="12" class="mt-4">
                     <v-btn variant="text" size="x-small">¿Olvidaste tu contraseña?</v-btn>
                   </v-col>
+
                   <v-col cols="12" class="pt-11">
                     <span class="text-caption font-weight-thin text-medium-emphasis">
-                      Desarrollado por SVR © {{ new Date().getFullYear() }}
+                      Desarrollado por SVR © {{ getCurrentYear() }}
                     </span>
                   </v-col>
                 </v-row>
@@ -54,43 +58,50 @@
 </template>
 
 <script setup>
+// Importaciones de librerías externas
 import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { URL_API, getHdrs, getRsp, getErr, getRules } from '@/general'
-import { useStore } from '@/store/index.js'
-import logo from '@/assets/logo.png'
+
+// Importaciones internas del proyecto
+import { useStore } from '@/store'
+import { URL_API, getHdrs, getErr, getRsp, getRules, getCurrentYear } from '@/general'
+
+// Componentes
 import InpPassword from '@/components/InpPassword.vue'
+import logo from '@/assets/logo.png'
 
-const router = useRouter()
-const store = useStore()
+// Estado y referencias
 const alert = inject('alert')
+const store = useStore()
+const router = useRouter()
 
-const rules = getRules()
-
-const itemForm = ref(null)
-const ldg = ref(false)
+// Estado reactivo
+const isLoading = ref(false)
+const formRef = ref(null)
 const item = ref({
   email: '',
   password: '',
 })
+const rules = getRules()
 
+// Función de envío del formulario de login
 const handleAction = async () => {
-  const { valid } = await itemForm.value.validate()
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
-  if (valid) {
-    ldg.value = true
+  isLoading.value = true
 
-    try {
-      const rsp = getRsp(await axios.post(URL_API + '/auth/login', item.value, getHdrs()))
+  try {
+    const endpoint = `${URL_API}/auth/login`
+    const response = await axios.post(endpoint, item.value, getHdrs())
 
-      store.loginAction(rsp.data.auth)
-      router.push({ name: 'home' })
-    } catch (err) {
-      alert?.show('error', getErr(err))
-    } finally {
-      ldg.value = false
-    }
+    await store.loginAction(getRsp(response).data.auth)
+    await router.push({ name: 'home' })
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

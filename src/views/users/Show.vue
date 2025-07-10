@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="ldg">
+  <v-card :loading="isLoading">
     <v-card-title>
       <v-row dense>
         <v-col cols="10">
@@ -7,61 +7,65 @@
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
         <v-col v-if="item" cols="2" class="text-right">
-          <v-tooltip v-if="item.active" bottom>
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                fab
-                icon
-                size="x-small"
-                color="warning"
-                :to="{
-                  name: routeName + '/update',
-                  params: { id: encodeId(item.id) },
-                }"
-              >
-                <v-icon> mdi-pencil </v-icon>
-              </v-btn>
-            </template>
-            <span>Editar</span>
-          </v-tooltip>
+          <v-btn
+            v-if="item.active"
+            icon
+            variant="flat"
+            size="x-small"
+            color="warning"
+            :to="{ name: `${routeName}/update`, params: { id: getEncodeId(itemId) } }"
+          >
+            <v-icon>mdi-pencil</v-icon>
+            <v-tooltip activator="parent" location="right">Editar</v-tooltip>
+          </v-btn>
         </v-col>
       </v-row>
     </v-card-title>
+
     <v-card-text v-if="item">
       <v-row>
         <v-col v-if="!item.active" cols="12">
-          <v-alert dense outlined text shaped type="error">
+          <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
-              <v-col class="grow"> El registro se encuentra inactivo </v-col>
-              <v-col v-if="store.getAuth?.user?.role_id == 1" class="shrink">
-                <v-btn size="x-small" icon color="success" @click="restoreItem">
-                  Activar
-                  <v-icon> mdi-delete-restore </v-icon>
+              <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
+              <v-col v-if="store.getAuth?.user?.role_id === 1" class="shrink text-right">
+                <v-btn
+                  icon
+                  variant="flat"
+                  size="x-small"
+                  color="success"
+                  @click.prevent="restoreItem"
+                >
+                  <v-icon>mdi-delete-restore</v-icon>
+                  <v-tooltip activator="parent" location="left">Reactivar</v-tooltip>
                 </v-btn>
               </v-col>
             </v-row>
           </v-alert>
         </v-col>
+
         <v-col cols="12">
           <v-card>
-            <v-card-title class="card_title_border">
+            <v-card-title>
               <v-row dense>
-                <v-col cols="10">
+                <v-col cols="11">
                   <CardTitle :text="'GENERAL | ' + item.uiid" sub />
                 </v-col>
-                <v-col cols="2" class="text-right">
-                  <v-tooltip v-if="store.getAuth?.user?.role_id == 1" bottom>
-                    <template v-slot:activator="{ props }">
-                      <v-btn v-bind="props" icon size="x-small" @click.prevent="reg_dlg = true">
-                        <v-icon> mdi-database-clock </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Registro</span>
-                  </v-tooltip>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="store.getAuth?.user?.role_id === 1"
+                    icon
+                    variant="flat"
+                    size="x-small"
+                    @click.prevent="regDialog = true"
+                  >
+                    <v-icon>mdi-database-clock</v-icon>
+                    <v-tooltip activator="parent" location="left">Registro</v-tooltip>
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-card-title>
+
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="3">
@@ -77,14 +81,15 @@
             </v-card-text>
           </v-card>
         </v-col>
+
         <v-col cols="12">
           <v-card>
-            <v-card-title class="card_title_border">
+            <v-card-title>
               <v-row dense>
-                <v-col cols="10">
+                <v-col cols="11">
                   <CardTitle text="CUENTA" sub />
                 </v-col>
-                <v-col cols="2" class="text-right" />
+                <v-col cols="1" class="text-right" />
               </v-row>
             </v-card-title>
             <v-card-text>
@@ -99,116 +104,105 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12"> </v-col>
-        <v-col
-          v-if="
-            item.active && (store.getAuth?.user?.role_id == 1 || store.getAuth?.user?.role_id == 2)
-          "
-          cols="12"
-        >
-          <v-tooltip right>
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                fab
-                icon
-                size="x-small"
-                color="error"
-                @click.prevent="deleteItem"
-              >
-                <v-icon> mdi-delete </v-icon>
-              </v-btn>
-            </template>
-            <span>Inactivar</span>
-          </v-tooltip>
+
+        <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
+          <v-btn icon variant="flat" size="x-small" color="error" @click.prevent="deleteItem">
+            <v-icon>mdi-delete</v-icon>
+            <v-tooltip activator="parent" location="right">Inactivar</v-tooltip>
+          </v-btn>
         </v-col>
       </v-row>
     </v-card-text>
-    <DlgReg v-model="reg_dlg" :item="item" />
+
+    <DlgReg v-model="regDialog" :item="item" />
   </v-card>
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useStore } from '@/store/index.js'
-import { URL_API, getHdrs, getRsp, getErr } from '@/general'
+// Importaciones de librerías externas
+import { ref, inject, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+
+// Importaciones internas del proyecto
+import { useStore } from '@/store'
+import { URL_API, getHdrs, getErr, getRsp, getDecodeId, getEncodeId } from '@/general'
+
+// Componentes
 import BtnBack from '@/components/BtnBack.vue'
 import CardTitle from '@/components/CardTitle.vue'
+import DlgReg from '@/components/DlgReg.vue'
 import VisVal from '@/components/VisVal.vue'
-import DlgReg from "@/components/DlgReg.vue";
 
-const route = useRoute()
-const router = useRouter()
-const store = useStore()
+// Constantes fijas
+const routeName = 'users'
+
+// Estado y referencias
 const alert = inject('alert')
 const confirm = inject('confirm')
+const store = useStore()
+const router = useRouter()
+const route = useRoute()
 
-const id = ref(window.atob(route.params.id))
-const ldg = ref(true)
+// Estado reactivo
+const itemId = ref(getDecodeId(route.params.id))
+const isLoading = ref(true)
 const item = ref(null)
-const reg_dlg = ref(false)
-const routeName = 'users'
-const encodeId = (id) => window.btoa(id)
+const regDialog = ref(false)
 
+// Obtener registro
 const getItem = async () => {
-  ldg.value = true
+  isLoading.value = true
   try {
-    const response = await axios.get(
-      `${URL_API}/system/${routeName}/${id.value}`,
-      getHdrs(store.getAuth?.token)
-    )
-    const rsp = getRsp(response)
-    item.value = rsp.data.item
+    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+    item.value = getRsp(response).data.item
   } catch (err) {
     alert?.show('error', getErr(err))
   } finally {
-    ldg.value = false
+    isLoading.value = false
   }
 }
 
+// Inactivar
 const deleteItem = async () => {
-  const confirmed = await confirm?.show('¿Confirma eliminar el registro?')
-  if (confirmed) {
-    ldg.value = true
-    try {
-      const response = await axios.delete(
-        `${URL_API}/system/${routeName}/${id.value}`,
-        getHdrs(store.getAuth?.token)
-      )
-      const rsp = getRsp(response)
-      alert?.show('error', rsp.msg)
-      router.push({ name: routeName })
-    } catch (err) {
-      alert?.show('error', getErr(err))
-    } finally {
-      ldg.value = false
-    }
+  const confirmed = await confirm?.show('¿Confirma inactivar el registro?')
+  if (!confirmed) return
+
+  isLoading.value = true
+  try {
+    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
+    const response = getRsp(await axios.delete(endpoint, getHdrs(store.getAuth?.token)))
+    alert?.show('error', response.msg)
+    router.push({ name: routeName })
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    isLoading.value = false
   }
 }
 
+// Reactivar
 const restoreItem = async () => {
   const confirmed = await confirm?.show('¿Confirma activar el registro?')
-  if (confirmed) {
-    ldg.value = true
-    try {
-      const response = await axios.post(
-        `${URL_API}/system/${routeName}/restore`,
-        { id: id.value },
-        getHdrs(store.getAuth?.token)
-      )
-      const rsp = getRsp(response)
-      alert?.show('success', rsp.msg)
-      item.value = rsp.data.item
-    } catch (err) {
-      alert?.show('error', getErr(err))
-    } finally {
-      ldg.value = false
-    }
+  if (!confirmed) return
+
+  isLoading.value = true
+  try {
+    const endpoint = `${URL_API}/system/${routeName}/restore`
+    const response = getRsp(
+      await axios.post(endpoint, { id: itemId.value }, getHdrs(store.getAuth?.token))
+    )
+    item.value = response.data.item
+    alert?.show('success', response.msg)
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    isLoading.value = false
   }
 }
 
+// Inicializar
 onMounted(() => {
   getItem()
 })

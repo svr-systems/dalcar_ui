@@ -12,13 +12,5 @@ export const getUserObj = () => {
     role_id: null,
     phone: null,
     movil_phone: null,
-  };
-};
-
-export const getUserModuleObj = () => {
-  return {
-    id: null,
-    active: true,
-    hospital_id: null,
-  };
-};
+  }
+}

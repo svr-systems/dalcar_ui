@@ -33,7 +33,6 @@ const vuetify = createVuetify({
 })
 
 app.config.productionTip = false
-app.config.globalProperties.$window = window
 
 app.use(vuetify)
 app.use(router)
