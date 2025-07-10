@@ -8,7 +8,7 @@
               <img :src="logo" width="70%" alt="Logo" />
             </v-col>
             <v-col cols="12">
-              <v-form @submit.prevent ref="itemForm">
+              <v-form @submit.prevent="handleAction" ref="itemForm">
                 <v-row dense>
                   <v-col cols="12">
                     <v-text-field
@@ -31,7 +31,7 @@
                     />
                   </v-col>
                   <v-col cols="12">
-                    <v-btn block size="small" color="success" @click.prevent="handleAction">
+                    <v-btn block size="small" color="success" type="submit">
                       Iniciar sesión
                     </v-btn>
                   </v-col>
