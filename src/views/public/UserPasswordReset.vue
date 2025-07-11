@@ -134,18 +134,16 @@ const handleAction = async () => {
       )
       success.value = true
 
-      if (item.value.role_id != 1) {
-        setTimeout(async () => {
-          try {
-            const loginResponse = await axios.post(`${URL_API}/auth/login`, obj, getHdrs())
-            const loginRsp = getRsp(loginResponse)
-            store.dispatch('loginAction', loginRsp.data.auth)
-            router.push({ name: 'home' })
-          } catch (err) {
-            alert?.show('error', getErr(err))
-          }
-        }, 5000)
-      }
+      setTimeout(async () => {
+        try {
+          const loginResponse = await axios.post(`${URL_API}/auth/login`, obj, getHdrs())
+          const loginRsp = getRsp(loginResponse)
+          store.loginAction(loginRsp.data.auth)
+          router.push({ name: 'home' })
+        } catch (err) {
+          alert?.show('error', getErr(err))
+        }
+      }, 5000)
     } catch (err) {
       alert?.show('error', getErr(err))
     } finally {

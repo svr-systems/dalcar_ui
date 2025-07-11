@@ -1,29 +1,82 @@
 <template>
-  <v-row justify="center" class="mt-12">
-    <v-col cols="12" md="6">
-      <v-card elevation="12" class="pa-6 text-center" :loading="loading" :disabled="loading">
-        <v-card-text>
-          <v-icon size="64" color="success" v-if="success">mdi-check-circle</v-icon>
-          <v-icon size="64" color="error" v-else-if="error">mdi-close-circle</v-icon>
-          <v-icon size="64" color="info" v-else>mdi-email-check-outline</v-icon>
-
-          <h2 class="my-4">
-            {{
-              success
-                ? 'Cuenta confirmada exitosamente'
-                : error
-                ? 'Error al confirmar tu cuenta'
-                : 'Confirmando tu cuenta...'
-            }}
-          </h2>
-
-          <v-btn v-if="success" color="success" @click="router.push({ name: 'login' })">
-            Ir a iniciar sesión
-          </v-btn>
-
-          <v-btn v-if="error" color="error" @click="router.push({ name: 'main' })">
-            Regresar al inicio
-          </v-btn>
+  <v-row dense justify="center">
+    <v-col cols="12" md="4" class="mt-11">
+      <v-card elevation="24" :disabled="ldg" :loading="ldg">
+        <v-card-text class="text-center">
+          <v-row>
+            <Company />
+            <v-col cols="12">
+              <h2 class="font-weight-light">
+                {{ !success ? 'Confirmar cuenta' : 'Cuenta confirmada' }}
+              </h2>
+            </v-col>
+            <v-col v-if="!item" cols="12">
+              <p v-if="ldg">Validando información</p>
+              <div v-else>
+                <p>
+                  <v-icon size="x-large">mdi-alert-circle</v-icon>
+                </p>
+                <p>La cuenta ya está confirmada y/o la acción no es procesable</p>
+              </div>
+            </v-col>
+            <v-col v-else cols="12">
+              <v-row>
+                <v-col cols="12">
+                  <v-row>
+                    <v-col v-if="!success" cols="12">
+                      <v-form v-if="item" ref="itemForm">
+                        <v-row dense>
+                          <v-col cols="12">
+                            <b>E-mail</b>
+                            <br />
+                            {{ item.email }}
+                          </v-col>
+                          <v-col cols="12">
+                            <InpPassword
+                              label="Contraseña"
+                              v-model="item.password"
+                              :rules="rules.password_rqd"
+                              no-prepend-icon
+                            />
+                          </v-col>
+                          <v-col cols="12">
+                            <div class="text-right">
+                              <v-btn
+                                block
+                                size="small"
+                                color="success"
+                                @click.prevent="handleAction"
+                                :loading="ldg"
+                              >
+                                Confirmar Cuenta y contraseña
+                                <template v-slot:append>
+                                  <v-icon size="small">mdi-account-check</v-icon>
+                                </template>
+                              </v-btn>
+                            </div>
+                          </v-col>
+                        </v-row>
+                      </v-form>
+                    </v-col>
+                    <v-col v-else cols="12">
+                      <p>
+                        <v-icon size="x-large">mdi-check-circle</v-icon>
+                      </p>
+                      <p v-if="item.role_id != 3">
+                        <small> Serás redireccionado a tu cuenta en breve </small>
+                        <br />
+                        <v-progress-circular size="16" indeterminate />
+                      </p>
+                      <p v-else>
+                        Podrás iniciar sesión en el
+                        <b>Módulo de Atención</b> indicado por el Hospital donde radica tu cuenta
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-col>
@@ -31,30 +84,75 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
+import { URL_API, getHdrs, getRsp, getErr, getRules, getObj } from '@/general'
 import axios from 'axios'
-import { URL_API, getHdrs, getErr, getRsp } from '@/general'
+import BtnTheme from '@/components/BtnTheme.vue'
+import Company from '@/components/Company.vue'
+import InpPassword from '@/components/InpPassword.vue'
 
 const route = useRoute()
 const router = useRouter()
+const store = useStore()
+const alert = inject('alert')
 
+const id = route.params.id
+const ldg = ref(true)
+const item = ref(null)
+const rules = getRules()
 const success = ref(false)
-const error = ref(false)
-const loading = ref(true)
+const itemForm = ref(null)
 
-onMounted(async () => {
-  const id = route.params.id
-
+// Métodos
+const getItem = async () => {
   try {
-    const rsp = await axios.get(`${URL_API}/public/user/account_confirm/${id}`, getHdrs())
-    getRsp(rsp)
-    success.value = true
+    const response = await axios.get(`${URL_API}/public/user/account_confirm/${id}`, getHdrs())
+    const rsp = getRsp(response)
+    item.value = { ...rsp.data.item, password: null }
   } catch (err) {
-    console.error(err)
-    error.value = true
+    getErr(err)
   } finally {
-    loading.value = false
+    ldg.value = false
   }
+}
+
+const handleAction = async () => {
+  const { valid } = await itemForm.value.validate()
+
+  if (valid) {
+    const obj = getObj(item.value, true)
+    ldg.value = true
+
+    try {
+      const response = await axios.post(
+        `${URL_API}/public/user/account_confirm/${id}`,
+        obj,
+        getHdrs()
+      )
+      success.value = true
+      setTimeout(async () => {
+        try {
+          const loginResponse = await axios.post(`${URL_API}/auth/login`, obj, getHdrs())
+          const loginRsp = getRsp(loginResponse)
+          store.loginAction(loginRsp.data.auth)
+          router.push({ name: 'home' })
+        } catch (err) {
+          alert?.show('error', getErr(err))
+        }
+      }, 5000)
+    } catch (err) {
+      alert?.show('error', getErr(err))
+    } finally {
+      ldg.value = false
+    }
+  }
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    getItem()
+  }, 2500)
 })
 </script>
