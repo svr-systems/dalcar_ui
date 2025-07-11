@@ -40,7 +40,7 @@
                   </v-col>
 
                   <v-col cols="12" class="mt-4">
-                    <v-btn variant="text" size="x-small">¿Olvidaste tu contraseña?</v-btn>
+                    <v-btn variant="text" size="x-small" :to="{ name: 'user_password_recover', query: { email: item.email }}">¿Olvidaste tu contraseña?</v-btn>
                   </v-col>
 
                   <v-col cols="12" class="pt-11">
