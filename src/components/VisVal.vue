@@ -1,19 +1,19 @@
 <template>
   <div>
-    <div v-if="lab != 'undefined'" class="font-weight-light text-caption">
+    <div v-if="lab" :class="['font-weight-light', 'text-caption']">
       {{ lab }}
     </div>
-    <div v-if="val != 'undefined'">
-      {{ val ? val : '-' }}
+    <div v-if="val">
+      {{ val ?? '-' }}
     </div>
-    <div v-if="sub != 'undefined'" class="text-caption">
+    <div v-if="sub" class="text-caption">
       <small>{{ sub }}</small>
     </div>
   </div>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   lab: String,
   val: [String, Number, Boolean],
   sub: String,

@@ -18,7 +18,7 @@
         <v-row>
           <v-col cols="12">
             <v-card>
-              <v-card-title class="card_title_border">
+              <v-card-title>
                 <v-row dense>
                   <v-col cols="10">
                     <CardTitle :text="'GENERAL' + (isStoreMode ? '' : ' | ' + item.uiid)" sub />
@@ -92,7 +92,7 @@
           </v-col>
           <v-col cols="12">
             <v-card>
-              <v-card-title class="card_title_border">
+              <v-card-title>
                 <v-row dense>
                   <v-col cols="10">
                     <CardTitle text="PERSONA DE CONTACTO" sub />
@@ -132,7 +132,7 @@
           </v-col>
           <v-col cols="12">
             <v-card>
-              <v-card-title class="card_title_border">
+              <v-card-title>
                 <v-row dense>
                   <v-col cols="10">
                     <CardTitle text="FISCAL" sub />
@@ -250,7 +250,7 @@
           </v-col>
           <v-col cols="12">
             <v-card>
-              <v-card-title class="card_title_border">
+              <v-card-title>
                 <v-row dense>
                   <v-col cols="10">
                     <CardTitle text="DOMICILIO" sub />

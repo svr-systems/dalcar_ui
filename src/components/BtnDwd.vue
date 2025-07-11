@@ -1,20 +1,22 @@
 <template>
-  <span>
-    <v-tooltip v-if="docObj" location="bottom">
-      <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" icon variant="text" size="small" @click.prevent="downloadDocument">
-          <v-icon icon="mdi-download"/>
-        </v-btn>
-      </template>
-      <span>Descargar</span>
-    </v-tooltip>
-  </span>
+  <v-btn
+    v-if="val?.cnt && val?.ext && docUrl"
+    icon
+    variant="text"
+    size="small"
+    @click.prevent="docDwd"
+  >
+    <v-icon>mdi-download</v-icon>
+    <v-tooltip activator="parent" location="bottom">Descargar</v-tooltip>
+  </v-btn>
 </template>
 
 <script setup>
+// Importaciones de librerías
 import { ref, onMounted } from 'vue'
 import { getBlob, getDateTime } from '@/general'
 
+// Props
 const props = defineProps({
   val: {
     type: Object,
@@ -22,27 +24,22 @@ const props = defineProps({
   },
 })
 
-const docObj = ref(null)
+// Estado reactivo
+const docUrl = ref(null)
 
-const downloadDocument = () => {
-  if (!docObj.value) return
-
+// Descargar documento
+const docDwd = () => {
   const link = document.createElement('a')
   link.setAttribute('target', '_blank')
-  link.href = docObj.value
-  link.download = `${getDateTime('', '', '')}.${props.val.ext}`
+  link.href = docUrl.value
+  link.download = `documento_${getDateTime('', '', '')}.${props.val?.ext || 'bin'}`
   link.click()
 }
 
+// Inicialización
 onMounted(() => {
-  if (props.val) {
-    docObj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
+  if (props.val && props.val.cnt && props.val.ext) {
+    docUrl.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
   }
 })
 </script>
-
-<style scoped>
-.pointer {
-  cursor: pointer;
-}
-</style>

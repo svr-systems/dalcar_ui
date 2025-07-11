@@ -1,113 +1,98 @@
 <template>
+  <div class="text-caption font-weight-bold">{{ lab }}</div>
+
   <div>
-    <div class="text-caption font-weight-bold">{{ lab }}</div>
-    <div>
-      <div v-if="val">
-        <v-tooltip v-if="img_prop" location="right">
-          <template v-slot:activator="{ props: activatorProps }">
-            <v-avatar
-              v-bind="activatorProps"
-              size="21"
-              class="pointer"
-              @click.prevent="img_dlg = true"
-            >
-              <v-img :src="doc_obj" />
-            </v-avatar>
-          </template>
-          <span>Ver</span>
-        </v-tooltip>
-        <v-tooltip location="right">
-          <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" variant="text" size="x-small" icon @click.prevent="docDwd">
-              <v-icon size="small">mdi-download</v-icon>
-            </v-btn>
-          </template>
-          <span>Descargar</span>
-        </v-tooltip>
-      </div>
-      <v-tooltip v-else location="right">
-        <template v-slot:activator="{ props: activatorProps }">
-          <v-icon v-bind="activatorProps" size="small">mdi-alert</v-icon>
-        </template>
-        <span>Pendiente</span>
-      </v-tooltip>
+    <div v-if="val" class="d-inline-flex align-center ga-1">
+      <v-avatar
+        v-if="isImageVisible"
+        size="21"
+        style="cursor: pointer"
+        @click.prevent="imgDlg = true"
+      >
+        <v-img :src="docUrl" />
+        <v-tooltip activator="parent" location="right">Ver</v-tooltip>
+      </v-avatar>
+
+      <v-btn icon variant="text" size="x-small" @click.prevent="docDwd">
+        <v-icon>mdi-download</v-icon>
+        <v-tooltip activator="parent" location="right">Descargar</v-tooltip>
+      </v-btn>
     </div>
-    <v-dialog v-model="img_dlg" persistent scrim="black" max-width="350">
-      <v-card flat>
-        <v-card-title class="card_title_border">
-          <v-row density="compact">
-            <v-col cols="6">
-              <CardTitle :text="lab" icon="" sub />
-            </v-col>
-            <v-col cols="6" class="text-right">
-              <v-tooltip location="bottom">
-                <template v-slot:activator="{ props: activatorProps }">
-                  <v-btn
-                    v-bind="activatorProps"
-                    icon
-                    variant="text"
-                    size="small"
-                    @click.prevent="img_dlg = false"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </template>
-                <span>Cerrar</span>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-        </v-card-title>
-        <v-card-text v-if="doc_obj">
-          <v-row density="compact">
-            <v-col cols="12">
-              <v-img :src="doc_obj" />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+
+    <v-tooltip v-else location="right">
+      <template #activator="{ props: activatorProps }">
+        <v-icon v-bind="activatorProps" size="small">mdi-alert</v-icon>
+      </template>
+      <span>Pendiente</span>
+    </v-tooltip>
   </div>
+
+  <v-dialog
+    v-if="docUrl && isImageVisible"
+    v-model="imgDlg"
+    persistent
+    scrim="black"
+    max-width="350"
+  >
+    <v-card flat>
+      <v-card-title>
+        <v-row dense>
+          <v-col cols="11">
+            <CardTitle :text="lab" sub />
+          </v-col>
+          <v-col cols="1" class="text-right">
+            <v-btn icon variant="text" size="x-small" @click.prevent="imgDlg = false">
+              <v-icon>mdi-close</v-icon>
+              <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-title>
+
+      <v-card-text>
+        <v-img :src="docUrl" />
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
+// Importaciones de librerías
 import { ref, onMounted } from 'vue'
 import { getBlob, getDateTime } from '@/general'
+
+// Importaciones de componentes
 import CardTitle from '@/components/CardTitle.vue'
 
-//Props
+// Props
 const props = defineProps({
   lab: String,
   val: Object,
   img: {
     type: Boolean,
-    default: undefined,
+    default: false,
   },
 })
 
-//Refs
-const doc_obj = ref(null)
-const img_prop = ref(false)
-const img_dlg = ref(false)
+// Estado reactivo
+const docUrl = ref(null)
+const isImageVisible = ref(false)
+const imgDlg = ref(false)
 
-//Métodos
+// Descargar documento
 const docDwd = () => {
   const link = document.createElement('a')
   link.setAttribute('target', '_blank')
-  link.href = doc_obj.value
-  link.download = `${getDateTime('', '', '')}.${props.val.ext}`
+  link.href = docUrl.value
+  link.download = `documento_${getDateTime('', '', '')}.${props.val?.ext || 'bin'}`
   link.click()
 }
 
+// Inicialización
 onMounted(() => {
-  if (props.val) {
-    doc_obj.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
+  if (props.val && props.val.cnt && props.val.ext) {
+    docUrl.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
   }
-  img_prop.value = props.img !== undefined
+  isImageVisible.value = props.img
 })
 </script>
-
-<style scoped>
-.pointer {
-  cursor: pointer;
-}
-</style>

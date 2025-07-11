@@ -33,7 +33,8 @@
                     />
                   </v-col>
                   <v-col cols="12">
-                    <v-btn block size="x-small" color="success" type="submit" :loading="isLoading">
+                    <v-btn block size="small" color="success" type="submit" :loading="isLoading">
+                      <v-icon start>mdi-login</v-icon>
                       Iniciar sesión
                     </v-btn>
                   </v-col>

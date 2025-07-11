@@ -8,25 +8,25 @@
           </v-col>
           <v-col cols="12">
             <h3 class="font-weight-light">
-              {{ msg }}
+              {{ message }}
             </h3>
           </v-col>
           <v-col cols="12" class="pt-3">
+            <v-btn icon variant="flat" size="small" class="mr-2" @click="handleAction(false)">
+              <v-icon>mdi-close</v-icon>
+              <v-tooltip activator="parent" location="top">Cancelar</v-tooltip>
+            </v-btn>
             <v-btn
-              size="small"
-              variant="tonal"
-              icon="mdi-close"
-              class="mr-2"
-              @click="handleAction(false)"
-            />
-            <v-btn
-              size="small"
+              icon
               variant="flat"
-              icon="mdi-check"
+              size="small"
               color="success"
               class="ml-2"
               @click="handleAction(true)"
-            />
+            >
+              <v-icon>mdi-check</v-icon>
+              <v-tooltip activator="parent" location="top">Confirmar</v-tooltip>
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-text>
@@ -37,21 +37,22 @@
 <script setup>
 import { ref } from 'vue'
 
+// Estado reactivo
 const visible = ref(false)
-const msg = ref('')
+const message = ref('')
 const resolve = ref(null)
 
-const show = (message) => {
-  msg.value = message
+// Método expuesto para mostrar dialog
+const show = (msg) => {
+  message.value = msg
   visible.value = true
-
   return new Promise((rsp) => {
     resolve.value = rsp
   })
 }
 
-const handleAction = (response) => {
-  resolve.value?.(response)
+const handleAction = (rsp) => {
+  resolve.value?.(rsp)
   visible.value = false
 }
 

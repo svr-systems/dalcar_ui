@@ -2,7 +2,8 @@
   <v-app>
     <Alert ref="alert" />
     <Confirm ref="confirm" />
-    <NavBar v-if="store.auth" />
+    <NavBar v-if="auth" />
+
     <v-main>
       <v-container>
         <router-view :key="$route.fullPath" />
@@ -12,21 +13,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance, provide, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useStore } from '@/store/index.js'
-import BtnTheme from '@/components/BtnTheme.vue'
+// Importaciones de librerías
+import { ref, computed, getCurrentInstance, provide } from 'vue'
+
+// Importaciones internas del proyecto
+import { useStore } from '@/store'
 import Alert from '@/components/Alert.vue'
 import Confirm from '@/components/Confirm.vue'
 import NavBar from '@/components/NavBar.vue'
 
-const router = useRouter()
+// Estado y referencias
 const store = useStore()
 const alert = ref(null)
 const confirm = ref(null)
 const auth = computed(() => store.getAuth)
 const app = getCurrentInstance()?.appContext.app
 
+// Proveedores globales
 provide('alert', {
   show: (color, msg) => alert.value?.show(color, msg),
 })

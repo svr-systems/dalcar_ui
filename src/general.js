@@ -1,5 +1,5 @@
 export const APP_NAME = 'Frontend-Template'
-export const APP_VERSION = '1.25.0710'
+export const APP_VERSION = '1.25.0711'
 
 // URL base de la API
 const URL = 'https://solmetec.mx/app'
