@@ -123,7 +123,9 @@ import axios from 'axios'
 
 // Importaciones internas del proyecto
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getErr, getRsp, getEncodeId } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getEncodeId } from '@/utils/coders'
 
 // Componentes
 import CardTitle from '@/components/CardTitle.vue'

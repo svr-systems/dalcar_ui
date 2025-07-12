@@ -3,7 +3,7 @@
     <v-app-bar density="compact" :elevation="2">
       <v-app-bar-nav-icon v-if="isMobile" @click.stop="toggleDrawer" />
       <v-avatar :tile="true" class="pl-3">
-        <img :src="logo" height="80%" alt="Logo" />
+        <Logo />
       </v-avatar>
       <v-toolbar-title>{{ APP_NAME }}</v-toolbar-title>
       <v-spacer />
@@ -26,12 +26,12 @@ import { ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 
 // Importaciones internas del proyecto
-import { APP_NAME } from '@/general'
+import { APP_NAME } from '@/utils/config'
 
 // Componentes
+import Logo from '@/components/Logo.vue'
 import NavDrawer from './NavDrawer.vue'
 import NavProfile from './NavProfile.vue'
-import logo from '@/assets/logo.png'
 
 // Estado y computados
 const display = useDisplay()

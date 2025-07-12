@@ -11,7 +11,7 @@
         </v-card-title>
         <v-card-text class="text-center">
           <v-row>
-            <Company />
+            <Logo />
             <v-col cols="12">
               <h2 class="font-weight-light">
                 {{ !success ? 'Olvidé mi contraseña' : 'E-mail enviado' }}
@@ -72,11 +72,14 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import { URL_API, getHdrs, getErr, getRules, getObj } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr } from '@/utils/http'
+import { getRules } from '@/utils/validators'
+import { getObj } from '@/utils/helpers'
 import axios from 'axios'
 import BtnBack from '@/components/BtnBack.vue'
 import BtnTheme from '@/components/BtnTheme.vue'
-import Company from '@/components/Company.vue'
+import Logo from '@/components/Logo.vue'
 
 const alert = inject('alert')
 const route = useRoute()

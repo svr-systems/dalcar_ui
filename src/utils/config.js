@@ -1,8 +1,8 @@
 // Nombre de la aplicación
-export const APP_NAME = 'Frontend-Template'
+export const APP_NAME = 'Template'
 
 // Versión actual de la aplicación
-export const APP_VERSION = '1.25.0711'
+export const APP_VERSION = '1.25.0712'
 
 // URL base del backend
 const BASE_URL = 'https://solmetec.mx/app'

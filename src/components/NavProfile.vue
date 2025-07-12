@@ -49,7 +49,8 @@ import axios from 'axios'
 
 // Store y helpers
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getErr } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr } from '@/utils/http'
 
 // Componentes
 import BtnTheme from './BtnTheme.vue'

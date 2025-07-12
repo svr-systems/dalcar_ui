@@ -126,7 +126,9 @@ import axios from 'axios'
 
 // Importaciones internas del proyecto
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getErr, getRsp, getDecodeId, getEncodeId } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getDecodeId, getEncodeId } from '@/utils/coders'
 
 // Componentes
 import BtnBack from '@/components/BtnBack.vue'

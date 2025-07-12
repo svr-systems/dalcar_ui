@@ -14,7 +14,8 @@
 <script setup>
 // Importaciones de librerías
 import { ref, onMounted } from 'vue'
-import { getBlob, getDateTime } from '@/general'
+import { getBlob } from '@/utils/coders'
+import { getDateTime } from '@/utils/formatters'
 
 // Props
 const props = defineProps({

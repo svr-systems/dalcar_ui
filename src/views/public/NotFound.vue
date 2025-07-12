@@ -1,11 +1,11 @@
 <template>
-  <v-row class="text-center">
-    <v-col cols="12" class="p-5" />
+  <v-row justify="center" class="text-center">
+    <v-col cols="12" class="pt-3" />
     <v-col cols="12">
-      <v-icon icon="mdi-alert-circle-outline" size="48" />
+      <v-icon size="48">mdi-alert-circle-outline</v-icon>
     </v-col>
     <v-col cols="12">
-      <div class="text-h5 font-weight-light">RECURSO NO ENCONTRADO</div>
+      <div class="text-h5 font-weight-light">Recurso no encontrado</div>
     </v-col>
   </v-row>
 </template>

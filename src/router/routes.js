@@ -2,7 +2,7 @@ import Auth from './middleware/Auth'
 import Public from './middleware/Public'
 
 const routes = [
-  //USR SYSTEM START
+  //USR SYSTEM
   //users
   {
     path: '/usuarios',
@@ -46,92 +46,6 @@ const routes = [
       middleware: Auth,
     },
   },
-  //SPECIALTIES
-  {
-    path: '/especialidades',
-    name: 'specialties',
-    component: () => import('@/views/specialties/List.vue'),
-    meta: {
-      title: 'Especialidades',
-      icon: 'mdi-medication',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/especialidades/agregar',
-    name: 'specialties/store',
-    component: () => import('@/views/specialties/Form.vue'),
-    meta: {
-      title: 'Especialidad | Agregar',
-      icon: 'mdi-medication',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/especialidades/:id',
-    name: 'specialties/show',
-    component: () => import('@/views/specialties/Show.vue'),
-    props: true,
-    meta: {
-      title: 'Especialidad',
-      icon: 'mdi-medication',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/especialidades/:id/editar',
-    name: 'specialties/update',
-    component: () => import('@/views/specialties/Form.vue'),
-    props: true,
-    meta: {
-      title: 'Especialidad | Editar',
-      icon: 'mdi-medication',
-      middleware: Auth,
-    },
-  },
-  //HOSPITALS
-  {
-    path: '/hospitales',
-    name: 'hospitals',
-    component: () => import('@/views/hospitals/List.vue'),
-    meta: {
-      title: 'Hospitales',
-      icon: 'mdi-hospital-building',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/hospitales/agregar',
-    name: 'hospitals/store',
-    component: () => import('@/views/hospitals/Form.vue'),
-    meta: {
-      title: 'Hospital | Agregar',
-      icon: 'mdi-hospital-building',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/hospitales/:id',
-    name: 'hospitals/show',
-    component: () => import('@/views/hospitals/Show.vue'),
-    props: true,
-    meta: {
-      title: 'Hospital',
-      icon: 'mdi-hospital-building',
-      middleware: Auth,
-    },
-  },
-  {
-    path: '/hospitales/:id/editar',
-    name: 'hospitals/update',
-    component: () => import('@/views/hospitals/Form.vue'),
-    props: true,
-    meta: {
-      title: 'Hospital | Editar',
-      icon: 'mdi-hospital-building',
-      middleware: Auth,
-    },
-  },
   //GENERAL
   {
     path: '/inicio',
@@ -171,32 +85,32 @@ const routes = [
     },
   },
   {
-    path: "/recuperar_contrasena",
-    name: "user_password_recover",
-    component: () => import("@/views/public/UserPasswordRecover.vue"),
+    path: '/recuperar_contrasena',
+    name: 'user_password_recover',
+    component: () => import('@/views/public/UserPasswordRecover.vue'),
     meta: {
-      title: "Recuperar contraseña",
-      icon: "mdi-account",
+      title: 'Recuperar contraseña',
+      icon: 'mdi-account',
       middleware: Public,
     },
   },
   {
-    path: "/restablecer_contrasena/:id",
-    name: "user_password_reset",
-    component: () => import("@/views/public/UserPasswordReset.vue"),
+    path: '/restablecer_contrasena/:id',
+    name: 'user_password_reset',
+    component: () => import('@/views/public/UserPasswordReset.vue'),
     meta: {
-      title: "Restablecer contraseña",
-      icon: "mdi-account",
+      title: 'Restablecer contraseña',
+      icon: 'mdi-account',
       middleware: Public,
     },
   },
   {
-    path: "/confirmar_cuenta/:id",
-    name: "user_account_confirm",
-    component: () => import("@/views/public/UserAccountConfirm.vue"),
+    path: '/confirmar_cuenta/:id',
+    name: 'user_account_confirm',
+    component: () => import('@/views/public/UserAccountConfirm.vue'),
     meta: {
-      title: "Confirmar cuenta",
-      icon: "mdi-account",
+      title: 'Confirmar cuenta',
+      icon: 'mdi-account',
       middleware: Public,
     },
   },

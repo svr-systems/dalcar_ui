@@ -4,7 +4,7 @@
       <v-card elevation="24" :disabled="ldg" :loading="ldg">
         <v-card-text class="text-center">
           <v-row>
-            <Company />
+            <Logo />
             <v-col cols="12">
               <h2 class="font-weight-light">
                 {{ !success ? 'Confirmar cuenta' : 'Cuenta confirmada' }}
@@ -87,10 +87,13 @@
 import { ref, onMounted, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getRsp, getErr, getRules, getObj } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getRules } from '@/utils/validators'
+import { getObj } from '@/utils/helpers'
 import axios from 'axios'
 import BtnTheme from '@/components/BtnTheme.vue'
-import Company from '@/components/Company.vue'
+import Logo from '@/components/Logo.vue'
 import InpPassword from '@/components/InpPassword.vue'
 
 const route = useRoute()

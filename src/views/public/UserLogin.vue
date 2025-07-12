@@ -5,7 +5,7 @@
         <v-card-text class="text-center">
           <v-row>
             <v-col cols="12" class="pb-6">
-              <img :src="logo" width="60%" alt="Logo" />
+              <Logo />
             </v-col>
             <v-col cols="12">
               <v-form ref="formRef" @submit.prevent="handleAction">
@@ -19,7 +19,7 @@
                       density="compact"
                       prepend-inner-icon="mdi-email-outline"
                       maxlength="50"
-                      :rules="rules.email_rqd"
+                      :rules="rules.emailRequired"
                       autocomplete="email"
                       hide-details="auto"
                     />
@@ -28,19 +28,24 @@
                     <InpPassword
                       label="Contraseña"
                       v-model="item.password"
-                      :rules="rules.rqd"
+                      :rules="rules.required"
                       autocomplete="current-password"
                     />
                   </v-col>
                   <v-col cols="12">
                     <v-btn block size="small" color="success" type="submit" :loading="isLoading">
-                      <v-icon start>mdi-login</v-icon>
                       Iniciar sesión
+                      <v-icon end>mdi-login</v-icon>
                     </v-btn>
                   </v-col>
 
                   <v-col cols="12" class="mt-4">
-                    <v-btn variant="text" size="x-small" :to="{ name: 'user_password_recover', query: { email: item.email }}">¿Olvidaste tu contraseña?</v-btn>
+                    <v-btn
+                      variant="text"
+                      size="x-small"
+                      :to="{ name: 'user_password_recover', query: { email: item.email } }"
+                      >¿Olvidaste tu contraseña?</v-btn
+                    >
                   </v-col>
 
                   <v-col cols="12" class="pt-11">
@@ -66,11 +71,14 @@ import axios from 'axios'
 
 // Importaciones internas del proyecto
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getErr, getRsp, getRules, getCurrentYear } from '@/general'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getRules } from '@/utils/validators'
+import { getCurrentYear } from '@/utils/helpers'
 
 // Componentes
+import Logo from '@/components/Logo.vue'
 import InpPassword from '@/components/InpPassword.vue'
-import logo from '@/assets/logo.png'
 
 // Estado y referencias
 const alert = inject('alert')
@@ -105,18 +113,4 @@ const handleAction = async () => {
     isLoading.value = false
   }
 }
-
-const onKeyDown = (e) => {
-  if (e.key === 'Enter') {
-    handleAction()
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('keydown', onKeyDown)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', onKeyDown)
-})
 </script>

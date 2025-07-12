@@ -38,7 +38,7 @@
                       density="compact"
                       maxlength="50"
                       counter
-                      :rules="rules.txt_rqd"
+                      :rules="rules.textRequired"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -50,7 +50,7 @@
                       density="compact"
                       maxlength="25"
                       counter
-                      :rules="rules.txt_rqd"
+                      :rules="rules.textRequired"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -62,7 +62,7 @@
                       density="compact"
                       maxlength="25"
                       counter
-                      :rules="rules.txt"
+                      :rules="rules.textOptional"
                     />
                   </v-col>
                 </v-row>
@@ -91,7 +91,7 @@
                       density="compact"
                       maxlength="65"
                       counter
-                      :rules="rules.email_rqd"
+                      :rules="rules.emailRequired"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -103,7 +103,7 @@
                       :items="roles"
                       item-title="name"
                       item-value="id"
-                      :rules="rules.rqd"
+                      :rules="rules.required"
                       :loading="rolesLoading"
                     />
                   </v-col>
@@ -141,8 +141,12 @@ import axios from 'axios'
 
 // Importaciones internas del proyecto
 import { useStore } from '@/store'
-import { URL_API, getHdrs, getErr, getRsp, getDecodeId, getRules, getObj } from '@/general'
-import { getUserObj } from '@/objects'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getDecodeId } from '@/utils/coders'
+import { getRules } from '@/utils/validators'
+import { getObj } from '@/utils/helpers'
+import { getUserObj } from '@/utils/objects'
 
 // Componentes
 import BtnBack from '@/components/BtnBack.vue'
