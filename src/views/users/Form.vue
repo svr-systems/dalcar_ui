@@ -22,7 +22,10 @@
               <v-card-title>
                 <v-row dense>
                   <v-col cols="11">
-                    <CardTitle :text="'GENERAL' + (isStoreMode ? '' : ' | ' + item.uiid)" sub />
+                    <CardTitle
+                      :text="`GENERAL${isStoreMode ? '' : ' | ' + (item.uiid || '')}`"
+                      sub
+                    />
                   </v-col>
                   <v-col cols="1" class="text-right" />
                 </v-row>
@@ -64,6 +67,38 @@
                       counter
                       :rules="rules.textOptional"
                     />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-file-input
+                      label="Fotografía*"
+                      v-model="item.avatar_doc"
+                      variant="outlined"
+                      density="compact"
+                      show-size
+                      accept=".jpg,.jpeg,.png"
+                      :rules="rules.imageOptional"
+                      :disabled="item.avatar_dlt"
+                    >
+                      <template v-slot:append>
+                        <div v-if="!isStoreMode && item.avatar && !item.avatar_doc" class="d-flex">
+                          <BtnDwd :value="item.avatar_b64" />
+                          <v-btn
+                            icon
+                            variant="text"
+                            size="small"
+                            :color="item.avatar_dlt ? 'error' : 'default'"
+                            @click.prevent="item.avatar_dlt = !item.avatar_dlt"
+                          >
+                            <v-icon>
+                              {{ item.avatar_dlt ? 'mdi-close-circle' : 'mdi-delete' }}
+                            </v-icon>
+                            <v-tooltip activator="parent" location="bottom">
+                              {{ item.avatar_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                            </v-tooltip>
+                          </v-btn>
+                        </div>
+                      </template>
+                    </v-file-input>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -122,7 +157,7 @@
                 @click.prevent="handleAction"
                 :loading="isLoading"
               >
-                <v-icon>mdi-chevron-right</v-icon>
+                <v-icon>mdi-check</v-icon>
                 <v-tooltip activator="parent" location="left">Continuar</v-tooltip>
               </v-btn>
             </div>
@@ -145,12 +180,13 @@ import { URL_API } from '@/utils/config'
 import { getHdrs, getErr, getRsp } from '@/utils/http'
 import { getDecodeId } from '@/utils/coders'
 import { getRules } from '@/utils/validators'
-import { getObj } from '@/utils/helpers'
+import { getObj, getFormData } from '@/utils/helpers'
 import { getUserObj } from '@/utils/objects'
 
 // Componentes
 import BtnBack from '@/components/BtnBack.vue'
 import CardTitle from '@/components/CardTitle.vue'
+import BtnDwd from '@/components/BtnDwd.vue'
 
 // Constantes fijas
 const routeName = 'users'
@@ -225,7 +261,7 @@ const handleAction = async () => {
   try {
     const endpoint = `${URL_API}/system/${routeName}${!isStoreMode.value ? `/${payload.id}` : ''}`
     const response = getRsp(
-      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token, true))
+      await axios.post(endpoint, getFormData(payload), getHdrs(store.getAuth?.token, true))
     )
 
     alert?.show('success', response.msg)

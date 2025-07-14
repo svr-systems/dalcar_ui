@@ -6,9 +6,9 @@
     :type="isVisible ? 'text' : 'password'"
     variant="outlined"
     density="compact"
-    prepend-inner-icon="mdi-lock"
+    :prepend-inner-icon="prepend"
     :append-inner-icon="isVisible ? 'mdi-eye-off' : 'mdi-eye'"
-    maxlength="50"
+    maxlength="20"
     :rules="rules"
     :counter="counter"
     :disabled="disabled"
@@ -29,6 +29,7 @@ const props = defineProps({
   rules: Array,
   counter: Boolean,
   disabled: Boolean,
+  prepend: String,
 })
 
 const emit = defineEmits(['update:modelValue'])

@@ -1,81 +1,68 @@
 <template>
-  <v-row dense justify="center">
+  <v-row justify="center">
     <v-col cols="12" md="4" class="mt-11">
-      <v-card elevation="24" :disabled="ldg" :loading="ldg">
+      <v-card elevation="24" class="py-4 px-4" :loading="isLoading" :disabled="isLoading">
         <v-card-text class="text-center">
-          <v-row>
-            <Logo />
-            <v-col cols="12">
-              <h2 class="font-weight-light">
-                {{ !success ? 'Restablecer contraseña' : 'Contraseña restablecida' }}
-              </h2>
+          <v-row dense>
+            <v-col cols="12" class="text-left" style="height: 40px" />
+
+            <v-col cols="12" class="pb-6">
+              <Logo width="60%" />
             </v-col>
+
             <v-col v-if="!item" cols="12">
-              <p v-if="ldg">Validando información</p>
+              <p v-if="isLoading" class="py-2">Validando información</p>
               <div v-else>
-                <p>
-                  <v-icon size="x-large">mdi-alert-circle</v-icon>
+                <v-icon size="48" color="warning">mdi-alert-circle</v-icon>
+                <p class="py-2">
+                  Se excedieron los 5 min. para realizar esta acción o ya no es procesable
                 </p>
-                <p>Se excedieron los 5 min. para realizar esta acción o ya no es procesable</p>
               </div>
             </v-col>
+
             <v-col v-else cols="12">
-              <v-row>
+              <v-form v-if="!success" ref="formRef" @submit.prevent="handleAction">
+                <v-row dense>
+                  <v-col cols="12">
+                    <VisVal label="E-mail" :value="item.email" />
+                  </v-col>
+
+                  <v-col cols="12" class="text-left">
+                    <InpPassword
+                      label="Contraseña"
+                      v-model="item.password"
+                      counter
+                      :rules="rules.passwordRequired"
+                    />
+                  </v-col>
+
+                  <v-col cols="12">
+                    <v-btn block color="success" type="submit" :loading="isLoading">
+                      Restablecer
+                      <v-icon end>mdi-update</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+
+              <v-row v-else>
                 <v-col cols="12">
-                  <v-row>
-                    <v-col v-if="!success" cols="12">
-                      <v-form v-if="item" ref="itemForm">
-                        <v-row dense>
-                          <v-col cols="12">
-                            <b>Cuenta</b>
-                            <br />
-                            {{ item.email }}
-                          </v-col>
-                          <v-col cols="12">
-                            <InpPassword
-                              label="Contraseña"
-                              v-model="item.password"
-                              :rules="rules.password_rqd"
-                              no-prepend-icon
-                            />
-                          </v-col>
-                          <v-col cols="12">
-                            <div class="text-right">
-                              <v-btn
-                                block
-                                size="small"
-                                color="success"
-                                @click.prevent="handleAction"
-                                :loading="ldg"
-                              >
-                                Restablecer
-                                <template v-slot:append>
-                                  <v-icon size="small">mdi-update</v-icon>
-                                </template>
-                              </v-btn>
-                            </div>
-                          </v-col>
-                        </v-row>
-                      </v-form>
-                    </v-col>
-                    <v-col v-else cols="12">
-                      <p>
-                        <v-icon size="x-large">mdi-check-circle</v-icon>
-                      </p>
-                      <p>La contraseña de tu cuenta ha sido restablecida correctamente</p>
-                      <p v-if="item.role_id != 3">
-                        <small> Serás redireccionado a tu cuenta en breve </small>
-                        <br />
-                        <v-progress-circular size="16" indeterminate />
-                      </p>
-                      <p v-else>
-                        Podrás iniciar sesión en el
-                        <b>Módulo de Atención</b> indicado por el Hospital donde radica tu cuenta
-                      </p>
-                    </v-col>
-                  </v-row>
+                  <v-icon size="48" color="success">mdi-check-circle</v-icon>
+                  <p class="py-2">La contraseña de tu cuenta ha sido restablecida correctamente</p>
+                  <p class="py-2">
+                    <small>Serás redireccionado a tu cuenta en breve</small>
+                  </p>
+                  <v-progress-circular size="16" indeterminate />
                 </v-col>
               </v-row>
+            </v-col>
+
+            <v-col v-if="!isLoading && !success" cols="12" class="pt-8">
+              <BtnTheme />
+            </v-col>
+
+            <v-col cols="12" class="pt-2">
+              <Version />
             </v-col>
           </v-row>
         </v-card-text>
@@ -85,79 +72,85 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+// Librerías externas
+import { ref, inject, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+
+// Estado global y utilidades
 import { useStore } from '@/store'
 import { URL_API } from '@/utils/config'
 import { getHdrs, getErr, getRsp } from '@/utils/http'
 import { getRules } from '@/utils/validators'
-import { getObj } from '@/utils/helpers'
-import axios from 'axios'
-import BtnTheme from '@/components/BtnTheme.vue'
+import { getCurrentYear, getObj } from '@/utils/helpers'
+
+// Componentes
 import Logo from '@/components/Logo.vue'
+import VisVal from '@/components/VisVal.vue'
 import InpPassword from '@/components/InpPassword.vue'
+import BtnTheme from '@/components/BtnTheme.vue'
+import Version from '@/components/Version.vue'
 
-// Refs
-const id = useRoute().params.id
-const ldg = ref(true)
-const item = ref(null)
-const rules = getRules()
-const success = ref(false)
-const itemForm = ref(null)
-
+// Estado
+const store = useStore()
 const alert = inject('alert')
 const router = useRouter()
-const store = useStore()
+const route = useRoute()
 
-// Métodos
+const itemId = route.params.id
+const isLoading = ref(true)
+const formRef = ref(null)
+const item = ref(null)
+const success = ref(false)
+const rules = getRules()
+
+// Obtener el usuario
 const getItem = async () => {
   try {
-    const response = await axios.get(`${URL_API}/public/user/password/reset/${id}`, getHdrs())
-    const rsp = getRsp(response)
-    item.value = { ...rsp.data.item, password: null }
+    const url = `${URL_API}/public/user/password/reset/${itemId}`
+    const response = await axios.get(url, getHdrs())
+    item.value = { ...getRsp(response).data.item, password: null }
   } catch (err) {
     getErr(err)
   } finally {
-    ldg.value = false
+    isLoading.value = false
   }
 }
 
+// Cambiar contraseña y login automático
 const handleAction = async () => {
-  const { valid } = await itemForm.value.validate()
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
-  if (valid) {
-    const obj = getObj(item.value, true)
-    ldg.value = true
+  isLoading.value = true
+  const payload = getObj(item.value, true)
 
-    try {
-      const response = await axios.post(
-        `${URL_API}/public/user/password/reset/${id}`,
-        obj,
-        getHdrs()
-      )
-      success.value = true
+  try {
+    // Confirmación
+    let endpoint = `${URL_API}/public/user/password/reset/${itemId}`
+    await axios.post(endpoint, payload, getHdrs())
+    success.value = true
 
-      setTimeout(async () => {
-        try {
-          const loginResponse = await axios.post(`${URL_API}/auth/login`, obj, getHdrs())
-          const loginRsp = getRsp(loginResponse)
-          store.loginAction(loginRsp.data.auth)
-          router.push({ name: 'home' })
-        } catch (err) {
-          alert?.show('error', getErr(err))
-        }
-      }, 5000)
-    } catch (err) {
-      alert?.show('error', getErr(err))
-    } finally {
-      ldg.value = false
-    }
+    setTimeout(async () => {
+      try {
+        // Login automático
+        endpoint = `${URL_API}/auth/login`
+        const response = await axios.post(endpoint, payload, getHdrs())
+        await store.loginAction(getRsp(response).data.auth)
+        await router.push({ name: 'home' })
+      } catch (err) {
+        alert?.show('error', getErr(err))
+      }
+    }, 5000)
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    isLoading.value = false
   }
 }
 
+// Inicialización
 onMounted(() => {
-  setTimeout(() => {
-    getItem()
-  }, 2500)
+  setTimeout(() => getItem(), 2500)
 })
 </script>

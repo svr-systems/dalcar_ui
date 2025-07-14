@@ -2,7 +2,7 @@
   <div class="text-caption font-weight-bold">{{ lab }}</div>
 
   <div>
-    <div v-if="val" class="d-inline-flex align-center ga-1">
+    <div v-if="value" class="d-inline-flex align-center ga-1">
       <v-avatar
         v-if="isImageVisible"
         size="21"
@@ -38,7 +38,7 @@
       <v-card-title>
         <v-row dense>
           <v-col cols="11">
-            <CardTitle :text="lab" sub />
+            <CardTitle :text="label" sub />
           </v-col>
           <v-col cols="1" class="text-right">
             <v-btn icon variant="text" size="x-small" @click.prevent="imgDlg = false">
@@ -67,8 +67,8 @@ import CardTitle from '@/components/CardTitle.vue'
 
 // Props
 const props = defineProps({
-  lab: String,
-  val: Object,
+  label: String,
+  value: Object,
   img: {
     type: Boolean,
     default: false,
@@ -85,14 +85,14 @@ const docDwd = () => {
   const link = document.createElement('a')
   link.setAttribute('target', '_blank')
   link.href = docUrl.value
-  link.download = `documento_${getDateTime('', '', '')}.${props.val?.ext || 'bin'}`
+  link.download = `documento_${getDateTime('', '', '')}.${props.value?.ext || 'bin'}`
   link.click()
 }
 
 // Inicialización
 onMounted(() => {
-  if (props.val && props.val.cnt && props.val.ext) {
-    docUrl.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
+  if (props.value && props.value.cnt && props.value.ext) {
+    docUrl.value = URL.createObjectURL(getBlob(props.value.cnt, props.value.ext))
   }
   isImageVisible.value = props.img
 })

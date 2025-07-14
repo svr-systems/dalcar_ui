@@ -1,21 +1,21 @@
 <template>
   <div>
-    <div v-if="lab" :class="['font-weight-light', 'text-caption']">
-      {{ lab }}
+    <div v-if="label" :class="['font-weight-light', 'text-caption']">
+      {{ label }}
     </div>
-    <div v-if="val">
-      {{ val ?? '-' }}
+    <div v-if="value">
+      {{ value ?? '-' }}
     </div>
-    <div v-if="sub" class="text-caption">
-      <small>{{ sub }}</small>
+    <div v-if="subvalue" class="text-caption">
+      <small>{{ subvalue }}</small>
     </div>
   </div>
 </template>
 
 <script setup>
 defineProps({
-  lab: String,
-  val: [String, Number, Boolean],
-  sub: String,
+  label: String,
+  value: [String, Number, Boolean],
+  subvalue: String,
 })
 </script>

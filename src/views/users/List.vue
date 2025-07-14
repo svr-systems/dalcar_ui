@@ -94,6 +94,12 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
+            <template #item.email_verified_at="{ item }">
+              <v-icon size="x-small" :color="item.email_verified_at ? 'info' : ''">
+                mdi-checkbox-blank-circle{{ item.email_verified_at ? '' : '-outline' }}
+              </v-icon>
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
@@ -173,6 +179,7 @@ onMounted(() => {
     { title: 'E-mail', key: 'email' },
     { title: 'Rol', key: 'role.name' },
     { title: 'ID', key: 'uiid' },
+    { title: 'Verif.', key: 'email_verified_at' },
     { title: '', key: 'action', filterable: false, sortable: false, width: 60 },
   ]
 

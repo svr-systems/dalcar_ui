@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    v-if="val?.cnt && val?.ext && docUrl"
+    v-if="value?.cnt && value?.ext && docUrl"
     icon
     variant="text"
     size="small"
@@ -19,7 +19,7 @@ import { getDateTime } from '@/utils/formatters'
 
 // Props
 const props = defineProps({
-  val: {
+  value: {
     type: Object,
     default: null,
   },
@@ -33,14 +33,14 @@ const docDwd = () => {
   const link = document.createElement('a')
   link.setAttribute('target', '_blank')
   link.href = docUrl.value
-  link.download = `documento_${getDateTime('', '', '')}.${props.val?.ext || 'bin'}`
+  link.download = `documento_${getDateTime('', '', '')}.${props.value?.ext || 'bin'}`
   link.click()
 }
 
 // Inicialización
 onMounted(() => {
-  if (props.val && props.val.cnt && props.val.ext) {
-    docUrl.value = URL.createObjectURL(getBlob(props.val.cnt, props.val.ext))
+  if (props.value && props.value.cnt && props.value.ext) {
+    docUrl.value = URL.createObjectURL(getBlob(props.value.cnt, props.value.ext))
   }
 })
 </script>

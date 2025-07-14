@@ -2,9 +2,6 @@
   <div>
     <v-app-bar density="compact" :elevation="2">
       <v-app-bar-nav-icon v-if="isMobile" @click.stop="toggleDrawer" />
-      <v-avatar :tile="true" class="pl-3">
-        <Logo />
-      </v-avatar>
       <v-toolbar-title>{{ APP_NAME }}</v-toolbar-title>
       <v-spacer />
       <v-btn icon variant="text">
@@ -29,7 +26,6 @@ import { useDisplay } from 'vuetify'
 import { APP_NAME } from '@/utils/config'
 
 // Componentes
-import Logo from '@/components/Logo.vue'
 import NavDrawer from './NavDrawer.vue'
 import NavProfile from './NavProfile.vue'
 

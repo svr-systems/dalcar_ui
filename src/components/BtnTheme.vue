@@ -1,15 +1,8 @@
 <template>
-  <v-row align="center" justify="center" class="my-2">
-    <v-icon :color="!isDark ? 'orange' : 'grey'">mdi-white-balance-sunny</v-icon>
-    <v-switch
-      v-model="darkMode"
-      hide-details
-      inset
-      density="compact"
-      class="mx-2"
-      color="primary"
-    />
-    <v-icon :color="isDark ? 'blue-grey' : 'grey'">mdi-weather-night</v-icon>
+  <v-row align="center" justify="center">
+    <v-icon :color="!isDark ? 'warning' : 'grey'">mdi-white-balance-sunny</v-icon>
+    <v-switch v-model="darkMode" hide-details inset class="mx-2" color="primary" />
+    <v-icon :color="isDark ? 'info' : 'grey'">mdi-weather-night</v-icon>
   </v-row>
 </template>
 

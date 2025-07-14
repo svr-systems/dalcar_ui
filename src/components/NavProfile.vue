@@ -29,9 +29,9 @@
         </div>
       </v-card-text>
 
-      <v-divider class="my-2" />
+      <v-divider class="py-2" />
 
-      <BtnTheme />
+      <BtnTheme class="pb-2" />
 
       <v-btn block variant="tonal" size="small" color="red" @click.prevent="logout">
         <v-icon start>mdi-logout</v-icon>

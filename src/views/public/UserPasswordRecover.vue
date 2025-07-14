@@ -1,66 +1,67 @@
 <template>
-  <v-row dense justify="center">
+  <v-row justify="center">
     <v-col cols="12" md="4" class="mt-11">
-      <v-card elevation="24" :disabled="ldg" :loading="ldg">
-        <v-card-title>
-          <v-row dense>
-            <v-col cols="10">
-              <BtnBack v-if="!success" :route="{ name: 'login' }" />
-            </v-col>
-          </v-row>
-        </v-card-title>
+      <v-card elevation="24" class="py-4 px-4" :loading="isLoading" :disabled="isLoading">
         <v-card-text class="text-center">
-          <v-row>
-            <Logo />
-            <v-col cols="12">
-              <h2 class="font-weight-light">
-                {{ !success ? 'Olvidé mi contraseña' : 'E-mail enviado' }}
-              </h2>
+          <v-row dense>
+            <v-col cols="12" class="text-left" style="height: 40px">
+              <BtnBack :route="{ name: 'login' }" />
             </v-col>
-            <v-col v-if="!success" cols="12">
-              <v-form v-if="item" ref="itemForm">
+
+            <v-col cols="12" class="pb-6">
+              <Logo width="60%" />
+            </v-col>
+
+            <v-col cols="12">
+              <v-form v-if="!success" ref="formRef" @submit.prevent="handleAction">
                 <v-row dense>
-                  <v-col cols="12">
+                  <v-col cols="12" class="text-left">
                     <v-text-field
-                      label="E-mail"
                       v-model="item.email"
-                      density="compact"
+                      label="E-mail"
+                      type="email"
                       variant="outlined"
-                      type="text"
-                      :rules="rules.email_rqd"
-                      maxlength="50"
+                      density="compact"
+                      prepend-inner-icon="mdi-email-outline"
+                      maxlength="65"
+                      counter
+                      :rules="rules.emailRequired"
+                      hide-details="auto"
                     />
                   </v-col>
+
                   <v-col cols="12">
-                    <div class="text-right">
-                      <v-btn
-                        block
-                        size="small"
-                        color="info"
-                        @click.prevent="handleAction"
-                        :loading="ldg"
-                      >
-                        Enviar E-mail de recuperación
-                        <template v-slot:append>
-                          <v-icon size="small">mdi-email-fast</v-icon>
-                        </template>
-                      </v-btn>
-                    </div>
+                    <v-btn block color="info" type="submit" :loading="isLoading">
+                      Recuperar
+                      <v-icon end>mdi-email-fast</v-icon>
+                    </v-btn>
                   </v-col>
                 </v-row>
               </v-form>
+
+              <v-row v-else>
+                <v-col cols="12">
+                  <v-icon size="48" color="info">mdi-information</v-icon>
+                  <p class="py-2">
+                    Hemos enviado un correo a
+                    <br />
+                    <b>{{ item.email }}</b>
+                    <br />
+                    con instrucciones para restablecer tu contraseña
+                  </p>
+                  <p class="py-2">
+                    <small>Cuentas con 5 min. para realizar esta acción</small>
+                  </p>
+                </v-col>
+              </v-row>
             </v-col>
-            <v-col v-else cols="12">
-              <p>
-                <v-icon size="x-large">mdi-check-circle</v-icon>
-              </p>
-              <p>
-                Hemos enviado un correo a <b>{{ item.email }}</b> con instrucciones para restablecer
-                tu contraseña
-              </p>
-              <p>
-                <small> Cuentas con 5 min. para realizar esta acción </small>
-              </p>
+
+            <v-col v-if="!isLoading" cols="12" class="pt-8">
+              <BtnTheme />
+            </v-col>
+
+            <v-col cols="12" class="pt-2">
+              <Version />
             </v-col>
           </v-row>
         </v-card-text>
@@ -70,55 +71,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+// Librerías externas
+import { ref, inject, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import axios from 'axios'
+
+// Estado global y utilidades
+import { useStore } from '@/store'
 import { URL_API } from '@/utils/config'
 import { getHdrs, getErr } from '@/utils/http'
 import { getRules } from '@/utils/validators'
 import { getObj } from '@/utils/helpers'
-import axios from 'axios'
-import BtnBack from '@/components/BtnBack.vue'
-import BtnTheme from '@/components/BtnTheme.vue'
-import Logo from '@/components/Logo.vue'
 
+// Componentes
+import BtnBack from '@/components/BtnBack.vue'
+import Logo from '@/components/Logo.vue'
+import BtnTheme from '@/components/BtnTheme.vue'
+import Version from '@/components/Version.vue'
+
+// Estado
+const store = useStore()
 const alert = inject('alert')
 const route = useRoute()
 
-// Refs
-const ldg = ref(false)
-const item = ref(null)
-const rules = getRules()
+const isLoading = ref(false)
+const formRef = ref(null)
+const item = ref({ email: route.query.email || null })
 const success = ref(false)
-const itemForm = ref(null)
+const rules = getRules()
 
-// Métodos
-const getItem = () => {
-  item.value = { email: null }
-
-  if (route.query.email) {
-    item.value.email = route.query.email
-  }
-}
-
+// Enviar email de recuperación
 const handleAction = async () => {
-  const { valid } = await itemForm.value.validate()
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
-  if (valid) {
-    const obj = getObj(item.value, true)
-    ldg.value = true
+  isLoading.value = true
+  const payload = getObj(item.value, true)
 
-    try {
-      await axios.post(URL_API + '/public/user/password/recover', obj, getHdrs())
-      success.value = true
-    } catch (err) {
-      alert?.show('error', getErr(err))
-    } finally {
-      ldg.value = false
-    }
+  try {
+    const endpoint = `${URL_API}/public/user/password/recover`
+    await axios.post(endpoint, payload, getHdrs())
+    success.value = true
+  } catch (err) {
+    alert?.show('error', getErr(err))
+  } finally {
+    isLoading.value = false
   }
 }
-
-onMounted(() => {
-  getItem()
-})
 </script>

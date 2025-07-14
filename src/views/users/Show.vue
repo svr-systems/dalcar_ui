@@ -69,13 +69,16 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="3">
-                  <VisVal lab="Nombre" :val="item.name" />
+                  <VisVal label="Nombre" :value="item.name" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal lab="A. paterno" :val="item.surname_p" />
+                  <VisVal label="A. paterno" :value="item.surname_p" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal lab="A. materno" :val="item.surname_m" />
+                  <VisVal label="A. materno" :value="item.surname_m" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisDoc label="Fotografía" :value="item.avatar_b64" img />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -95,10 +98,10 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="3">
-                  <VisVal lab="E-mail" :val="item.email" />
+                  <VisVal label="E-mail" :value="item.email" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal lab="Rol" :val="item.role?.name" />
+                  <VisVal label="Rol" :value="item.role?.name" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -135,6 +138,7 @@ import BtnBack from '@/components/BtnBack.vue'
 import CardTitle from '@/components/CardTitle.vue'
 import DlgReg from '@/components/DlgReg.vue'
 import VisVal from '@/components/VisVal.vue'
+import VisDoc from '@/components/VisDoc.vue'
 
 // Constantes fijas
 const routeName = 'users'

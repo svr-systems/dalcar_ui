@@ -3,58 +3,65 @@
     <v-col cols="12" md="4" class="mt-11">
       <v-card elevation="24" class="py-4 px-4" :loading="isLoading" :disabled="isLoading">
         <v-card-text class="text-center">
-          <v-row>
+          <v-row dense>
+            <v-col cols="12" class="text-left" style="height: 40px" />
+
             <v-col cols="12" class="pb-6">
-              <Logo />
+              <Logo width="60%" />
             </v-col>
+
             <v-col cols="12">
               <v-form ref="formRef" @submit.prevent="handleAction">
                 <v-row dense>
-                  <v-col cols="12">
+                  <v-col cols="12" class="text-left">
                     <v-text-field
                       label="E-mail"
                       v-model="item.email"
                       type="email"
                       variant="outlined"
                       density="compact"
-                      prepend-inner-icon="mdi-email-outline"
-                      maxlength="50"
+                      maxlength="65"
+                      counter
                       :rules="rules.emailRequired"
                       autocomplete="email"
                       hide-details="auto"
                     />
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="12" class="text-left">
                     <InpPassword
                       label="Contraseña"
                       v-model="item.password"
+                      counter
                       :rules="rules.required"
                       autocomplete="current-password"
                     />
                   </v-col>
                   <v-col cols="12">
-                    <v-btn block size="small" color="success" type="submit" :loading="isLoading">
+                    <v-btn block color="info" type="submit" :loading="isLoading">
                       Iniciar sesión
                       <v-icon end>mdi-login</v-icon>
                     </v-btn>
                   </v-col>
-
-                  <v-col cols="12" class="mt-4">
-                    <v-btn
-                      variant="text"
-                      size="x-small"
-                      :to="{ name: 'user_password_recover', query: { email: item.email } }"
-                      >¿Olvidaste tu contraseña?</v-btn
-                    >
-                  </v-col>
-
-                  <v-col cols="12" class="pt-11">
-                    <span class="text-caption font-weight-thin text-medium-emphasis">
-                      Desarrollado por SVR © {{ getCurrentYear() }}
-                    </span>
-                  </v-col>
                 </v-row>
               </v-form>
+            </v-col>
+
+            <v-col cols="12" class="pt-4">
+              <v-btn
+                variant="text"
+                size="x-small"
+                :to="{ name: 'user_password_recover', query: { email: item.email } }"
+              >
+                ¿Olvidaste tu contraseña?
+              </v-btn>
+            </v-col>
+
+            <v-col cols="12" class="pt-8">
+              <BtnTheme />
+            </v-col>
+
+            <v-col cols="12" class="pt-2">
+              <Version />
             </v-col>
           </v-row>
         </v-card-text>
@@ -65,7 +72,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onBeforeUnmount, onMounted } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -74,11 +81,13 @@ import { useStore } from '@/store'
 import { URL_API } from '@/utils/config'
 import { getHdrs, getErr, getRsp } from '@/utils/http'
 import { getRules } from '@/utils/validators'
-import { getCurrentYear } from '@/utils/helpers'
+import { getObj } from '@/utils/helpers'
 
 // Componentes
 import Logo from '@/components/Logo.vue'
 import InpPassword from '@/components/InpPassword.vue'
+import BtnTheme from '@/components/BtnTheme.vue'
+import Version from '@/components/Version.vue'
 
 // Estado y referencias
 const alert = inject('alert')
@@ -100,10 +109,11 @@ const handleAction = async () => {
   if (!valid) return
 
   isLoading.value = true
+  const payload = getObj(item.value, true)
 
   try {
     const endpoint = `${URL_API}/auth/login`
-    const response = await axios.post(endpoint, item.value, getHdrs())
+    const response = await axios.post(endpoint, payload, getHdrs())
 
     await store.loginAction(getRsp(response).data.auth)
     await router.push({ name: 'home' })
