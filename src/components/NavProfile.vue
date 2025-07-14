@@ -80,7 +80,7 @@ const logout = async () => {
     store.logoutAction(null)
     router.push({ name: 'login' })
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }

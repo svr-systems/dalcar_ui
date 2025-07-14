@@ -4,7 +4,7 @@
       <v-card-title>
         <v-row dense>
           <v-col cols="6">
-            <CardTitle text="REGISTRO" icon="mdi-database-clock" sub />
+            <CardTitle text="REGISTRO" icon="mdi-clock-outline" sub />
           </v-col>
           <v-col cols="6" class="text-right">
             <v-btn icon variant="text" size="x-small" @click.prevent="show = false">

@@ -139,11 +139,11 @@ const handleAction = async () => {
         await store.loginAction(getRsp(response).data.auth)
         await router.push({ name: 'home' })
       } catch (err) {
-        alert?.show('error', getErr(err))
+        alert?.show('red-darken-1', getErr(err))
       }
     }, 5000)
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }
