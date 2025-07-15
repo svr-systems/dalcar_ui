@@ -68,37 +68,45 @@
                       :rules="rules.textOptional"
                     />
                   </v-col>
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="3" class="d-flex align-center" style="gap: 8px">
+                    <!-- File Input -->
                     <v-file-input
                       label="Fotografía*"
                       v-model="item.avatar_doc"
                       variant="outlined"
                       density="compact"
+                      prepend-icon=""
                       show-size
                       accept=".jpg,.jpeg,.png"
                       :rules="rules.imageOptional"
                       :disabled="item.avatar_dlt"
+                      class="flex-grow-1"
                     >
                       <template v-slot:append>
                         <div v-if="!isStoreMode && item.avatar && !item.avatar_doc" class="d-flex">
-                          <BtnDwd :value="item.avatar_b64" />
-                          <v-btn
-                            icon
-                            variant="text"
-                            size="small"
-                            :color="item.avatar_dlt ? 'error' : 'default'"
-                            @click.prevent="item.avatar_dlt = !item.avatar_dlt"
-                          >
-                            <v-icon>
-                              {{ item.avatar_dlt ? 'mdi-close-circle' : 'mdi-delete' }}
-                            </v-icon>
-                            <v-tooltip activator="parent" location="bottom">
-                              {{ item.avatar_dlt ? 'Revertir eliminación' : 'Eliminar' }}
-                            </v-tooltip>
-                          </v-btn>
+                          <BtnDwd :value="item.avatar_b64" :disabled="item.avatar_dlt" />
                         </div>
                       </template>
                     </v-file-input>
+
+                    <!-- Botón de Eliminar (fuera del file-input) -->
+                    <v-btn
+                      v-if="!isStoreMode && item.avatar && !item.avatar_doc"
+                      icon
+                      variant="text"
+                      size="small"
+                      :color="item.avatar_dlt ? 'error' : 'default'"
+                      @click="item.avatar_dlt = !item.avatar_dlt"
+                      class="ml-1"
+                      style="margin-top: -20px;"
+                    >
+                      <v-icon size="small">
+                        {{ item.avatar_dlt ? 'mdi-close-circle' : 'mdi-delete' }}
+                      </v-icon>
+                      <v-tooltip activator="parent" location="bottom">
+                        {{ item.avatar_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                      </v-tooltip>
+                    </v-btn>
                   </v-col>
                 </v-row>
               </v-card-text>

@@ -4,7 +4,7 @@
     :permanent="!isMobile"
     :temporary="isMobile"
     :expand-on-hover="!isMobile"
-    rail
+    :rail="!isMobile"
   >
     <v-list nav>
       <v-list-item
