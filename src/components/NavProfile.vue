@@ -121,6 +121,8 @@ const logout = async () => {
   try {
     store.logoutAction()
     router.push({ name: 'login' })
+  } catch (err) {
+    alert?.show('error', getErr(err))
   } finally {
     isLoading.value = false
     emit('update:modelValue', false)

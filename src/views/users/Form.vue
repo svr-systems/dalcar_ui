@@ -226,7 +226,7 @@ const getCatalogs = async () => {
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
     roles.value = getRsp(response).data.items
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     rolesLoading.value = false
   }
@@ -243,7 +243,7 @@ const getItem = async () => {
       const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
       item.value = getRsp(response).data.item
     } catch (err) {
-      alert?.show('error', getErr(err))
+      alert?.show('red-darken-1', getErr(err))
     } finally {
       isLoading.value = false
     }
@@ -254,7 +254,7 @@ const getItem = async () => {
 const handleAction = async () => {
   const { valid } = await formRef.value.validate()
   if (!valid) {
-    alert?.show('error', 'Revisa los detalles señalados')
+    alert?.show('red-darken-1', 'Revisa los detalles señalados')
     return
   }
 
@@ -281,7 +281,7 @@ const handleAction = async () => {
       },
     })
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }

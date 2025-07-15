@@ -113,7 +113,7 @@ const handleAction = async () => {
     await axios.post(endpoint, payload, getHdrs())
     success.value = true
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }

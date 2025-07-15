@@ -16,7 +16,7 @@
             :to="{ name: `${routeName}/update`, params: { id: getEncodeId(itemId) } }"
           >
             <v-icon>mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="right">Editar</v-tooltip>
+            <v-tooltip activator="parent" location="left">Editar</v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -59,7 +59,7 @@
                     size="x-small"
                     @click.prevent="regDialog = true"
                   >
-                    <v-icon>mdi-database-clock</v-icon>
+                    <v-icon>mdi-clock-outline</v-icon>
                     <v-tooltip activator="parent" location="left">Registro</v-tooltip>
                   </v-btn>
                 </v-col>
@@ -109,8 +109,14 @@
         </v-col>
 
         <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
-          <v-btn icon variant="flat" size="x-small" color="error" @click.prevent="deleteItem">
-            <v-icon>mdi-delete</v-icon>
+          <v-btn
+            icon
+            variant="flat"
+            size="x-small"
+            color="red-darken-1"
+            @click.prevent="deleteItem"
+          >
+            <v-icon>mdi-minus-thick</v-icon>
             <v-tooltip activator="parent" location="right">Inactivar</v-tooltip>
           </v-btn>
         </v-col>
@@ -164,7 +170,7 @@ const getItem = async () => {
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
     item.value = getRsp(response).data.item
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }
@@ -179,10 +185,10 @@ const deleteItem = async () => {
   try {
     const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
     const response = getRsp(await axios.delete(endpoint, getHdrs(store.getAuth?.token)))
-    alert?.show('error', response.msg)
+    alert?.show('red-darken-1', response.msg)
     router.push({ name: routeName })
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }
@@ -202,7 +208,7 @@ const restoreItem = async () => {
     item.value = response.data.item
     alert?.show('success', response.msg)
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }

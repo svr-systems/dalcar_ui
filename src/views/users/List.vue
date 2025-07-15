@@ -33,7 +33,7 @@
                 :items="activeOptions"
                 item-title="name"
                 item-value="id"
-                :disabled="items.length > 0"
+                :disabled="!isItemsEmpty"
               />
             </v-col>
             <v-col cols="12" md="3" class="pb-0">
@@ -45,7 +45,7 @@
                 :items="filterOptions"
                 item-title="name"
                 item-value="id"
-                :disabled="items.length > 0"
+                :disabled="!isItemsEmpty"
               />
             </v-col>
           </v-row>
@@ -59,25 +59,20 @@
             variant="outlined"
             density="compact"
             append-inner-icon="mdi-magnify"
-            :disabled="items.length === 0"
+            :disabled="isItemsEmpty"
           />
         </v-col>
 
         <v-col cols="12">
           <v-btn
-            v-if="items.length === 0"
             block
-            size="x-small"
-            color="info"
-            :loading="isLoading"
-            @click.prevent="getItems"
+            size="small"
+            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
+            :loading="isItemsEmpty && isLoading"
+            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
           >
-            Aplicar parámetros
-            <v-icon right>mdi-database-search-outline</v-icon>
-          </v-btn>
-          <v-btn v-else block size="x-small" @click.prevent="items = []">
-            Cambiar parámetros
-            <v-icon right>mdi-database-refresh-outline</v-icon>
+            {{ isItemsEmpty ? 'Aplicar' : 'Cambiar' }} filtros
+            <v-icon right>mdi-filter</v-icon>
           </v-btn>
         </v-col>
 
@@ -123,7 +118,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
@@ -148,6 +143,7 @@ const route = useRoute()
 // Estado reactivo
 const isLoading = ref(false)
 const items = ref([])
+const isItemsEmpty = computed(() => items.value.length === 0)
 const headers = ref([])
 const search = ref('')
 const active = ref(1)
@@ -165,7 +161,7 @@ const getItems = async () => {
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
     items.value = getRsp(response).data.items
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
   }
