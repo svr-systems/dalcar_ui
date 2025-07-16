@@ -1,73 +1,63 @@
 <template>
   <v-dialog v-model="dialogModel" persistent scrim="black" max-width="400">
-    <v-card
-      class="pa-4 text-center"
-      elevation="24"
-      style="border-radius: 24px"
-      :loading="isLoading"
-      :disabled="isLoading"
-    >
+    <v-card class="pa-4 text-center" elevation="24" :loading="isLoading" :disabled="isLoading">
       <v-row dense>
-        <v-col cols="6"></v-col>
-        <v-col cols="6" class="text-right">
-          <v-btn icon variant="text" size="small" @click.prevent="dialogModel = false">
+        <v-col cols="12" class="text-right">
+          <v-btn icon variant="text" size="x-small" @click.prevent="dialogModel = false">
             <v-icon>mdi-close</v-icon>
             <v-tooltip activator="parent" location="bottom">Cerrar</v-tooltip>
           </v-btn>
         </v-col>
-      </v-row>
 
-      <div class="text-h6 font-weight-bold mb-2">{{ store.auth?.user?.email || 'Correo' }}</div>
+        <v-col cols="12">
+          <b>
+            <small>
+              {{ store.auth?.user?.email || 'Correo' }}
+            </small>
+          </b>
+        </v-col>
 
-      <v-avatar size="100" class="mx-auto my-2" style="position: relative; overflow: visible">
-        <v-img v-if="store.auth?.user?.avatar_b64" :src="store.auth.user.avatar_b64" />
-        <v-icon v-else size="120">mdi-account-circle</v-icon>
-      </v-avatar>
+        <v-col cols="12">
+          <v-avatar size="100">
+            <v-img v-if="store.auth?.user?.avatar_b64" :src="store.auth.user.avatar_b64" />
+            <v-icon v-else size="120">mdi-account-circle</v-icon>
+          </v-avatar>
+        </v-col>
 
-      <div class="text-subtitle-1 font-weight-medium mb-4">
-        {{ store.auth?.user?.full_name || 'Nombre' }}
-      </div>
+        <v-col cols="12">
+          <span class="font-weight-medium">
+            {{ store.auth?.user?.full_name || 'Nombre' }}
+          </span>
+        </v-col>
 
-      <v-row dense>
         <v-col cols="6">
-          <v-sheet class="py-2" style="border: 3px solid #222; border-radius: 50px 0 0 50px">
+          <v-sheet class="py-1" style="border: 2px solid #777; border-radius: 50px 0 0 50px">
             <div class="text-caption font-weight-bold">Rol</div>
             <div>{{ store.auth?.user?.role?.name || '---' }}</div>
           </v-sheet>
         </v-col>
         <v-col cols="6">
-          <v-sheet class="py-2" style="border: 3px solid #222; border-radius: 0 50px 50px 0">
+          <v-sheet class="py-1" style="border: 2px solid #777; border-radius: 0 50px 50px 0">
             <div class="text-caption font-weight-bold">ID</div>
             <div>{{ store.auth?.user?.uiid || '---' }}</div>
           </v-sheet>
         </v-col>
+
+        <v-col cols="12" class="pt-4">
+          <v-btn block color="warning" @click="handleAction">
+            Cerrar Sesión
+            <v-icon end>mdi-logout</v-icon>
+          </v-btn>
+        </v-col>
+
+        <v-col v-if="!isLoading" cols="12" class="pt-4">
+          <BtnTheme />
+        </v-col>
+
+        <v-col cols="12" class="pt-2">
+          <Version />
+        </v-col>
       </v-row>
-
-      <v-row align="center" justify="center" class="mt-4">
-        <v-icon :color="!isDark ? 'orange' : 'grey'">mdi-white-balance-sunny</v-icon>
-        <v-switch
-          v-model="isDarkLocal"
-          hide-details
-          inset
-          color="primary"
-          class="mx-2"
-          style="margin-top: -8px"
-        />
-        <v-icon :color="isDark ? 'blue-grey' : 'grey'">mdi-weather-night</v-icon>
-      </v-row>
-
-      <div class="text-center">
-        <v-btn
-          style="border: 3px solid #222; border-radius: 20px; min-width: 200px"
-          class="mt-4"
-          @click="logout"
-        >
-          Cerrar Sesión
-          <v-icon end>mdi-logout</v-icon>
-        </v-btn>
-      </div>
-
-      <Version class="mt-2" />
     </v-card>
   </v-dialog>
 </template>
@@ -77,6 +67,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
 import { useStore } from '@/store'
+import BtnTheme from '@/components/BtnTheme.vue'
 import Version from '@/components/Version.vue'
 
 // Store y router
@@ -99,30 +90,14 @@ const dialogModel = computed({
   set: (val) => emit('update:modelValue', val),
 })
 
-// Estado tema
-const isDark = computed(() => store.conf.theme_dark)
-const isDarkLocal = ref(isDark.value)
-
-watch(isDarkLocal, (val) => {
-  store.themeDarkAction()
-  theme.global.name.value = val ? 'dark' : 'light'
-})
-watch(
-  isDark,
-  (val) => {
-    isDarkLocal.value = val
-  },
-  { immediate: true }
-)
-
-// Función logout
-const logout = async () => {
+// Cerrar sesión
+const handleAction = async () => {
   isLoading.value = true
   try {
     store.logoutAction()
     router.push({ name: 'login' })
   } catch (err) {
-    alert?.show('error', getErr(err))
+    alert?.show('red-darken-1', getErr(err))
   } finally {
     isLoading.value = false
     emit('update:modelValue', false)
