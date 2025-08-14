@@ -3,7 +3,7 @@
     <div v-if="label" :class="['font-weight-light', 'text-caption']">
       {{ label }}
     </div>
-    <div v-if="value">
+    <div>
       {{ value ?? '-' }}
     </div>
     <div v-if="subvalue" class="text-caption">

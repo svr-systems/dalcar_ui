@@ -38,6 +38,10 @@ const drawerModel = computed({
 // Ítems del menú
 const drawerItems = [
   { title: 'Inicio', icon: 'mdi-home', link: 'home' },
+  { title: 'Proveedores', icon: 'mdi-account-group', link: 'providers' },
+  { title: 'Inversionistas', icon: 'mdi-handshake', link: 'investors' },
+  { title: 'Sucursales', icon: 'mdi-domain', link: 'branches' },
+  { title: 'Empresas', icon: 'mdi-office-building', link: 'companies' },
   { title: 'Usuarios', icon: 'mdi-account', link: 'users' },
 ]
 </script>

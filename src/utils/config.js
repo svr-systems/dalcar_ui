@@ -1,8 +1,8 @@
 // Nombre de la aplicación
-export const APP_NAME = 'Template'
+export const APP_NAME = 'DALCAR'
 
 // Versión actual de la aplicación
-export const APP_VERSION = '1.25.0715'
+export const APP_VERSION = '1.25.0723'
 
 // URL base del backend
 const BASE_URL = 'https://solmetec.mx/app'
