@@ -1,7 +1,12 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" md="4" class="mt-11">
-      <v-card elevation="24" class="py-4 px-4" :loading="isLoading" :disabled="isLoading">
+      <v-card
+        elevation="24"
+        class="py-4 px-4"
+        :loading="isLoading"
+        :disabled="isLoading"
+      >
         <v-card-text class="text-center">
           <v-row dense>
             <v-col cols="12" class="text-left" style="height: 40px">
@@ -13,7 +18,11 @@
             </v-col>
 
             <v-col cols="12">
-              <v-form v-if="!success" ref="formRef" @submit.prevent="handleAction">
+              <v-form
+                v-if="!success"
+                ref="formRef"
+                @submit.prevent="handleAction"
+              >
                 <v-row dense>
                   <v-col cols="12" class="text-left">
                     <v-text-field
@@ -31,7 +40,12 @@
                   </v-col>
 
                   <v-col cols="12">
-                    <v-btn block color="info" type="submit" :loading="isLoading">
+                    <v-btn
+                      block
+                      color="info"
+                      type="submit"
+                      :loading="isLoading"
+                    >
                       Recuperar
                       <v-icon end>mdi-email-fast</v-icon>
                     </v-btn>
@@ -72,50 +86,50 @@
 
 <script setup>
 // Librerías externas
-import { ref, inject, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import axios from 'axios'
+import { ref, inject, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 // Estado global y utilidades
-import { useStore } from '@/store'
-import { URL_API } from '@/utils/config'
-import { getHdrs, getErr } from '@/utils/http'
-import { getRules } from '@/utils/validators'
-import { getObj } from '@/utils/helpers'
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr } from "@/utils/http";
+import { getRules } from "@/utils/validators";
+import { getObj } from "@/utils/helpers";
 
 // Componentes
-import BtnBack from '@/components/BtnBack.vue'
-import Logo from '@/components/Logo.vue'
-import BtnTheme from '@/components/BtnTheme.vue'
-import Version from '@/components/Version.vue'
+import BtnBack from "@/components/BtnBack.vue";
+import Logo from "@/components/Logo.vue";
+import BtnTheme from "@/components/BtnTheme.vue";
+import Version from "@/components/Version.vue";
 
 // Estado
-const store = useStore()
-const alert = inject('alert')
-const route = useRoute()
+const store = useStore();
+const alert = inject("alert");
+const route = useRoute();
 
-const isLoading = ref(false)
-const formRef = ref(null)
-const item = ref({ email: route.query.email || null })
-const success = ref(false)
-const rules = getRules()
+const isLoading = ref(false);
+const formRef = ref(null);
+const item = ref({ email: route.query.email || null });
+const success = ref(false);
+const rules = getRules();
 
 // Enviar email de recuperación
 const handleAction = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+  const { valid } = await formRef.value.validate();
+  if (!valid) return;
 
-  isLoading.value = true
-  const payload = getObj(item.value, true)
+  isLoading.value = true;
+  const payload = getObj(item.value, true);
 
   try {
-    const endpoint = `${URL_API}/public/user/password/recover`
-    await axios.post(endpoint, payload, getHdrs())
-    success.value = true
+    const endpoint = `${URL_API}/public/user/password/recover`;
+    await axios.post(endpoint, payload, getHdrs());
+    success.value = true;
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>

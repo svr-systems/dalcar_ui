@@ -14,31 +14,31 @@
 
 <script setup>
 // Importaciones de librerías
-import { ref, computed, getCurrentInstance, provide } from 'vue'
+import { ref, computed, getCurrentInstance, provide } from "vue";
 
 // Importaciones internas del proyecto
-import { useStore } from '@/store'
-import Alert from '@/components/Alert.vue'
-import Confirm from '@/components/Confirm.vue'
-import NavBar from '@/components/NavBar.vue'
+import { useStore } from "@/store";
+import Alert from "@/components/Alert.vue";
+import Confirm from "@/components/Confirm.vue";
+import NavBar from "@/components/NavBar.vue";
 
 // Estado y referencias
-const store = useStore()
-const alert = ref(null)
-const confirm = ref(null)
-const auth = computed(() => store.getAuth)
-const app = getCurrentInstance()?.appContext.app
+const store = useStore();
+const alert = ref(null);
+const confirm = ref(null);
+const auth = computed(() => store.getAuth);
+const app = getCurrentInstance()?.appContext.app;
 
 // Proveedores globales
-provide('alert', {
+provide("alert", {
   show: (color, msg) => alert.value?.show(color, msg),
-})
+});
 
-provide('confirm', {
+provide("confirm", {
   show: (options) => confirm.value?.show(options),
-})
+});
 </script>
 
 <style>
-@import '@/style.css';
+@import "@/style.css";
 </style>

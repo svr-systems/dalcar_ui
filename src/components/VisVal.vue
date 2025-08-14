@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div v-if="label" :class="['font-weight-light', 'text-caption']">
+    <div v-if="label" class="font-weight-light text-caption">
       {{ label }}
     </div>
-    <div>
-      {{ value ?? '-' }}
+    <div class="text-body-2">
+      {{ value != null && value !== "" ? value : "-" }}
     </div>
     <div v-if="subvalue" class="text-caption">
       <small>{{ subvalue }}</small>
@@ -13,9 +13,10 @@
 </template>
 
 <script setup>
+// Props
 defineProps({
   label: String,
   value: [String, Number, Boolean],
   subvalue: String,
-})
+});
 </script>

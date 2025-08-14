@@ -7,19 +7,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 // Estado reactivo
-const visible = ref(false)
-const color = ref(null)
-const msg = ref(null)
+import { ref } from "vue";
 
-// Método expuesto para mostrar alerta
+const visible = ref(false);
+const color = ref(null);
+const msg = ref(null);
+
+// Método expuesto
 const show = (newColor, newMsg) => {
-  color.value = newColor
-  msg.value = newMsg
-  visible.value = true
-}
+  color.value = newColor;
+  msg.value = newMsg;
+  visible.value = true;
+};
 
-defineExpose({ show })
+defineExpose({ show });
 </script>
