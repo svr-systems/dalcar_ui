@@ -4,6 +4,49 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
+  // inventory
+  {
+    path: "/inventario",
+    name: "inventory",
+    component: () => import("@/views/inventory/List.vue"),
+    meta: {
+      title: "Inventario",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/agregar",
+    name: "inventory/store",
+    component: () => import("@/views/inventory/Form.vue"),
+    meta: {
+      title: "Inventario | Agregar",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/:id",
+    name: "inventory/show",
+    component: () => import("@/views/inventory/Show.vue"),
+    props: true,
+    meta: {
+      title: "Inventario",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/:id/editar",
+    name: "inventory/update",
+    component: () => import("@/views/inventory/Form.vue"),
+    props: true,
+    meta: {
+      title: "Inventario | Editar",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
   //providers
   {
     path: "/proveedores",
