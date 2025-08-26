@@ -6,32 +6,16 @@
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
         <v-col cols="2" class="text-right">
-          <div class="d-flex justify-end" style="gap: 10px">
-            <v-btn
-              icon
-              variant="flat"
-              size="x-small"
-              color="primary"
-              :to="{ name: routeName }"
-            >
-              <v-icon>mdi-file-swap-outline</v-icon>
-              <v-tooltip activator="parent" location="bottom"
-                >Agregar</v-tooltip
-              >
-            </v-btn>
-            <v-btn
-              icon
-              variant="flat"
-              size="x-small"
-              color="success"
-              :to="{ name: 'purchaseOrders' }"
-            >
-              <v-icon>mdi-cash-multiple</v-icon>
-              <v-tooltip activator="parent" location="bottom"
-                >Orden de compra</v-tooltip
-              >
-            </v-btn>
-          </div>
+          <v-btn
+            icon
+            variant="flat"
+            size="x-small"
+            color="success"
+            :to="{ name: `${routeName}/store` }"
+          >
+            <v-icon>mdi-plus</v-icon>
+            <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
+          </v-btn>
         </v-col>
       </v-row>
     </v-card-title>
@@ -169,7 +153,7 @@ const filter = ref(0);
 const filterOptions = ref([]);
 
 // Constantes fijas
-const routeName = "inventory";
+const routeName = "purchaseOrders";
 
 // Cargar registros
 const getItems = async () => {
@@ -185,12 +169,14 @@ const getItems = async () => {
         id: 1,
         active: true,
         key: 0,
-        make: "Ford",
-        model: "Focus",
-        year: 2020,
-        transmission: "AUTOMÁTICA",
-        color: "Rojo",
-        status: "DISPONIBLE",
+        name: "PROVEEDOR PRUEBA",
+        type: "TIPO 1",
+        folio: "PO-0001",
+        date: "2025-08-25",
+        amount: 250000,
+        cars: 3,
+        providers: "Proveedor Prueba",
+        status: "Pendiente",
       },
     ];
   } catch (err) {
@@ -203,12 +189,12 @@ const getItems = async () => {
 // Inicializar
 onMounted(() => {
   headers.value = [
-    { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-    { title: "Marca", key: "make" },
-    { title: "Modelo", key: "model" },
-    { title: "Año", key: "year" },
-    { title: "Transmisión", key: "transmission" },
-    { title: "Color", key: "color" },
+    { title: "#", key: "id", filterable: false, sortable: false, width: 60 },
+    { title: "Folio", key: "folio" },
+    { title: "Fecha", key: "date" },
+    { title: "Monto", key: "amount" },
+    { title: "Automóviles", key: "cars" },
+    { title: "Proveedores", key: "providers" },
     { title: "Estado", key: "status" },
     { title: "", key: "action", filterable: false, sortable: false, width: 60 },
   ];

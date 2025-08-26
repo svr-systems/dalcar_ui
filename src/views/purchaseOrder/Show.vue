@@ -75,17 +75,27 @@
                 </v-col>
               </v-row>
             </v-card-title>
-
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="6">
-                  <VisVal label="Nombre" :value="item.name" />
+                <v-col cols="12" md="4">
+                  <VisVal label="Fecha" :value="item.date" />
                 </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="Tipo" :value="item.type.name" />
+                <v-col cols="12" md="8">
+                  <VisVal label="Proveedor" :value="item.provider.name" />
                 </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="Días limite de pago" :value="item.days" />
+                <v-col cols="12" md="4">
+                  <VisVal label="Monto a Pagar" :value="item.amount" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="Referencia" :value="item.reference" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisDoc
+                    v-if="item.account_state"
+                    label="Estado de cuenta"
+                    :value="item.account_state"
+                    :url="item.account_state_b64"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -95,27 +105,77 @@
         <v-col cols="12">
           <v-card>
             <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="INFO. BANCARIA" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
+              <CardTitle text="Autos" sub />
             </v-card-title>
             <v-card-text>
-              <v-row
-                dense
-                v-for="(provider_bank, i) of item.provider_banks"
-                :key="i"
-              >
-                <v-col cols="12" md="4">
-                  <VisVal label="Banco" :value="provider_bank.bank.name" />
+              <v-row dense v-for="(auto, i) of item.autos" :key="i">
+                <v-col cols="12" md="3">
+                  <VisVal label="Marca" :value="auto.brand" />
                 </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="CLABE" :value="provider_bank.clabe" />
+                <v-col cols="12" md="3">
+                  <VisVal label="Modelo" :value="auto.model" />
                 </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Cuenta" :value="provider_bank.account" />
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Transmisión"
+                    :value="auto.transmission || 'N/A'"
+                  />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Año" :value="auto.year" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Color" :value="auto.color" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="VIN" :value="auto.vin" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Precio Compra" :value="auto.purchase_price" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Comisión" :value="auto.commission || 'N/A'" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="IVA" :value="auto.iva || 'N/A'" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Monto Factura" :value="auto.invoice_amount" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <CardTitle text="Pagos" sub />
+            </v-card-title>
+            <v-card-text>
+              <v-table>
+                <thead>
+                  <tr>
+                    <th class="text-left">Banco</th>
+                    <th class="text-left">Titular</th>
+                    <th class="text-left">CLABE</th>
+                    <th class="text-left">Cuenta</th>
+                    <th class="text-left">Monto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(payment, i) in item.payments" :key="i">
+                    <td>{{ payment.bank.name }}</td>
+                    <td>{{ payment.holder }}</td>
+                    <td>{{ payment.clabe }}</td>
+                    <td>{{ payment.account }}</td>
+                    <td>{{ payment.amount }}</td>
+                  </tr>
+                </tbody>
+              </v-table>
+              <v-row dense class="mt-4">
+                <v-col cols="12" md="3">
+                  <VisVal label="Fecha Límite de Pago" :value="item.due_date" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -164,7 +224,7 @@ import VisVal from "@/components/VisVal.vue";
 import VisDoc from "@/components/VisDoc.vue";
 
 // Constantes fijas
-const routeName = "providers";
+const routeName = "purchaseOrders";
 
 // Estado y referencias
 const alert = inject("alert");
@@ -189,21 +249,41 @@ const getItem = async () => {
     item.value = {
       id: 1,
       active: true,
-      uiid: "P-0001",
-      name: "PROVEEDOR PRUEBA",
-      type: {
-        name: "TIPO 1",
+      uiid: "OC-0001",
+      date: "2024-08-20",
+      provider: {
+        name: "PROVEEDOR A",
       },
-      days: "3",
-      provider_banks: [
+      amount: 50000,
+      reference: "REF-002",
+      account_state: "estado_cuenta.pdf",
+      account_state_b64: "data:application/pdf;base64,JVBERi0xLjcK...",
+      autos: [
         {
-          bank: {
-            name: "BANCO 1",
-          },
-          clabe: "123456789012345678",
-          account: "093456789012345678",
+          brand: "Ford",
+          model: "Focus",
+          transmission: "Manual",
+          year: "2022",
+          color: "Azul",
+          vin: "VIN123456789",
+          purchase_price: 25000,
+          commission: 1000,
+          iva: 1.16,
+          invoice_amount: 26160,
         },
       ],
+      payments: [
+        {
+          bank: {
+            name: "BBVA",
+          },
+          holder: "Titular Ejemplo",
+          clabe: "123456789012345678",
+          account: "1234567890",
+          amount: 25000,
+        },
+      ],
+      due_date: "01-09-2024",
     };
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -219,11 +299,11 @@ const deleteItem = async () => {
 
   isLoading.value = true;
   try {
-    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-    const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
-    );
-    alert?.show("red-darken-1", response.msg);
+    // const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    // const response = getRsp(
+    //   await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    // );
+    // alert?.show("red-darken-1", response.msg);
     router.push({ name: routeName });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -239,16 +319,16 @@ const restoreItem = async () => {
 
   isLoading.value = true;
   try {
-    const endpoint = `${URL_API}/system/${routeName}/restore`;
-    const response = getRsp(
-      await axios.post(
-        endpoint,
-        { id: itemId.value },
-        getHdrs(store.getAuth?.token)
-      )
-    );
-    item.value = response.data.item;
-    alert?.show("success", response.msg);
+    // const endpoint = `${URL_API}/system/${routeName}/restore`;
+    // const response = getRsp(
+    //   await axios.post(
+    //     endpoint,
+    //     { id: itemId.value },
+    //     getHdrs(store.getAuth?.token)
+    //   )
+    // );
+    // item.value = response.data.item;
+    // alert?.show("success", response.msg);
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
