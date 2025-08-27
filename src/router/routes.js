@@ -4,89 +4,46 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
-  // purchase order
+  //car_migrations
   {
-    path: "/orden_compra",
-    name: "purchaseOrders",
-    component: () => import("@/views/purchaseOrder/List.vue"),
+    path: "/migraciones",
+    name: "car_migrations",
+    component: () => import("@/views/car_migrations/List.vue"),
     meta: {
-      title: "Orden de compra",
-      icon: "mdi-cash-multiple",
+      title: "Migraciones",
+      icon: "mdi-car-clock",
       middleware: Auth,
     },
   },
   {
-    path: "/orden_compra/agregar",
-    name: "purchaseOrders/store",
-    component: () => import("@/views/purchaseOrder/Form.vue"),
+    path: "/migraciones/agregar",
+    name: "car_migrations/store",
+    component: () => import("@/views/car_migrations/Form.vue"),
     meta: {
-      title: "Orden de compra | Agregar",
-      icon: "mdi-cash-multiple",
+      title: "Migración | Agregar",
+      icon: "mdi-car-clock",
       middleware: Auth,
     },
   },
   {
-    path: "/orden_compra/:id",
-    name: "purchaseOrders/show",
-    component: () => import("@/views/purchaseOrder/Show.vue"),
+    path: "/migraciones/:id",
+    name: "car_migrations/show",
+    component: () => import("@/views/car_migrations/Show.vue"),
     props: true,
     meta: {
-      title: "Orden de compra",
-      icon: "mdi-cash-multiple",
+      title: "Migración",
+      icon: "mdi-car-clock",
       middleware: Auth,
     },
   },
   {
-    path: "/orden_compra/:id/editar",
-    name: "purchaseOrders/update",
-    component: () => import("@/views/purchaseOrder/Form.vue"),
+    path: "/migraciones/:id/editar",
+    name: "car_migrations/update",
+    component: () => import("@/views/car_migrations/Form.vue"),
     props: true,
     meta: {
-      title: "Orden de compra | Editar",
-      icon: "mdi-cash-multiple",
-      middleware: Auth,
-    },
-  },
-  // inventory
-  {
-    path: "/inventario",
-    name: "inventory",
-    component: () => import("@/views/inventory/List.vue"),
-    meta: {
-      title: "Inventario",
-      icon: "mdi-package-variant-closed",
-      middleware: Auth,
-    },
-  },
-  {
-    path: "/inventario/agregar",
-    name: "inventory/store",
-    component: () => import("@/views/inventory/Form.vue"),
-    meta: {
-      title: "Inventario | Agregar",
-      icon: "mdi-package-variant-closed",
-      middleware: Auth,
-    },
-  },
-  {
-    path: "/inventario/:id",
-    name: "inventory/show",
-    component: () => import("@/views/inventory/Show.vue"),
-    props: true,
-    meta: {
-      title: "Inventario",
-      icon: "mdi-package-variant-closed",
-      middleware: Auth,
-    },
-  },
-  {
-    path: "/inventario/:id/editar",
-    name: "inventory/update",
-    component: () => import("@/views/inventory/Form.vue"),
-    props: true,
-    meta: {
-      title: "Inventario | Editar",
-      icon: "mdi-package-variant-closed",
+      title: "Migración | Editar",
+      icon: "mdi-car-clock",
       middleware: Auth,
     },
   },

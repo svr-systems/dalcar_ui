@@ -247,6 +247,7 @@ const deleteItem = async () => {
   //   isLoading.value = false;
   // }
   alert?.show("red-darken-1", "Registro desactivado correctamente");
+  router.push({ name: routeName });
   isLoading.value = false;
 };
 

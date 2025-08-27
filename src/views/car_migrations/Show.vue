@@ -57,7 +57,7 @@
             <v-card-title>
               <v-row dense>
                 <v-col cols="11">
-                  <CardTitle :text="'DATOS GENERALES | ' + item.uiid" sub />
+                  <CardTitle :text="'AUTO | ' + item.uiid" sub />
                 </v-col>
                 <v-col cols="1" class="text-right">
                   <v-btn
@@ -78,14 +78,44 @@
 
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="6">
-                  <VisVal label="Nombre" :value="item.name" />
+                <v-col cols="12" md="3">
+                  <VisVal label="Fecha de compra" :value="item.adquisition" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="Tipo" :value="item.type.name" />
+                  <VisVal label="Proveedor" :value="item.provider" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="Días limite de pago" :value="item.days" />
+                  <VisVal label="Marca" :value="item.brand" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Modelo" :value="item.model" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Transmisión" :value="item.transmission" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Año" :value="item.year" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Color" :value="item.color" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="VIN" :value="item.vin" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Precio compra" :value="item.purchase" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Comisión" :value="item.commission" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="IVA" :value="item.tax" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Monto factura" :value="item.invoice" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Precio de venta" :value="item.sales" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -97,7 +127,7 @@
             <v-card-title>
               <v-row dense>
                 <v-col cols="11">
-                  <CardTitle text="INFO. BANCARIA" sub />
+                  <CardTitle text="INVERSIONISTAS" sub />
                 </v-col>
                 <v-col cols="1" class="text-right" />
               </v-row>
@@ -105,17 +135,49 @@
             <v-card-text>
               <v-row
                 dense
-                v-for="(provider_bank, i) of item.provider_banks"
+                v-for="(car_investor, i) of item.car_investors"
                 :key="i"
               >
-                <v-col cols="12" md="4">
-                  <VisVal label="Banco" :value="provider_bank.bank.name" />
+                <v-col cols="12" md="9">
+                  <VisVal
+                    label="Inversionista"
+                    :value="car_investor.investor.name"
+                  />
                 </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="CLABE" :value="provider_bank.clabe" />
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Porcentaje %"
+                    :value="car_investor.percentage"
+                  />
                 </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Cuenta" :value="provider_bank.account" />
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="GASTOS" sub />
+                </v-col>
+                <v-col cols="1" class="text-right" />
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-row dense v-for="(overhead, i) of item.overheads" :key="i">
+                <v-col cols="12" md="3">
+                  <VisVal label="Tipo" :value="overhead.overhead_type.name" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Observación" :value="overhead.observation" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Fecha" :value="overhead.date" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="Monto" :value="overhead.amount" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -161,10 +223,9 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
-import VisDoc from "@/components/VisDoc.vue";
 
 // Constantes fijas
-const routeName = "providers";
+const routeName = "car_migrations";
 
 // Estado y referencias
 const alert = inject("alert");
@@ -202,7 +263,7 @@ const getItem = async () => {
             updated_by: {
               email: "samuel@svr.mx",
             },
-            uiid: "P-0001",
+            uiid: "AM-0001",
             name: "PROVEEDOR PRUEBA",
             type_id: 1,
             type: {
@@ -217,6 +278,44 @@ const getItem = async () => {
                 },
                 clabe: "123456789012345678",
                 account: "093456789012345678",
+              },
+            ],
+
+            adquisition: "2025-01-10",
+            provider: "PROVEEDOR TEST",
+            brand: "VW",
+            model: "VENTO",
+            transmission: "MANUAL",
+            year: "2017",
+            color: "BLANCO",
+            vin: "XXYYZZWW12345",
+            purchase: "$140,000.00",
+            commission: "$2,000.00",
+            tax: "IVA",
+            invoice: "$180,000.00",
+            sales: "$180,000.00",
+            car_investors: [
+              {
+                investor: {
+                  name: "LORENA MACIAS",
+                },
+                percentage: "50%",
+              },
+              {
+                investor: {
+                  name: "CARLOS MACIAS",
+                },
+                percentage: "50%",
+              },
+            ],
+            overheads: [
+              {
+                overhead_type: {
+                  name: "HOJALATERIA",
+                },
+                observation: "PUERTA DERECHA",
+                date: "2025-01-15",
+                amount: "$1,000.00",
               },
             ],
           },
@@ -237,7 +336,6 @@ const deleteItem = async () => {
   if (!confirmed) return;
 
   isLoading.value = true;
-
   // try {
   //   const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
   //   const response = getRsp(

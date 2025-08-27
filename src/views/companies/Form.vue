@@ -23,7 +23,9 @@
                 <v-row dense>
                   <v-col cols="11">
                     <CardTitle
-                      :text="`DATOS GENERALES${isStoreMode ? '' : ' | ' + (item.uiid || '')}`"
+                      :text="`DATOS GENERALES${
+                        isStoreMode ? '' : ' | ' + (item.uiid || '')
+                      }`"
                       sub
                     />
                   </v-col>
@@ -57,7 +59,10 @@
                       :disabled="item.logo_dlt"
                     />
                     <div v-if="!isStoreMode && item.logo && !item.logo_doc">
-                      <BtnDwd :value="item.logo_b64" :disabled="item.logo_dlt" />
+                      <BtnDwd
+                        :value="item.logo_b64"
+                        :disabled="item.logo_dlt"
+                      />
                       <v-btn
                         icon
                         variant="text"
@@ -65,9 +70,13 @@
                         :color="item.logo_dlt ? 'error' : undefined"
                         @click.prevent="item.logo_dlt = !item.logo_dlt"
                       >
-                        <v-icon size="small">mdi-delete{{ item.logo_dlt ? '-off' : '' }}</v-icon>
+                        <v-icon size="small"
+                          >mdi-delete{{ item.logo_dlt ? "-off" : "" }}</v-icon
+                        >
                         <v-tooltip activator="parent" location="bottom">
-                          {{ item.logo_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                          {{
+                            item.logo_dlt ? "Revertir eliminación" : "Eliminar"
+                          }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -138,19 +147,43 @@
                       :rules="rules.required"
                     />
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="3">
                     <v-text-field
-                      label="Dirección (calle | núm. exterior | núm. interior)*"
-                      v-model="item.fiscal_address"
+                      label="Calle*"
+                      fiscal="item.fiscal_street"
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="100"
+                      maxlength="75"
                       counter
                       :rules="rules.textOptional"
                     />
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Núm. exterior*"
+                      fiscal="item.fiscal_exterior"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="15"
+                      counter
+                      :rules="rules.textOptional"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Núm. interior*"
+                      fiscal="item.fiscal_interior"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="15"
+                      counter
+                      :rules="rules.textOptional"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
                     <v-text-field
                       label="Colonia*"
                       v-model="item.fiscal_neighborhood"
@@ -162,7 +195,7 @@
                       :rules="rules.textOptional"
                     />
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Estado"
                       v-model="item.fiscal_town.state_id"
@@ -175,7 +208,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Municipio"
                       v-model="item.fiscal_town_id"
@@ -185,7 +218,6 @@
                       item-title="name"
                       variant="outlined"
                       density="compact"
-                      :rules="rules.required"
                     />
                   </v-col>
                   <v-col cols="12" class="pb-5">
@@ -203,7 +235,13 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_fiel_cer_dlt"
                     />
-                    <div v-if="!isStoreMode && item.fiscal_fiel_cer && !item.fiscal_fiel_cer_doc">
+                    <div
+                      v-if="
+                        !isStoreMode &&
+                        item.fiscal_fiel_cer &&
+                        !item.fiscal_fiel_cer_doc
+                      "
+                    >
                       <BtnDwd
                         :value="item.fiscal_fiel_cer_b64"
                         :disabled="item.fiscal_fiel_cer_dlt"
@@ -213,13 +251,21 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_fiel_cer_dlt ? 'error' : undefined"
-                        @click.prevent="item.fiscal_fiel_cer_dlt = !item.fiscal_fiel_cer_dlt"
+                        @click.prevent="
+                          item.fiscal_fiel_cer_dlt = !item.fiscal_fiel_cer_dlt
+                        "
                       >
                         <v-icon size="small"
-                          >mdi-delete{{ item.fiscal_fiel_cer_dlt ? '-off' : '' }}</v-icon
+                          >mdi-delete{{
+                            item.fiscal_fiel_cer_dlt ? "-off" : ""
+                          }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{ item.fiscal_fiel_cer_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                          {{
+                            item.fiscal_fiel_cer_dlt
+                              ? "Revertir eliminación"
+                              : "Eliminar"
+                          }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -236,7 +282,13 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_fiel_key_dlt"
                     />
-                    <div v-if="!isStoreMode && item.fiscal_fiel_key && !item.fiscal_fiel_key_doc">
+                    <div
+                      v-if="
+                        !isStoreMode &&
+                        item.fiscal_fiel_key &&
+                        !item.fiscal_fiel_key_doc
+                      "
+                    >
                       <BtnDwd
                         :value="item.fiscal_fiel_key_b64"
                         :disabled="item.fiscal_fiel_key_dlt"
@@ -246,13 +298,21 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_fiel_key_dlt ? 'error' : undefined"
-                        @click.prevent="item.fiscal_fiel_key_dlt = !item.fiscal_fiel_key_dlt"
+                        @click.prevent="
+                          item.fiscal_fiel_key_dlt = !item.fiscal_fiel_key_dlt
+                        "
                       >
                         <v-icon size="small"
-                          >mdi-delete{{ item.fiscal_fiel_key_dlt ? '-off' : '' }}</v-icon
+                          >mdi-delete{{
+                            item.fiscal_fiel_key_dlt ? "-off" : ""
+                          }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{ item.fiscal_fiel_key_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                          {{
+                            item.fiscal_fiel_key_dlt
+                              ? "Revertir eliminación"
+                              : "Eliminar"
+                          }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -278,7 +338,13 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_csd_cer_dlt"
                     />
-                    <div v-if="!isStoreMode && item.fiscal_csd_cer && !item.fiscal_csd_cer_doc">
+                    <div
+                      v-if="
+                        !isStoreMode &&
+                        item.fiscal_csd_cer &&
+                        !item.fiscal_csd_cer_doc
+                      "
+                    >
                       <BtnDwd
                         :value="item.fiscal_csd_cer_b64"
                         :disabled="item.fiscal_csd_cer_dlt"
@@ -288,13 +354,21 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_csd_cer_dlt ? 'error' : undefined"
-                        @click.prevent="item.fiscal_csd_cer_dlt = !item.fiscal_csd_cer_dlt"
+                        @click.prevent="
+                          item.fiscal_csd_cer_dlt = !item.fiscal_csd_cer_dlt
+                        "
                       >
                         <v-icon size="small"
-                          >mdi-delete{{ item.fiscal_csd_cer_dlt ? '-off' : '' }}</v-icon
+                          >mdi-delete{{
+                            item.fiscal_csd_cer_dlt ? "-off" : ""
+                          }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{ item.fiscal_csd_cer_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                          {{
+                            item.fiscal_csd_cer_dlt
+                              ? "Revertir eliminación"
+                              : "Eliminar"
+                          }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -311,7 +385,13 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_csd_key_dlt"
                     />
-                    <div v-if="!isStoreMode && item.fiscal_csd_key && !item.fiscal_csd_key_doc">
+                    <div
+                      v-if="
+                        !isStoreMode &&
+                        item.fiscal_csd_key &&
+                        !item.fiscal_csd_key_doc
+                      "
+                    >
                       <BtnDwd
                         :value="item.fiscal_csd_key_b64"
                         :disabled="item.fiscal_csd_key_dlt"
@@ -321,13 +401,21 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_csd_key_dlt ? 'error' : undefined"
-                        @click.prevent="item.fiscal_csd_key_dlt = !item.fiscal_csd_key_dlt"
+                        @click.prevent="
+                          item.fiscal_csd_key_dlt = !item.fiscal_csd_key_dlt
+                        "
                       >
                         <v-icon size="small"
-                          >mdi-delete{{ item.fiscal_csd_key_dlt ? '-off' : '' }}</v-icon
+                          >mdi-delete{{
+                            item.fiscal_csd_key_dlt ? "-off" : ""
+                          }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{ item.fiscal_csd_key_dlt ? 'Revertir eliminación' : 'Eliminar' }}
+                          {{
+                            item.fiscal_csd_key_dlt
+                              ? "Revertir eliminación"
+                              : "Eliminar"
+                          }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -357,7 +445,9 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left">Continuar</v-tooltip>
+                <v-tooltip activator="parent" location="left"
+                  >Continuar</v-tooltip
+                >
               </v-btn>
             </div>
           </v-col>
@@ -369,74 +459,101 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+import { ref, inject, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
 
 // Importaciones internas del proyecto
-import { useStore } from '@/store'
-import { URL_API } from '@/utils/config'
-import { getHdrs, getErr, getRsp } from '@/utils/http'
-import { getDecodeId } from '@/utils/coders'
-import { getRules } from '@/utils/validators'
-import { getObj, getFormData } from '@/utils/helpers'
-import { getUserObj } from '@/utils/objects'
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getDecodeId, getEncodeId } from "@/utils/coders";
+import { getRules } from "@/utils/validators";
+import { getObj, getFormData } from "@/utils/helpers";
 
 // Componentes
-import BtnBack from '@/components/BtnBack.vue'
-import CardTitle from '@/components/CardTitle.vue'
-import BtnDwd from '@/components/BtnDwd.vue'
-import InpPassword from '@/components/InpPassword.vue'
-
-// Estado y referencias
-const alert = inject('alert')
-const confirm = inject('confirm')
-const store = useStore()
-const router = useRouter()
-const route = useRoute()
-
-// Estado reactivo
-const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null)
-const isStoreMode = ref(!itemId.value)
-const isLoading = ref(true)
-const formRef = ref(null)
-const item = ref(null)
-const rules = getRules()
-const fiscalRegimes = ref([])
-const fiscalRegimesLoading = ref(true)
-const states = ref([])
-const statesLoading = ref(true)
-const towns = ref([])
-const townsLoading = ref(false)
+import BtnBack from "@/components/BtnBack.vue";
+import CardTitle from "@/components/CardTitle.vue";
+import BtnDwd from "@/components/BtnDwd.vue";
+import InpPassword from "@/components/InpPassword.vue";
 
 // Constantes fijas
-const routeName = 'companies'
+const routeName = "companies";
+
+// Estado y referencias
+const alert = inject("alert");
+const confirm = inject("confirm");
+const store = useStore();
+const router = useRouter();
+const route = useRoute();
+
+// Estado reactivo
+const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
+const isStoreMode = ref(!itemId.value);
+const isLoading = ref(true);
+const formRef = ref(null);
+const item = ref(null);
+const rules = getRules();
+const fiscalRegimes = ref([]);
+const fiscalRegimesLoading = ref(true);
+const states = ref([]);
+const statesLoading = ref(true);
+const towns = ref([]);
+const townsLoading = ref(false);
 
 // Obtener catálogos
 const getCatalogs = async () => {
-  let endpoint = null
-  let response = null
+  let endpoint = null;
+  let response = null;
 
   try {
-    endpoint = `${URL_API}/system/fiscal_regimes`
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    fiscalRegimes.value = getRsp(response).data.items
+    // endpoint = `${URL_API}/system/fiscal_regimes`;
+    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const response = {
+      data: {
+        msg: "Registros retornados correctamente",
+        data: {
+          items: [
+            {
+              id: 1,
+              active: 1,
+              name: "REGIMEN GENERAL DE LEY PERSONAS MORALES | 601",
+            },
+          ],
+        },
+      },
+    };
+    fiscalRegimes.value = getRsp(response).data.items;
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    fiscalRegimesLoading.value = false
+    fiscalRegimesLoading.value = false;
   }
 
   try {
-    endpoint = `${URL_API}/system/states`
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    states.value = getRsp(response).data.items
+    // endpoint = `${URL_API}/system/states`;
+    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const response = {
+      data: {
+        msg: "Registros retornados correctamente",
+        data: {
+          items: [
+            {
+              id: 1,
+              active: 1,
+              name: "GUANAJUATO",
+            },
+          ],
+        },
+      },
+    };
+    states.value = getRsp(response).data.items;
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    statesLoading.value = false
+    statesLoading.value = false;
   }
-}
+};
 
 // Obtener datos
 const getItem = async () => {
@@ -452,7 +569,9 @@ const getItem = async () => {
       fiscal_code: null,
       fiscal_zip: null,
       fiscal_regime_id: null,
-      fiscal_address: null,
+      fiscal_street: null,
+      fiscal_exterior: null,
+      fiscal_interior: null,
       fiscal_neighborhood: null,
       fiscal_town: {
         state_id: null,
@@ -472,61 +591,137 @@ const getItem = async () => {
       fiscal_csd_key_doc: null,
       fiscal_csd_key_dlt: false,
       fiscal_csd_pass: null,
-    }
-    isLoading.value = false
+    };
+    isLoading.value = false;
   } else {
     try {
-      const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
-      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-      item.value = getRsp(response).data.item
+      // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
+      // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+      const response = {
+        data: {
+          msg: "Registro retornado correctamente",
+          data: {
+            item: {
+              id: 1,
+              active: 1,
+              created_at: "2025-07-31 17:31:16",
+              updated_at: "2025-08-06 20:57:17",
+              created_by_id: 1,
+              updated_by_id: 1,
+              created_by: {
+                email: "samuel@svr.mx",
+              },
+              updated_by: {
+                email: "samuel@svr.mx",
+              },
+              uiid: "E-0001",
+              name: "DALCAR AUTOMOTRIZ",
+              logo: null,
+              logo_doc: null,
+              logo_dlt: false,
+              logo_b64: null,
+              fiscal_name: "DALCAR AUTOMOTRIZ",
+              fiscal_code: "XYZ112233AB1",
+              fiscal_zip: "00000",
+              fiscal_regime_id: 1,
+              fiscal_regime: {
+                name: "REGIMEN GENERAL DE LEY PERSONAS MORALES | 601",
+              },
+              fiscal_street: null,
+              fiscal_exterior: null,
+              fiscal_interior: null,
+              fiscal_neighborhood: null,
+              fiscal_town_id: null,
+              fiscal_town: {
+                name: "CELAYA",
+                state_id: null,
+                state: {
+                  name: "GUANAJUATO",
+                },
+              },
+              fiscal_fiel_cer: null,
+              fiscal_fiel_cer_doc: null,
+              fiscal_fiel_cer_dlt: false,
+              fiscal_fiel_cer_b64: null,
+              fiscal_fiel_key: null,
+              fiscal_fiel_key_doc: null,
+              fiscal_fiel_key_dlt: false,
+              fiscal_fiel_key_b64: null,
+              fiscal_fiel_pass: null,
+              fiscal_csd_cer: null,
+              fiscal_csd_cer_doc: null,
+              fiscal_csd_cer_dlt: false,
+              fiscal_csd_cer_b64: null,
+              fiscal_csd_key: null,
+              fiscal_csd_key_doc: null,
+              fiscal_csd_key_dlt: false,
+              fiscal_csd_key_b64: null,
+              fiscal_csd_pass: null,
+            },
+          },
+        },
+      };
+      item.value = getRsp(response).data.item;
     } catch (err) {
-      alert?.show('red-darken-1', getErr(err))
+      alert?.show("red-darken-1", getErr(err));
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
-}
+};
 
 // Agregar o editar
 const handleAction = async () => {
-  const { valid } = await formRef.value.validate()
+  const { valid } = await formRef.value.validate();
   if (!valid) {
-    alert?.show('red-darken-1', 'Revisa los detalles señalados')
-    return
+    alert?.show("red-darken-1", "Revisa los detalles señalados");
+    return;
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma ${isStoreMode.value ? 'agregar' : 'editar'} registro?`
-  )
-  if (!confirmed) return
+    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
+  );
+  if (!confirmed) return;
 
-  isLoading.value = true
-  const payload = getObj(item.value, isStoreMode.value)
+  isLoading.value = true;
+  const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    const endpoint = `${URL_API}/system/${routeName}${!isStoreMode.value ? `/${payload.id}` : ''}`
-    const response = getRsp(
-      await axios.post(endpoint, getFormData(payload), getHdrs(store.getAuth?.token, true))
-    )
+    // const endpoint = `${URL_API}/system/${routeName}${
+    //   !isStoreMode.value ? `/${payload.id}` : ""
+    // }`;
+    // const response = getRsp(
+    //   await axios.post(
+    //     endpoint,
+    //     getFormData(payload),
+    //     getHdrs(store.getAuth?.token, true)
+    //   )
+    // );
 
-    alert?.show('success', response.msg)
+    // alert?.show("success", response.msg);
+
+    // router.push({
+    //   name: `${routeName}/show`,
+    //   params: {
+    //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
+    //   },
+    // });
+
+    alert?.show("success", "Registro agregado correctamente");
 
     router.push({
-      name: `${routeName}/show`,
-      params: {
-        id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
-      },
-    })
+      name: `${routeName}`,
+    });
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Inicialización
 onMounted(() => {
-  getCatalogs()
-  getItem()
-})
+  getCatalogs();
+  getItem();
+});
 </script>

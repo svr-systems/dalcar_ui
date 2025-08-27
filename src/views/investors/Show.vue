@@ -13,7 +13,10 @@
             variant="flat"
             size="x-small"
             color="warning"
-            :to="{ name: `${routeName}/update`, params: { id: getEncodeId(itemId) } }"
+            :to="{
+              name: `${routeName}/update`,
+              params: { id: getEncodeId(itemId) },
+            }"
           >
             <v-icon>mdi-pencil</v-icon>
             <v-tooltip activator="parent" location="left">Editar</v-tooltip>
@@ -28,7 +31,10 @@
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
-              <v-col v-if="store.getAuth?.user?.role_id === 1" class="shrink text-right">
+              <v-col
+                v-if="store.getAuth?.user?.role_id === 1"
+                class="shrink text-right"
+              >
                 <v-btn
                   icon
                   variant="flat"
@@ -37,7 +43,9 @@
                   @click.prevent="restoreItem"
                 >
                   <v-icon>mdi-delete-restore</v-icon>
-                  <v-tooltip activator="parent" location="left">Reactivar</v-tooltip>
+                  <v-tooltip activator="parent" location="left"
+                    >Reactivar</v-tooltip
+                  >
                 </v-btn>
               </v-col>
             </v-row>
@@ -60,7 +68,9 @@
                     @click.prevent="regDialog = true"
                   >
                     <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left">Registro</v-tooltip>
+                    <v-tooltip activator="parent" location="left"
+                      >Registro</v-tooltip
+                    >
                   </v-btn>
                 </v-col>
               </v-row>
@@ -77,7 +87,7 @@
                 <v-col cols="12" md="3">
                   <VisVal label="A. materno" :value="item.m_surname" />
                 </v-col>
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="6">
                   <VisVal label="Tipo" :value="item.type.name" />
                 </v-col>
                 <v-col cols="12" md="3">
@@ -88,7 +98,10 @@
           </v-card>
         </v-col>
 
-        <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
+        <v-col
+          v-if="item.active && store.getAuth?.user?.role_id === 1"
+          cols="12"
+        >
           <v-btn
             icon
             variant="flat"
@@ -109,105 +122,132 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+import { ref, inject, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
 
 // Importaciones internas del proyecto
-import { useStore } from '@/store'
-import { URL_API } from '@/utils/config'
-import { getHdrs, getErr, getRsp } from '@/utils/http'
-import { getDecodeId, getEncodeId } from '@/utils/coders'
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getDecodeId, getEncodeId } from "@/utils/coders";
 
 // Componentes
-import BtnBack from '@/components/BtnBack.vue'
-import CardTitle from '@/components/CardTitle.vue'
-import DlgReg from '@/components/DlgReg.vue'
-import VisVal from '@/components/VisVal.vue'
-import VisDoc from '@/components/VisDoc.vue'
+import BtnBack from "@/components/BtnBack.vue";
+import CardTitle from "@/components/CardTitle.vue";
+import DlgReg from "@/components/DlgReg.vue";
+import VisVal from "@/components/VisVal.vue";
 
 // Constantes fijas
-const routeName = 'investors'
+const routeName = "investors";
 
 // Estado y referencias
-const alert = inject('alert')
-const confirm = inject('confirm')
-const store = useStore()
-const router = useRouter()
-const route = useRoute()
+const alert = inject("alert");
+const confirm = inject("confirm");
+const store = useStore();
+const router = useRouter();
+const route = useRoute();
 
 // Estado reactivo
-const itemId = ref(getDecodeId(route.params.id))
-const isLoading = ref(true)
-const item = ref(null)
-const regDialog = ref(false)
+const itemId = ref(getDecodeId(route.params.id));
+const isLoading = ref(true);
+const item = ref(null);
+const regDialog = ref(false);
 
 // Obtener registro
 const getItem = async () => {
-  isLoading.value = true
+  isLoading.value = true;
   try {
     // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
     // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    // item.value = getRsp(response).data.item
-    item.value = {
-      id: 1,
-      active: true,
-      uiid: 'I-0001',
-      name: 'INVERSIONISTA',
-      p_surname: 'PRUEBA',
-      m_surname: null,
-      type: {
-        name: 'TIPO 1',
+    const response = {
+      data: {
+        msg: "Registro retornado correctamente",
+        data: {
+          item: {
+            id: 1,
+            active: 1,
+            created_at: "2025-07-31 17:31:16",
+            updated_at: "2025-08-06 20:57:17",
+            created_by_id: 1,
+            updated_by_id: 1,
+            created_by: {
+              email: "samuel@svr.mx",
+            },
+            updated_by: {
+              email: "samuel@svr.mx",
+            },
+            uiid: "I-0001",
+            name: "INVERSIONISTA",
+            p_surname: "PRUEBA",
+            m_surname: null,
+            type_id: 1,
+            type: {
+              name: "TIPO 1",
+            },
+            percent: "5",
+          },
+        },
       },
-      percent: '5',
-    }
+    };
+    item.value = getRsp(response).data.item;
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Inactivar
 const deleteItem = async () => {
-  const confirmed = await confirm?.show('¿Confirma inactivar el registro?')
-  if (!confirmed) return
+  const confirmed = await confirm?.show("¿Confirma inactivar el registro?");
+  if (!confirmed) return;
 
-  isLoading.value = true
-  try {
-    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
-    const response = getRsp(await axios.delete(endpoint, getHdrs(store.getAuth?.token)))
-    alert?.show('red-darken-1', response.msg)
-    router.push({ name: routeName })
-  } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
-  } finally {
-    isLoading.value = false
-  }
-}
+  isLoading.value = true;
+  // try {
+  //   const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
+  //   const response = getRsp(
+  //     await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+  //   );
+  //   alert?.show("red-darken-1", response.msg);
+  // } catch (err) {
+  //   alert?.show("red-darken-1", getErr(err));
+  // } finally {
+  //   isLoading.value = false;
+  // }
+  alert?.show("red-darken-1", "Registro desactivado correctamente");
+  router.push({ name: routeName });
+  isLoading.value = false;
+};
 
 // Reactivar
 const restoreItem = async () => {
-  const confirmed = await confirm?.show('¿Confirma activar el registro?')
-  if (!confirmed) return
+  const confirmed = await confirm?.show("¿Confirma activar el registro?");
+  if (!confirmed) return;
 
-  isLoading.value = true
-  try {
-    const endpoint = `${URL_API}/system/${routeName}/restore`
-    const response = getRsp(
-      await axios.post(endpoint, { id: itemId.value }, getHdrs(store.getAuth?.token))
-    )
-    item.value = response.data.item
-    alert?.show('success', response.msg)
-  } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
-  } finally {
-    isLoading.value = false
-  }
-}
+  isLoading.value = true;
+  // try {
+  //   const endpoint = `${URL_API}/system/${routeName}/restore`;
+  //   const response = getRsp(
+  //     await axios.post(
+  //       endpoint,
+  //       { id: itemId.value },
+  //       getHdrs(store.getAuth?.token)
+  //     )
+  //   );
+  //   item.value = response.data.item;
+  //   alert?.show("success", response.msg);
+  // } catch (err) {
+  //   alert?.show("red-darken-1", getErr(err));
+  // } finally {
+  //   isLoading.value = false;
+  // }
+  alert?.show("red-darken-1", "Registro activado correctamente");
+  isLoading.value = false;
+};
 
 // Inicializar
 onMounted(() => {
-  getItem()
-})
+  getItem();
+});
 </script>

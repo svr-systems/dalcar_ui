@@ -5,7 +5,7 @@
     <v-icon
       v-if="icon"
       :icon="icon"
-      :size="sub ? 'small' : undefined"
+      :size="sub ? 'x-small' : 'small'"
       class="ml-1"
     />
     {{ text }}

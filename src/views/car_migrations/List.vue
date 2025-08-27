@@ -94,15 +94,8 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.email_verified_at="{ item }">
-              <v-icon
-                size="x-small"
-                :color="item.email_verified_at ? 'info' : ''"
-              >
-                mdi-checkbox-blank-circle{{
-                  item.email_verified_at ? "" : "-outline"
-                }}
-              </v-icon>
+            <template #item.status="{ item }">
+              <span style="color: orange">{{ item.status }}</span>
             </template>
 
             <template #item.action="{ item }">
@@ -118,9 +111,9 @@
                   }"
                 >
                   <v-icon>mdi-eye</v-icon>
-                  <v-tooltip activator="parent" location="left"
-                    >Detalle</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="left">
+                    Detalle
+                  </v-tooltip>
                 </v-btn>
               </div>
             </template>
@@ -145,7 +138,7 @@ import { getEncodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 
 // Constantes
-const routeName = "providers";
+const routeName = "car_migrations";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
@@ -168,9 +161,13 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "Nombre", key: "name" },
-  { title: "Tipo", key: "type" },
-  { title: "UIID", key: "uiid" },
+  { title: "Marca", key: "brand" },
+  { title: "Modelo", key: "model" },
+  { title: "Año", key: "year" },
+  { title: "Transmisión", key: "transmission" },
+  { title: "Color", key: "color" },
+  { title: "Estado", key: "status" },
+  { title: "UUID", key: "uiid" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -190,10 +187,14 @@ const getItems = async () => {
             {
               id: 1,
               active: 1,
+              uiid: "E-0001",
               key: 0,
-              uiid: "P-0001",
-              name: "PROVEEDOR PRUEBA",
-              type: "TIPO 1",
+              brand: "VW",
+              model: "VENTO",
+              year: "2017",
+              transmission: "MANUAL",
+              color: "BLANCO",
+              status: "INFO. VENTA PEND.",
             },
           ],
         },

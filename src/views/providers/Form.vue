@@ -153,9 +153,9 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left"
-                  >Continuar</v-tooltip
-                >
+                <v-tooltip activator="parent" location="left">
+                  Continuar
+                </v-tooltip>
               </v-btn>
             </div>
           </v-col>
@@ -177,14 +177,14 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
-import { getObj, getFormData } from "@/utils/helpers";
-import { getUserObj } from "@/utils/objects";
+import { getObj } from "@/utils/helpers";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
-import BtnDwd from "@/components/BtnDwd.vue";
-import InpPassword from "@/components/InpPassword.vue";
+
+// Constantes fijas
+const routeName = "providers";
 
 // Estado y referencias
 const alert = inject("alert");
@@ -205,29 +205,56 @@ const typesLoading = ref(true);
 const banks = ref([]);
 const banksLoading = ref(true);
 
-// Constantes fijas
-const routeName = "providers";
-
 // Obtener catálogos
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
 
-  types.value = [
-    {
-      id: 1,
-      name: "TIPO 1",
-    },
-  ];
-  typesLoading.value = false;
+  try {
+    // endpoint = `${URL_API}/system/fiscal_regimes`;
+    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const response = {
+      data: {
+        msg: "Registros retornados correctamente",
+        data: {
+          items: [
+            {
+              id: 1,
+              name: "TIPO 1",
+            },
+          ],
+        },
+      },
+    };
+    types.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    typesLoading.value = false;
+  }
 
-  banks.value = [
-    {
-      id: 1,
-      name: "BANCO 1",
-    },
-  ];
-  banksLoading.value = false;
+  try {
+    // endpoint = `${URL_API}/system/states`;
+    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const response = {
+      data: {
+        msg: "Registros retornados correctamente",
+        data: {
+          items: [
+            {
+              id: 1,
+              name: "BBVA",
+            },
+          ],
+        },
+      },
+    };
+    banks.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    banksLoading.value = false;
+  }
 };
 
 // Obtener datos
@@ -245,8 +272,46 @@ const getItem = async () => {
     isLoading.value = false;
   } else {
     try {
-      const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+      // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
+      // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+      const response = {
+        data: {
+          msg: "Registro retornado correctamente",
+          data: {
+            item: {
+              id: 1,
+              active: 1,
+              created_at: "2025-07-31 17:31:16",
+              updated_at: "2025-08-06 20:57:17",
+              created_by_id: 1,
+              updated_by_id: 1,
+              created_by: {
+                email: "samuel@svr.mx",
+              },
+              updated_by: {
+                email: "samuel@svr.mx",
+              },
+              uiid: "P-0001",
+              name: "PROVEEDOR PRUEBA",
+              type_id: 1,
+              type: {
+                name: "TIPO 1",
+              },
+              days: "3",
+              provider_banks: [
+                {
+                  bank_id: 1,
+                  bank: {
+                    name: "BBVA",
+                  },
+                  clabe: "123456789012345678",
+                  account: "093456789012345678",
+                },
+              ],
+            },
+          },
+        },
+      };
       item.value = getRsp(response).data.item;
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
@@ -282,24 +347,30 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    const endpoint = `${URL_API}/system/${routeName}${
-      !isStoreMode.value ? `/${payload.id}` : ""
-    }`;
-    const response = getRsp(
-      await axios.post(
-        endpoint,
-        getFormData(payload),
-        getHdrs(store.getAuth?.token, true)
-      )
-    );
+    // const endpoint = `${URL_API}/system/${routeName}${
+    //   !isStoreMode.value ? `/${payload.id}` : ""
+    // }`;
+    // const response = getRsp(
+    //   await axios.post(
+    //     endpoint,
+    //     payload,
+    //     getHdrs(store.getAuth?.token, true)
+    //   )
+    // );
 
-    alert?.show("success", response.msg);
+    // alert?.show("success", response.msg);
+
+    // router.push({
+    //   name: `${routeName}/show`,
+    //   params: {
+    //     id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
+    //   },
+    // });
+
+    alert?.show("success", "Registro agregado correctamente");
 
     router.push({
-      name: `${routeName}/show`,
-      params: {
-        id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
-      },
+      name: `${routeName}`,
     });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

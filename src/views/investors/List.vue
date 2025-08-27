@@ -24,10 +24,15 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="store.getAuth?.user?.role_id === 1" cols="12" md="3" class="pb-0">
+            <v-col
+              v-if="store.getAuth?.user?.role_id === 1"
+              cols="12"
+              md="3"
+              class="pb-0"
+            >
               <v-select
-                label="Mostrar"
                 v-model="active"
+                label="Mostrar"
                 variant="outlined"
                 density="compact"
                 :items="activeOptions"
@@ -38,8 +43,8 @@
             </v-col>
             <v-col cols="12" md="3" class="pb-0">
               <v-select
-                label="Filtro"
                 v-model="filter"
+                label="Filtro"
                 variant="outlined"
                 density="compact"
                 :items="filterOptions"
@@ -53,8 +58,8 @@
 
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
-            label="Buscar"
             v-model="search"
+            label="Buscar"
             type="text"
             variant="outlined"
             density="compact"
@@ -71,7 +76,7 @@
             :loading="isItemsEmpty && isLoading"
             @click.prevent="isItemsEmpty ? getItems() : (items = [])"
           >
-            {{ isItemsEmpty ? 'Aplicar' : 'Cambiar' }} filtros
+            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
             <v-icon right>mdi-filter</v-icon>
           </v-btn>
         </v-col>
@@ -89,17 +94,33 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
+            <template #item.email_verified_at="{ item }">
+              <v-icon
+                size="x-small"
+                :color="item.email_verified_at ? 'info' : ''"
+              >
+                mdi-checkbox-blank-circle{{
+                  item.email_verified_at ? "" : "-outline"
+                }}
+              </v-icon>
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.active ? '' : 'error'"
-                  :to="{ name: `${routeName}/show`, params: { id: getEncodeId(item.id) } }"
+                  :color="item.active ? '' : 'red-darken-3'"
+                  :to="{
+                    name: `${routeName}/show`,
+                    params: { id: getEncodeId(item.id) },
+                  }"
                 >
                   <v-icon>mdi-eye</v-icon>
-                  <v-tooltip activator="parent" location="left">Detalle</v-tooltip>
+                  <v-tooltip activator="parent" location="left"
+                    >Detalle</v-tooltip
+                  >
                 </v-btn>
               </div>
             </template>
@@ -111,83 +132,85 @@
 </template>
 
 <script setup>
-// Importaciones de librerías externas
-import { ref, inject, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+// Importaciones externas
+import { ref, computed, inject, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
-// Importaciones internas del proyecto
-import { useStore } from '@/store'
-import { URL_API } from '@/utils/config'
-import { getHdrs, getErr, getRsp } from '@/utils/http'
-import { getEncodeId } from '@/utils/coders'
+// Importaciones internas
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getEncodeId } from "@/utils/coders";
+import CardTitle from "@/components/CardTitle.vue";
 
-// Componentes
-import CardTitle from '@/components/CardTitle.vue'
+// Constantes
+const routeName = "investors";
+const alert = inject("alert");
+const store = useStore();
+const route = useRoute();
 
-// Estado y referencias
-const alert = inject('alert')
-const store = useStore()
-const router = useRouter()
-const route = useRoute()
+// Estado
+const isLoading = ref(false);
+const items = ref([]);
+const search = ref("");
+const active = ref(1);
+const filter = ref(0);
 
-// Estado reactivo
-const isLoading = ref(false)
-const items = ref([])
-const isItemsEmpty = computed(() => items.value.length === 0)
-const headers = ref([])
-const search = ref('')
-const active = ref(1)
-const activeOptions = ref([])
-const filter = ref(0)
-const filterOptions = ref([])
+const isItemsEmpty = computed(() => items.value.length === 0);
 
-// Constantes fijas
-const routeName = 'investors'
+// Opciones y headers
+const activeOptions = [
+  { id: 1, name: "ACTIVOS" },
+  { id: 0, name: "INACTIVOS" },
+];
+const filterOptions = [{ id: 0, name: "TODOS" }];
+
+const headers = [
+  { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
+  { title: "Nombre", key: "name" },
+  { title: "Tipo", key: "type" },
+  { title: "Piso %", key: "percent" },
+  { title: "UIID", key: "uiid" },
+  { title: "", key: "action", filterable: false, sortable: false, width: 60 },
+];
 
 // Cargar registros
 const getItems = async () => {
-  isLoading.value = true
-  items.value = []
+  isLoading.value = true;
+  items.value = [];
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}?active=${active.value}&filter=${filter.value}`
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    // items.value = getRsp(response).data.items
-    items.value = [
-      {
-        id: 1,
-        active: true,
-        key: 0,
-        name: 'INVERSIONISTA PRUEBA',
-        type: 'TIPO 1',
-        percent: '5',
+    //const endpoint = `${URL_API}/${routeName}?active=${active.value}&filter=${filter.value}`
+    //const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+    const response = {
+      data: {
+        msg: "Registros retornados correctamente",
+        data: {
+          items: [
+            {
+              id: 1,
+              active: 1,
+              key: 0,
+              uiid: "I-0001",
+              name: "INVERSIONISTA PRUEBA",
+              type: "TIPO 1",
+              percent: "5",
+            },
+          ],
+        },
       },
-    ]
+    };
+    items.value = getRsp(response).data.items;
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
-// Inicializar
+// Cargar datos al montar
 onMounted(() => {
-  headers.value = [
-    { title: '#', key: 'key', filterable: false, sortable: false, width: 60 },
-    { title: 'Nombre', key: 'name' },
-    { title: 'Tipo', key: 'type' },
-    { title: 'Piso %', key: 'percent' },
-    { title: '', key: 'action', filterable: false, sortable: false, width: 60 },
-  ]
-
-  activeOptions.value = [
-    { id: 1, name: 'ACTIVOS' },
-    { id: 0, name: 'INACTIVOS' },
-  ]
-
-  filterOptions.value = [{ id: 0, name: 'TODOS' }]
-
-  getItems()
-})
+  getItems();
+});
 </script>
