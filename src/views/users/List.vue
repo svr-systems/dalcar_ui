@@ -32,10 +32,10 @@
             >
               <v-select
                 label="Mostrar"
-                v-model="active"
+                v-model="isActive"
                 variant="outlined"
                 density="compact"
-                :items="activeOptions"
+                :items="isActiveOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -111,7 +111,7 @@
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.active ? '' : 'error'"
+                  :color="item.is_active ? '' : 'error'"
                   :to="{
                     name: `${routeName}/show`,
                     params: { id: getEncodeId(item.id) },
@@ -161,8 +161,8 @@ const items = ref([]);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const headers = ref([]);
 const search = ref("");
-const active = ref(1);
-const activeOptions = ref([]);
+const isActive = ref(1);
+const isActiveOptions = ref([]);
 const filter = ref(0);
 const filterOptions = ref([]);
 
@@ -172,34 +172,8 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}?active=${active.value}&filter=${filter.value}`;
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 2,
-              active: 1,
-              name: "VENTAS",
-              surname_p: "DALCAR",
-              surname_m: null,
-              email: "ventas@dalcar.mx",
-              employment_position: "VENTAS",
-              role_id: 2,
-              email_verified_at: null,
-              uiid: "U-0002",
-              key: 0,
-              full_name: "TEST DALCAR",
-              role: {
-                name: "USUARIO",
-              },
-            },
-          ],
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -220,7 +194,7 @@ onMounted(() => {
     { title: "", key: "action", filterable: false, sortable: false, width: 60 },
   ];
 
-  activeOptions.value = [
+  isActiveOptions.value = [
     { id: 1, name: "ACTIVOS" },
     { id: 0, name: "INACTIVOS" },
   ];

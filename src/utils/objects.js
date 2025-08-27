@@ -4,15 +4,14 @@
  */
 export const getUserObj = () => ({
   id: null,
-  active: true,
+  is_active: true,
+  role_id: null,
   name: null,
-  surname_p: null,
-  surname_m: null,
-  avatar: null,
+  paternal_surname: null,
+  maternal_surname: null,
+  phone: null,
+  avatar_path: null,
   avatar_doc: null,
   avatar_dlt: false,
   email: null,
-  role_id: null,
-  phone: null,
-  movil_phone: null,
 });
