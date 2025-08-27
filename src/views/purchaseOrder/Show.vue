@@ -105,7 +105,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title>
-              <CardTitle text="Autos" sub />
+              <CardTitle text="AUTOS" sub />
             </v-card-title>
             <v-card-text>
               <v-row dense v-for="(auto, i) of item.autos" :key="i">
@@ -150,7 +150,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title>
-              <CardTitle text="Pagos" sub />
+              <CardTitle text="PAGOS" sub />
             </v-card-title>
             <v-card-text>
               <v-table>
@@ -158,7 +158,7 @@
                   <tr>
                     <th class="text-left">Banco</th>
                     <th class="text-left">Titular</th>
-                    <th class="text-left">CLABE</th>
+                    <th class="text-left">Clabe</th>
                     <th class="text-left">Cuenta</th>
                     <th class="text-left">Monto</th>
                   </tr>
@@ -260,11 +260,11 @@ const getItem = async () => {
       account_state_b64: "data:application/pdf;base64,JVBERi0xLjcK...",
       autos: [
         {
-          brand: "Ford",
-          model: "Focus",
-          transmission: "Manual",
+          brand: "FORD",
+          model: "FOCUS",
+          transmission: "MANUAL",
           year: "2022",
-          color: "Azul",
+          color: "AZUL",
           vin: "VIN123456789",
           purchase_price: 25000,
           commission: 1000,
@@ -277,7 +277,7 @@ const getItem = async () => {
           bank: {
             name: "BBVA",
           },
-          holder: "Titular Ejemplo",
+          holder: "TITULAR EJEMPLO",
           clabe: "123456789012345678",
           account: "1234567890",
           amount: 25000,

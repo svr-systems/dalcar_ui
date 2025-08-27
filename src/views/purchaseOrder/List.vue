@@ -3,6 +3,7 @@
     <v-card-title>
       <v-row dense>
         <v-col cols="10">
+          <BtnBack :route="{ name: 'inventory' }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
         <v-col cols="2" class="text-right">
@@ -131,6 +132,7 @@ import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId } from "@/utils/coders";
+import BtnBack from "@/components/BtnBack.vue";
 
 // Componentes
 import CardTitle from "@/components/CardTitle.vue";
@@ -175,8 +177,8 @@ const getItems = async () => {
         date: "2025-08-25",
         amount: 250000,
         cars: 3,
-        providers: "Proveedor Prueba",
-        status: "Pendiente",
+        providers: "PROVEEDOR PRUEBA",
+        status: "PENDIENTE",
       },
     ];
   } catch (err) {

@@ -18,18 +18,28 @@
           <v-col cols="12">
             <v-card>
               <v-card-title>
-                <CardTitle text="Datos Generales" sub />
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle
+                      :text="`DATOS GENERALES${
+                        isStoreMode ? '' : ' | ' + (item.uiid || '')
+                      }`"
+                      sub
+                    />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
               </v-card-title>
               <v-card-text>
                 <v-row dense>
                   <v-col cols="12" md="4">
-                    <v-text-field
+                    <v-date-input
                       label="Fecha"
                       v-model="item.date"
-                      type="date"
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      :max="todayDate"
                     />
                   </v-col>
                   <v-col cols="12" md="8">
@@ -47,7 +57,7 @@
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      label="Monto a Pagar"
+                      label="Monto a pagar"
                       v-model="item.amount"
                       type="number"
                       variant="outlined"
@@ -137,7 +147,7 @@
           <v-col cols="12">
             <v-card>
               <v-card-title>
-                <CardTitle text="Autos" sub />
+                <CardTitle text="AUTOS" sub />
               </v-card-title>
               <v-card-text>
                 <v-row dense v-for="(auto, i) in item.autos" :key="i">
@@ -203,7 +213,7 @@
                   </v-col>
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Precio Compra"
+                      label="Precio de compra"
                       type="number"
                       v-model="auto.purchase_price"
                       variant="outlined"
@@ -231,7 +241,7 @@
                   </v-col>
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Monto Factura"
+                      label="Monto factura"
                       type="number"
                       v-model="auto.invoice_amount"
                       variant="outlined"
@@ -255,7 +265,7 @@
           <v-col cols="12">
             <v-card>
               <v-card-title>
-                <CardTitle text="Pagos" sub />
+                <CardTitle text="PAGOS" sub />
               </v-card-title>
               <v-card-text>
                 <v-table>
@@ -263,7 +273,7 @@
                     <tr>
                       <th class="text-left">Banco</th>
                       <th class="text-left">Titular</th>
-                      <th class="text-left">CLABE</th>
+                      <th class="text-left">Clabe</th>
                       <th class="text-left">Cuenta</th>
                       <th class="text-left">Monto</th>
                     </tr>
@@ -291,13 +301,13 @@
                 </v-table>
                 <v-row dense class="mt-4">
                   <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Fecha Límite de Pago"
+                    <v-date-input
+                      label="Fecha límite de pago"
                       v-model="item.due_date"
-                      type="date"
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      :min="todayDate"
                     />
                   </v-col>
                 </v-row>
@@ -360,6 +370,7 @@ const isLoading = ref(true);
 const formRef = ref(null);
 const item = ref(null);
 const rules = getRules();
+const todayDate = new Date().toISOString().slice(0, 10);
 
 // Datos simulados para los autocompletes
 const providers = ref([]);
@@ -387,9 +398,9 @@ const getCatalogs = async () => {
   try {
     // Simular llamada a la API y hardcodeo de datos
     const providersData = [
-      { id: 1, name: "Proveedor A" },
-      { id: 2, name: "Proveedor B" },
-      { id: 3, name: "Proveedor C" },
+      { id: 1, name: "PROVEEDOR A" },
+      { id: 2, name: "PROVEEDOR B" },
+      { id: 3, name: "PROVEEDOR C" },
     ];
     providers.value = providersData;
     providersLoading.value = false;
@@ -403,7 +414,6 @@ const getCatalogs = async () => {
     banks.value = banksData;
     banksLoading.value = false;
 
-    // Lógica para hardcodeo de los campos de autos
     brands.value = ["Toyota", "Ford", "Nissan", "Chevrolet", "Honda"];
     models.value = ["Corolla", "Focus", "Versa", "Malibu", "Civic"];
     transmissions.value = ["Automática", "Manual"];
@@ -448,18 +458,27 @@ const getItem = async () => {
         account_state: null,
         account_state_b64: null,
         autos: [],
-        payments: [],
+        payments: [
+          {
+            id: null,
+            bank_id: 1,
+            holder: "TITULAR EJEMPLO",
+            clabe: "123456789012345678",
+            account: "1234567890",
+            amount: 25000,
+          },
+        ],
         due_date: null,
       };
       autoAdd();
     } else {
-      // Simular llamada a la API y hardcodeo de datos de edición
       const response = {
         data: {
           msg: "Registro retornado correctamente",
           data: {
             item: {
               id: 1,
+              uiid: "OC-0001",
               date: "2024-08-20",
               amount: 50000.0,
               provider_id: 2,
@@ -490,7 +509,7 @@ const getItem = async () => {
                 {
                   id: 1,
                   bank_id: 1,
-                  holder: "Titular Ejemplo",
+                  holder: "TITULAR EJEMPLO",
                   clabe: "123456789012345678",
                   account: "1234567890",
                   amount: 25000,

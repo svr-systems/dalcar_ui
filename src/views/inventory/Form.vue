@@ -23,9 +23,7 @@
                 <v-row dense>
                   <v-col cols="11">
                     <CardTitle
-                      :text="`DATOS GENERALES${
-                        isStoreMode ? '' : ' | ' + (item.uiid || '')
-                      }`"
+                      :text="`DATOS GENERALES${isStoreMode ? '' : ' | ' + (item.uiid || '')}`"
                       sub
                     />
                   </v-col>
@@ -59,10 +57,7 @@
                       :disabled="item.logo_dlt"
                     />
                     <div v-if="!isStoreMode && item.logo && !item.logo_doc">
-                      <BtnDwd
-                        :value="item.logo_b64"
-                        :disabled="item.logo_dlt"
-                      />
+                      <BtnDwd :value="item.logo_b64" :disabled="item.logo_dlt" />
                       <v-btn
                         icon
                         variant="text"
@@ -70,13 +65,9 @@
                         :color="item.logo_dlt ? 'error' : undefined"
                         @click.prevent="item.logo_dlt = !item.logo_dlt"
                       >
-                        <v-icon size="small"
-                          >mdi-delete{{ item.logo_dlt ? "-off" : "" }}</v-icon
-                        >
+                        <v-icon size="small">mdi-delete{{ item.logo_dlt ? '-off' : '' }}</v-icon>
                         <v-tooltip activator="parent" location="bottom">
-                          {{
-                            item.logo_dlt ? "Revertir eliminación" : "Eliminar"
-                          }}
+                          {{ item.logo_dlt ? 'Revertir eliminación' : 'Eliminar' }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -212,13 +203,7 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_fiel_cer_dlt"
                     />
-                    <div
-                      v-if="
-                        !isStoreMode &&
-                        item.fiscal_fiel_cer &&
-                        !item.fiscal_fiel_cer_doc
-                      "
-                    >
+                    <div v-if="!isStoreMode && item.fiscal_fiel_cer && !item.fiscal_fiel_cer_doc">
                       <BtnDwd
                         :value="item.fiscal_fiel_cer_b64"
                         :disabled="item.fiscal_fiel_cer_dlt"
@@ -228,21 +213,13 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_fiel_cer_dlt ? 'error' : undefined"
-                        @click.prevent="
-                          item.fiscal_fiel_cer_dlt = !item.fiscal_fiel_cer_dlt
-                        "
+                        @click.prevent="item.fiscal_fiel_cer_dlt = !item.fiscal_fiel_cer_dlt"
                       >
                         <v-icon size="small"
-                          >mdi-delete{{
-                            item.fiscal_fiel_cer_dlt ? "-off" : ""
-                          }}</v-icon
+                          >mdi-delete{{ item.fiscal_fiel_cer_dlt ? '-off' : '' }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{
-                            item.fiscal_fiel_cer_dlt
-                              ? "Revertir eliminación"
-                              : "Eliminar"
-                          }}
+                          {{ item.fiscal_fiel_cer_dlt ? 'Revertir eliminación' : 'Eliminar' }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -259,13 +236,7 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_fiel_key_dlt"
                     />
-                    <div
-                      v-if="
-                        !isStoreMode &&
-                        item.fiscal_fiel_key &&
-                        !item.fiscal_fiel_key_doc
-                      "
-                    >
+                    <div v-if="!isStoreMode && item.fiscal_fiel_key && !item.fiscal_fiel_key_doc">
                       <BtnDwd
                         :value="item.fiscal_fiel_key_b64"
                         :disabled="item.fiscal_fiel_key_dlt"
@@ -275,21 +246,13 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_fiel_key_dlt ? 'error' : undefined"
-                        @click.prevent="
-                          item.fiscal_fiel_key_dlt = !item.fiscal_fiel_key_dlt
-                        "
+                        @click.prevent="item.fiscal_fiel_key_dlt = !item.fiscal_fiel_key_dlt"
                       >
                         <v-icon size="small"
-                          >mdi-delete{{
-                            item.fiscal_fiel_key_dlt ? "-off" : ""
-                          }}</v-icon
+                          >mdi-delete{{ item.fiscal_fiel_key_dlt ? '-off' : '' }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{
-                            item.fiscal_fiel_key_dlt
-                              ? "Revertir eliminación"
-                              : "Eliminar"
-                          }}
+                          {{ item.fiscal_fiel_key_dlt ? 'Revertir eliminación' : 'Eliminar' }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -315,13 +278,7 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_csd_cer_dlt"
                     />
-                    <div
-                      v-if="
-                        !isStoreMode &&
-                        item.fiscal_csd_cer &&
-                        !item.fiscal_csd_cer_doc
-                      "
-                    >
+                    <div v-if="!isStoreMode && item.fiscal_csd_cer && !item.fiscal_csd_cer_doc">
                       <BtnDwd
                         :value="item.fiscal_csd_cer_b64"
                         :disabled="item.fiscal_csd_cer_dlt"
@@ -331,21 +288,13 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_csd_cer_dlt ? 'error' : undefined"
-                        @click.prevent="
-                          item.fiscal_csd_cer_dlt = !item.fiscal_csd_cer_dlt
-                        "
+                        @click.prevent="item.fiscal_csd_cer_dlt = !item.fiscal_csd_cer_dlt"
                       >
                         <v-icon size="small"
-                          >mdi-delete{{
-                            item.fiscal_csd_cer_dlt ? "-off" : ""
-                          }}</v-icon
+                          >mdi-delete{{ item.fiscal_csd_cer_dlt ? '-off' : '' }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{
-                            item.fiscal_csd_cer_dlt
-                              ? "Revertir eliminación"
-                              : "Eliminar"
-                          }}
+                          {{ item.fiscal_csd_cer_dlt ? 'Revertir eliminación' : 'Eliminar' }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -362,13 +311,7 @@
                       :rules="rules.fileOptional"
                       :disabled="item.fiscal_csd_key_dlt"
                     />
-                    <div
-                      v-if="
-                        !isStoreMode &&
-                        item.fiscal_csd_key &&
-                        !item.fiscal_csd_key_doc
-                      "
-                    >
+                    <div v-if="!isStoreMode && item.fiscal_csd_key && !item.fiscal_csd_key_doc">
                       <BtnDwd
                         :value="item.fiscal_csd_key_b64"
                         :disabled="item.fiscal_csd_key_dlt"
@@ -378,21 +321,13 @@
                         variant="text"
                         size="small"
                         :color="item.fiscal_csd_key_dlt ? 'error' : undefined"
-                        @click.prevent="
-                          item.fiscal_csd_key_dlt = !item.fiscal_csd_key_dlt
-                        "
+                        @click.prevent="item.fiscal_csd_key_dlt = !item.fiscal_csd_key_dlt"
                       >
                         <v-icon size="small"
-                          >mdi-delete{{
-                            item.fiscal_csd_key_dlt ? "-off" : ""
-                          }}</v-icon
+                          >mdi-delete{{ item.fiscal_csd_key_dlt ? '-off' : '' }}</v-icon
                         >
                         <v-tooltip activator="parent" location="bottom">
-                          {{
-                            item.fiscal_csd_key_dlt
-                              ? "Revertir eliminación"
-                              : "Eliminar"
-                          }}
+                          {{ item.fiscal_csd_key_dlt ? 'Revertir eliminación' : 'Eliminar' }}
                         </v-tooltip>
                       </v-btn>
                     </div>
@@ -422,9 +357,7 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left"
-                  >Continuar</v-tooltip
-                >
+                <v-tooltip activator="parent" location="left">Continuar</v-tooltip>
               </v-btn>
             </div>
           </v-col>
@@ -436,74 +369,74 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import axios from "axios";
+import { ref, inject, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
 
 // Importaciones internas del proyecto
-import { useStore } from "@/store";
-import { URL_API } from "@/utils/config";
-import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getDecodeId } from "@/utils/coders";
-import { getRules } from "@/utils/validators";
-import { getObj, getFormData } from "@/utils/helpers";
-import { getUserObj } from "@/utils/objects";
+import { useStore } from '@/store'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getDecodeId } from '@/utils/coders'
+import { getRules } from '@/utils/validators'
+import { getObj, getFormData } from '@/utils/helpers'
+import { getUserObj } from '@/utils/objects'
 
 // Componentes
-import BtnBack from "@/components/BtnBack.vue";
-import CardTitle from "@/components/CardTitle.vue";
-import BtnDwd from "@/components/BtnDwd.vue";
-import InpPassword from "@/components/InpPassword.vue";
+import BtnBack from '@/components/BtnBack.vue'
+import CardTitle from '@/components/CardTitle.vue'
+import BtnDwd from '@/components/BtnDwd.vue'
+import InpPassword from '@/components/InpPassword.vue'
 
 // Estado y referencias
-const alert = inject("alert");
-const confirm = inject("confirm");
-const store = useStore();
-const router = useRouter();
-const route = useRoute();
+const alert = inject('alert')
+const confirm = inject('confirm')
+const store = useStore()
+const router = useRouter()
+const route = useRoute()
 
 // Estado reactivo
-const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-const isStoreMode = ref(!itemId.value);
-const isLoading = ref(true);
-const formRef = ref(null);
-const item = ref(null);
-const rules = getRules();
-const fiscalRegimes = ref([]);
-const fiscalRegimesLoading = ref(true);
-const states = ref([]);
-const statesLoading = ref(true);
-const towns = ref([]);
-const townsLoading = ref(false);
+const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null)
+const isStoreMode = ref(!itemId.value)
+const isLoading = ref(true)
+const formRef = ref(null)
+const item = ref(null)
+const rules = getRules()
+const fiscalRegimes = ref([])
+const fiscalRegimesLoading = ref(true)
+const states = ref([])
+const statesLoading = ref(true)
+const towns = ref([])
+const townsLoading = ref(false)
 
 // Constantes fijas
-const routeName = "companies";
+const routeName = 'inventory'
 
 // Obtener catálogos
 const getCatalogs = async () => {
-  let endpoint = null;
-  let response = null;
+  let endpoint = null
+  let response = null
 
   try {
-    endpoint = `${URL_API}/system/fiscal_regimes`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    fiscalRegimes.value = getRsp(response).data.items;
+    endpoint = `${URL_API}/system/fiscal_regimes`
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+    fiscalRegimes.value = getRsp(response).data.items
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    fiscalRegimesLoading.value = false;
+    fiscalRegimesLoading.value = false
   }
 
   try {
-    endpoint = `${URL_API}/system/states`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    states.value = getRsp(response).data.items;
+    endpoint = `${URL_API}/system/states`
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+    states.value = getRsp(response).data.items
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    statesLoading.value = false;
+    statesLoading.value = false
   }
-};
+}
 
 // Obtener datos
 const getItem = async () => {
@@ -539,67 +472,61 @@ const getItem = async () => {
       fiscal_csd_key_doc: null,
       fiscal_csd_key_dlt: false,
       fiscal_csd_pass: null,
-    };
-    isLoading.value = false;
+    }
+    isLoading.value = false
   } else {
     try {
-      const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      item.value = getRsp(response).data.item;
+      const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
+      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+      item.value = getRsp(response).data.item
     } catch (err) {
-      alert?.show("red-darken-1", getErr(err));
+      alert?.show('red-darken-1', getErr(err))
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
   }
-};
+}
 
 // Agregar o editar
 const handleAction = async () => {
-  const { valid } = await formRef.value.validate();
+  const { valid } = await formRef.value.validate()
   if (!valid) {
-    alert?.show("red-darken-1", "Revisa los detalles señalados");
-    return;
+    alert?.show('red-darken-1', 'Revisa los detalles señalados')
+    return
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
-  );
-  if (!confirmed) return;
+    `¿Confirma ${isStoreMode.value ? 'agregar' : 'editar'} registro?`
+  )
+  if (!confirmed) return
 
-  isLoading.value = true;
-  const payload = getObj(item.value, isStoreMode.value);
+  isLoading.value = true
+  const payload = getObj(item.value, isStoreMode.value)
 
   try {
-    const endpoint = `${URL_API}/system/${routeName}${
-      !isStoreMode.value ? `/${payload.id}` : ""
-    }`;
+    const endpoint = `${URL_API}/system/${routeName}${!isStoreMode.value ? `/${payload.id}` : ''}`
     const response = getRsp(
-      await axios.post(
-        endpoint,
-        getFormData(payload),
-        getHdrs(store.getAuth?.token, true)
-      )
-    );
+      await axios.post(endpoint, getFormData(payload), getHdrs(store.getAuth?.token, true))
+    )
 
-    alert?.show("success", response.msg);
+    alert?.show('success', response.msg)
 
     router.push({
       name: `${routeName}/show`,
       params: {
         id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
       },
-    });
+    })
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Inicialización
 onMounted(() => {
-  getCatalogs();
-  getItem();
-});
+  getCatalogs()
+  getItem()
+})
 </script>

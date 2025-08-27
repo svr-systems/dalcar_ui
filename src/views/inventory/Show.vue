@@ -13,10 +13,7 @@
             variant="flat"
             size="x-small"
             color="warning"
-            :to="{
-              name: `${routeName}/update`,
-              params: { id: getEncodeId(itemId) },
-            }"
+            :to="{ name: `${routeName}/update`, params: { id: getEncodeId(itemId) } }"
           >
             <v-icon>mdi-pencil</v-icon>
             <v-tooltip activator="parent" location="left">Editar</v-tooltip>
@@ -31,10 +28,7 @@
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
-              <v-col
-                v-if="store.getAuth?.user?.role_id === 1"
-                class="shrink text-right"
-              >
+              <v-col v-if="store.getAuth?.user?.role_id === 1" class="shrink text-right">
                 <v-btn
                   icon
                   variant="flat"
@@ -43,9 +37,7 @@
                   @click.prevent="restoreItem"
                 >
                   <v-icon>mdi-delete-restore</v-icon>
-                  <v-tooltip activator="parent" location="left"
-                    >Reactivar</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="left">Reactivar</v-tooltip>
                 </v-btn>
               </v-col>
             </v-row>
@@ -68,9 +60,7 @@
                     @click.prevent="regDialog = true"
                   >
                     <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left"
-                      >Registro</v-tooltip
-                    >
+                    <v-tooltip activator="parent" location="left">Registro</v-tooltip>
                   </v-btn>
                 </v-col>
               </v-row>
@@ -102,10 +92,7 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="6">
-                  <VisVal
-                    label="Nombre | Razón Social"
-                    :value="item.fiscal_name"
-                  />
+                  <VisVal label="Nombre | Razón Social" :value="item.fiscal_name" />
                 </v-col>
                 <v-col cols="12" md="3">
                   <VisVal label="RFC" :value="item.fiscal_code" />
@@ -114,10 +101,7 @@
                   <VisVal label="Código postal" :value="item.fiscal_zip" />
                 </v-col>
                 <v-col cols="12" md="6">
-                  <VisVal
-                    label="Regimen fiscal"
-                    :value="item.fiscal_regime.name"
-                  />
+                  <VisVal label="Regimen fiscal" :value="item.fiscal_regime.name" />
                 </v-col>
                 <v-col cols="12" md="6">
                   <VisVal
@@ -145,17 +129,10 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <div>
-                    <div :class="['font-weight-light', 'text-caption']">
-                      Clave
-                    </div>
+                    <div :class="['font-weight-light', 'text-caption']">Clave</div>
                     <div>
-                      <v-icon
-                        size="x-small"
-                        :color="item.fiscal_fiel_pass ? 'info' : ''"
-                      >
-                        mdi-checkbox-blank-circle{{
-                          item.fiscal_fiel_pass ? "" : "-outline"
-                        }}
+                      <v-icon size="x-small" :color="item.fiscal_fiel_pass ? 'info' : ''">
+                        mdi-checkbox-blank-circle{{ item.fiscal_fiel_pass ? '' : '-outline' }}
                       </v-icon>
                     </div>
                   </div>
@@ -168,17 +145,10 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <div>
-                    <div :class="['font-weight-light', 'text-caption']">
-                      Clave
-                    </div>
+                    <div :class="['font-weight-light', 'text-caption']">Clave</div>
                     <div>
-                      <v-icon
-                        size="x-small"
-                        :color="item.fiscal_csd_pass ? 'info' : ''"
-                      >
-                        mdi-checkbox-blank-circle{{
-                          item.fiscal_csd_pass ? "" : "-outline"
-                        }}
+                      <v-icon size="x-small" :color="item.fiscal_csd_pass ? 'info' : ''">
+                        mdi-checkbox-blank-circle{{ item.fiscal_csd_pass ? '' : '-outline' }}
                       </v-icon>
                     </div>
                   </div>
@@ -188,10 +158,7 @@
           </v-card>
         </v-col>
 
-        <v-col
-          v-if="item.active && store.getAuth?.user?.role_id === 1"
-          cols="12"
-        >
+        <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
           <v-btn
             icon
             variant="flat"
@@ -212,42 +179,42 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import axios from "axios";
+import { ref, inject, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
 
 // Importaciones internas del proyecto
-import { useStore } from "@/store";
-import { URL_API } from "@/utils/config";
-import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getDecodeId, getEncodeId } from "@/utils/coders";
+import { useStore } from '@/store'
+import { URL_API } from '@/utils/config'
+import { getHdrs, getErr, getRsp } from '@/utils/http'
+import { getDecodeId, getEncodeId } from '@/utils/coders'
 
 // Componentes
-import BtnBack from "@/components/BtnBack.vue";
-import CardTitle from "@/components/CardTitle.vue";
-import DlgReg from "@/components/DlgReg.vue";
-import VisVal from "@/components/VisVal.vue";
-import VisDoc from "@/components/VisDoc.vue";
+import BtnBack from '@/components/BtnBack.vue'
+import CardTitle from '@/components/CardTitle.vue'
+import DlgReg from '@/components/DlgReg.vue'
+import VisVal from '@/components/VisVal.vue'
+import VisDoc from '@/components/VisDoc.vue'
 
 // Constantes fijas
-const routeName = "companies";
+const routeName = 'inventory'
 
 // Estado y referencias
-const alert = inject("alert");
-const confirm = inject("confirm");
-const store = useStore();
-const router = useRouter();
-const route = useRoute();
+const alert = inject('alert')
+const confirm = inject('confirm')
+const store = useStore()
+const router = useRouter()
+const route = useRoute()
 
 // Estado reactivo
-const itemId = ref(getDecodeId(route.params.id));
-const isLoading = ref(true);
-const item = ref(null);
-const regDialog = ref(false);
+const itemId = ref(getDecodeId(route.params.id))
+const isLoading = ref(true)
+const item = ref(null)
+const regDialog = ref(false)
 
 // Obtener registro
 const getItem = async () => {
-  isLoading.value = true;
+  isLoading.value = true
   try {
     // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
     // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
@@ -255,24 +222,24 @@ const getItem = async () => {
     item.value = {
       id: 1,
       active: true,
-      uiid: "E-0001",
-      name: "DALCAR AUTOMOTRIZ",
+      uiid: 'E-0001',
+      name: 'DALCAR AUTOMOTRIZ',
       logo: null,
       logo_doc: null,
       logo_dlt: false,
       logo_b64: null,
-      fiscal_name: "DALCAR AUTOMOTRIZ",
-      fiscal_code: "XYZ112233AB1",
-      fiscal_zip: "00000",
+      fiscal_name: 'DALCAR AUTOMOTRIZ',
+      fiscal_code: 'XYZ112233AB1',
+      fiscal_zip: '00000',
       fiscal_regime: {
-        name: "REGIMEN GENERAL DE LEY PERSONAS MORALES | 601",
+        name: 'REGIMEN GENERAL DE LEY PERSONAS MORALES | 601',
       },
       fiscal_address: null,
       fiscal_neighborhood: null,
       fiscal_town: {
-        name: "QUERETARO",
+        name: 'QUERETARO',
         state: {
-          name: "QUERETARO",
+          name: 'QUERETARO',
         },
       },
       fiscal_fiel_cer: null,
@@ -293,60 +260,54 @@ const getItem = async () => {
       fiscal_csd_key_dlt: false,
       fiscal_csd_key_b64: null,
       fiscal_csd_pass: null,
-    };
+    }
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Inactivar
 const deleteItem = async () => {
-  const confirmed = await confirm?.show("¿Confirma inactivar el registro?");
-  if (!confirmed) return;
+  const confirmed = await confirm?.show('¿Confirma inactivar el registro?')
+  if (!confirmed) return
 
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-    const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
-    );
-    alert?.show("red-darken-1", response.msg);
-    router.push({ name: routeName });
+    const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
+    const response = getRsp(await axios.delete(endpoint, getHdrs(store.getAuth?.token)))
+    alert?.show('red-darken-1', response.msg)
+    router.push({ name: routeName })
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Reactivar
 const restoreItem = async () => {
-  const confirmed = await confirm?.show("¿Confirma activar el registro?");
-  if (!confirmed) return;
+  const confirmed = await confirm?.show('¿Confirma activar el registro?')
+  if (!confirmed) return
 
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const endpoint = `${URL_API}/system/${routeName}/restore`;
+    const endpoint = `${URL_API}/system/${routeName}/restore`
     const response = getRsp(
-      await axios.post(
-        endpoint,
-        { id: itemId.value },
-        getHdrs(store.getAuth?.token)
-      )
-    );
-    item.value = response.data.item;
-    alert?.show("success", response.msg);
+      await axios.post(endpoint, { id: itemId.value }, getHdrs(store.getAuth?.token))
+    )
+    item.value = response.data.item
+    alert?.show('success', response.msg)
   } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
+    alert?.show('red-darken-1', getErr(err))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Inicializar
 onMounted(() => {
-  getItem();
-});
+  getItem()
+})
 </script>

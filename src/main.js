@@ -5,6 +5,9 @@ import { es } from "vuetify/locale";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
+// Importación del componente de labs
+import { VDateInput } from "vuetify/labs/VDateInput";
+
 // Importaciones de estilos y assets globales
 import "vuetify/styles";
 import "@mdi/font/css/materialdesignicons.css";
@@ -27,7 +30,10 @@ const store = useStore();
 
 // Crear instancia de Vuetify con configuración dinámica
 const vuetify = createVuetify({
-  components: await import("vuetify/components"),
+  components: {
+    ...(await import("vuetify/components")),
+    VDateInput,
+  },
   directives: await import("vuetify/directives"),
   theme: {
     defaultTheme: store.conf.theme_dark ? "dark" : "light",
