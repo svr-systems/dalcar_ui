@@ -35,10 +35,9 @@
               <v-card-text>
                 <v-row dense>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-date-input
                       label="Fecha de compra"
                       v-model="item.adquisition"
-                      type="date"
                       variant="outlined"
                       density="compact"
                       counter
@@ -58,27 +57,30 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Marca"
-                      v-model="item.brand"
-                      type="text"
+                      v-model="item.vehicle_brand_id"
+                      :items="vehicleBrands"
+                      :loading="vehicleBrandsLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Modelo"
-                      v-model="item.model"
-                      type="text"
+                      v-model="item.vehicle_model_id"
+                      :items="vehicleModels"
+                      :loading="vehicleModelsLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
+                      :disabled="!item.vehicle_brand_id"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -98,12 +100,12 @@
                     <v-text-field
                       label="Año"
                       v-model="item.year"
-                      type="text"
+                      type="number"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
+                      maxlength="4"
                       counter
-                      :rules="rules.textRequired"
+                      :rules="rules.yearRequired"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -153,14 +155,15 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="IVA"
-                      v-model="item.tax"
-                      type="text"
+                      v-model="item.vat_type_id"
+                      :items="vatTypes"
+                      :loading="vatTypesLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
                       :rules="rules.required"
                     />
                   </v-col>
@@ -168,17 +171,6 @@
                     <v-text-field
                       label="Monto factura"
                       v-model="item.invoice"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      :rules="rules.required"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Precio de venta"
-                      v-model="item.sales"
                       type="number"
                       variant="outlined"
                       density="compact"
@@ -365,7 +357,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -403,6 +395,30 @@ const investors = ref([]);
 const investorsLoading = ref(true);
 const vehicleTransmissions = ref([]);
 const vehicleTransmissionsLoading = ref(true);
+const vehicleBrands = ref([]);
+const vehicleBrandsLoading = ref(true);
+const vehicleModels = ref([]);
+const vehicleModelsLoading = ref(true);
+const vatTypes = ref([]);
+const vatTypesLoading = ref(true);
+
+watch(() => item.value?.vehicle_brand_id, async (newBrandId) => {
+  if (newBrandId) {
+    vehicleModelsLoading.value = true;
+    try {
+      const endpoint = `${URL_API}/vehicle_models?vehicle_brand_id=${newBrandId}`;
+      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+      vehicleModels.value = getRsp(response).data.items;
+    } catch (err) {
+      alert?.show("red-darken-1", getErr(err));
+    } finally {
+      vehicleModelsLoading.value = false;
+    }
+  } else {
+    vehicleModels.value = [];
+  }
+});
+
 
 // Obtener catálogos
 const getCatalogs = async () => {
@@ -427,6 +443,26 @@ const getCatalogs = async () => {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     vehicleTransmissionsLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/vehicle_brands`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vehicleBrands.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleBrandsLoading.value = false;
+  }
+  
+  try {
+    endpoint = `${URL_API}/vat_types`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vatTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vatTypesLoading.value = false;
   }
 };
 
