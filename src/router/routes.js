@@ -4,54 +4,142 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
-  //car_migrations
+  // purchase order
   {
-    path: "/migraciones",
-    name: "car_migrations",
-    component: () => import("@/views/car_migrations/List.vue"),
+    path: "/orden_compra",
+    name: "purchaseOrders",
+    component: () => import("@/views/purchaseOrder/List.vue"),
     meta: {
-      title: "Migraciones",
-      icon: "mdi-car-clock",
+      title: "Orden de compra",
+      icon: "mdi-cash-multiple",
       middleware: Auth,
     },
   },
   {
-    path: "/migraciones/agregar",
-    name: "car_migrations/store",
-    component: () => import("@/views/car_migrations/Form.vue"),
+    path: "/orden_compra/agregar",
+    name: "purchaseOrders/store",
+    component: () => import("@/views/purchaseOrder/Form.vue"),
     meta: {
-      title: "Migración | Agregar",
-      icon: "mdi-car-clock",
+      title: "Orden de compra | Agregar",
+      icon: "mdi-cash-multiple",
       middleware: Auth,
     },
   },
   {
-    path: "/migraciones/:id",
-    name: "car_migrations/show",
-    component: () => import("@/views/car_migrations/Show.vue"),
+    path: "/orden_compra/:id",
+    name: "purchaseOrders/show",
+    component: () => import("@/views/purchaseOrder/Show.vue"),
     props: true,
     meta: {
-      title: "Migración",
-      icon: "mdi-car-clock",
+      title: "Orden de compra",
+      icon: "mdi-cash-multiple",
       middleware: Auth,
     },
   },
   {
-    path: "/migraciones/:id/editar",
-    name: "car_migrations/update",
-    component: () => import("@/views/car_migrations/Form.vue"),
+    path: "/orden_compra/:id/editar",
+    name: "purchaseOrders/update",
+    component: () => import("@/views/purchaseOrder/Form.vue"),
     props: true,
     meta: {
+      title: "Orden de compra | Editar",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  // inventory
+  {
+    path: "/inventario",
+    name: "inventory",
+    component: () => import("@/views/inventory/List.vue"),
+    meta: {
+      title: "Inventario",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/agregar",
+    name: "inventory/store",
+    component: () => import("@/views/inventory/Form.vue"),
+    meta: {
+      title: "Inventario | Agregar",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/:id",
+    name: "inventory/show",
+    component: () => import("@/views/inventory/Show.vue"),
+    props: true,
+    meta: {
+      title: "Inventario",
+      icon: "mdi-package-variant-closed",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/inventario/:id/editar",
+    name: "inventory/update",
+    component: () => import("@/views/inventory/Form.vue"),
+    props: true,
+    meta: {
+      title: "Inventario | Editar",
+      icon: "mdi-package-variant-closed",
       title: "Migración | Editar",
       icon: "mdi-car-clock",
       middleware: Auth,
     },
   },
-  //providers
+  //legacy_vehicles
+  {
+    path: "/historico",
+    name: "legacy_vehicles",
+    component: () => import("@/views/legacy_vehicles/List.vue"),
+    meta: {
+      title: "Historico",
+      icon: "mdi-car-clock",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/historico/agregar",
+    name: "legacy_vehicles/store",
+    component: () => import("@/views/legacy_vehicles/Form.vue"),
+    meta: {
+      title: "Historico | Agregar",
+      icon: "mdi-car-clock",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/historico/:id",
+    name: "legacy_vehicles/show",
+    component: () => import("@/views/legacy_vehicles/Show.vue"),
+    props: true,
+    meta: {
+      title: "Historico",
+      icon: "mdi-car-clock",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/historico/:id/editar",
+    name: "legacy_vehicles/update",
+    component: () => import("@/views/legacy_vehicles/Form.vue"),
+    props: true,
+    meta: {
+      title: "Historico | Editar",
+      icon: "mdi-car-clock",
+      middleware: Auth,
+    },
+  },
+  //vendors
   {
     path: "/proveedores",
-    name: "providers",
-    component: () => import("@/views/providers/List.vue"),
+    name: "vendors",
+    component: () => import("@/views/vendors/List.vue"),
     meta: {
       title: "Proveedores",
       icon: "mdi-account-group",
@@ -60,8 +148,8 @@ const routes = [
   },
   {
     path: "/proveedores/agregar",
-    name: "providers/store",
-    component: () => import("@/views/providers/Form.vue"),
+    name: "vendors/store",
+    component: () => import("@/views/vendors/Form.vue"),
     meta: {
       title: "Proveedor | Agregar",
       icon: "mdi-account-group",
@@ -70,8 +158,8 @@ const routes = [
   },
   {
     path: "/proveedores/:id",
-    name: "providers/show",
-    component: () => import("@/views/providers/Show.vue"),
+    name: "vendors/show",
+    component: () => import("@/views/vendors/Show.vue"),
     props: true,
     meta: {
       title: "Proveedor",
@@ -81,8 +169,8 @@ const routes = [
   },
   {
     path: "/proveedores/:id/editar",
-    name: "providers/update",
-    component: () => import("@/views/providers/Form.vue"),
+    name: "vendors/update",
+    component: () => import("@/views/vendors/Form.vue"),
     props: true,
     meta: {
       title: "Proveedor | Editar",

@@ -164,7 +164,7 @@ import VisVal from "@/components/VisVal.vue";
 import VisDoc from "@/components/VisDoc.vue";
 
 // Constantes fijas
-const routeName = "providers";
+const routeName = "vendors";
 
 // Estado y referencias
 const alert = inject("alert");

@@ -365,7 +365,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 
 // Constantes fijas
-const routeName = "car_migrations";
+const routeName = "legacy_vehicles";
 
 // Estado y referencias
 const alert = inject("alert");
@@ -392,7 +392,7 @@ const getCatalogs = async () => {
   let response = null;
 
   try {
-    // endpoint = `${URL_API}/system/fiscal_regimes`;
+    // endpoint = `${URL_API}/fiscal_regimes`;
     // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     const response = {
       data: {
@@ -423,29 +423,8 @@ const getCatalogs = async () => {
   }
 
   try {
-    // endpoint = `${URL_API}/system/fiscal_regimes`;
-    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              name: "HOJALATERIA",
-            },
-            {
-              id: 2,
-              name: "MECANICA",
-            },
-            {
-              id: 3,
-              name: "OTROS",
-            },
-          ],
-        },
-      },
-    };
+    endpoint = `${URL_API}/expense_types`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     overheadTypes.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -458,95 +437,45 @@ const getCatalogs = async () => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      id: 1,
-      active: true,
-      adquisition: null,
-      provider: null,
-      brand: null,
-      model: null,
-      transmission: null,
-      year: null,
-      color: null,
+      branch_id: 1,
+      vendor_id: null,
+      purchase_date: null,
+      vehicle_model_id: null,
+      model_year: null,
+      vehicle_transmission_id: null,
+      vehicle_color_id: null,
       vin: null,
-      purchase: null,
-      commission: null,
-      tax: null,
-      invoice: null,
-      sales: null,
-      car_investors: [],
-      overheads: [],
+      purchase_price: null,
+      commission_amount: null,
+      vat_type_id: null,
+      invoice_amount: null,
+      legacy_vehicle_investors: [
+        {
+          id: null,
+          is_active: 1,
+          investor_id: null,
+          percentages: null,
+          amount: null,
+        },
+      ],
+      legacy_vehicle_expenses: [
+        {
+          id: null,
+          is_active: 1,
+          expense_type_id: null,
+          note: null,
+          expense_date: null,
+          amount: null,
+        },
+      ],
     };
     carInvestorAdd();
     overheadAdd();
     isLoading.value = false;
   } else {
     try {
-      // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-      // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      const response = {
-        data: {
-          msg: "Registro retornado correctamente",
-          data: {
-            item: {
-              id: 1,
-              active: 1,
-              created_at: "2025-07-31 17:31:16",
-              updated_at: "2025-08-06 20:57:17",
-              created_by_id: 1,
-              updated_by_id: 1,
-              created_by: {
-                email: "samuel@svr.mx",
-              },
-              updated_by: {
-                email: "samuel@svr.mx",
-              },
-              uiid: "E-0001",
-              name: "DALCAR AUTOMOTRIZ",
-              logo: null,
-              logo_doc: null,
-              logo_dlt: false,
-              logo_b64: null,
-              fiscal_name: "DALCAR AUTOMOTRIZ",
-              fiscal_code: "XYZ112233AB1",
-              fiscal_zip: "00000",
-              fiscal_regime_id: 1,
-              fiscal_regime: {
-                name: "REGIMEN GENERAL DE LEY PERSONAS MORALES | 601",
-              },
-              fiscal_street: null,
-              fiscal_exterior: null,
-              fiscal_interior: null,
-              fiscal_neighborhood: null,
-              fiscal_town_id: null,
-              fiscal_town: {
-                name: "CELAYA",
-                state_id: null,
-                state: {
-                  name: "GUANAJUATO",
-                },
-              },
-              fiscal_fiel_cer: null,
-              fiscal_fiel_cer_doc: null,
-              fiscal_fiel_cer_dlt: false,
-              fiscal_fiel_cer_b64: null,
-              fiscal_fiel_key: null,
-              fiscal_fiel_key_doc: null,
-              fiscal_fiel_key_dlt: false,
-              fiscal_fiel_key_b64: null,
-              fiscal_fiel_pass: null,
-              fiscal_csd_cer: null,
-              fiscal_csd_cer_doc: null,
-              fiscal_csd_cer_dlt: false,
-              fiscal_csd_cer_b64: null,
-              fiscal_csd_key: null,
-              fiscal_csd_key_doc: null,
-              fiscal_csd_key_dlt: false,
-              fiscal_csd_key_b64: null,
-              fiscal_csd_pass: null,
-            },
-          },
-        },
-      };
+      const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
@@ -573,7 +502,7 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}${
+    // const endpoint = `${URL_API}/${routeName}${
     //   !isStoreMode.value ? `/${payload.id}` : ""
     // }`;
     // const response = getRsp(

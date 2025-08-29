@@ -225,7 +225,7 @@ import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
 
 // Constantes fijas
-const routeName = "car_migrations";
+const routeName = "legacy_vehicles";
 
 // Estado y referencias
 const alert = inject("alert");

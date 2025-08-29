@@ -184,7 +184,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 
 // Constantes fijas
-const routeName = "providers";
+const routeName = "vendors";
 
 // Estado y referencias
 const alert = inject("alert");

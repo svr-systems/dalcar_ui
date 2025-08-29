@@ -31,11 +31,11 @@
               class="pb-0"
             >
               <v-select
-                v-model="active"
+                v-model="isActive"
                 label="Mostrar"
                 variant="outlined"
                 density="compact"
-                :items="activeOptions"
+                :items="isActiveOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -104,7 +104,7 @@
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.active ? '' : 'red-darken-3'"
+                  :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
                     params: { id: getEncodeId(item.id) },
@@ -138,7 +138,7 @@ import { getEncodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 
 // Constantes
-const routeName = "car_migrations";
+const routeName = "legacy_vehicles";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
@@ -147,13 +147,13 @@ const route = useRoute();
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
-const active = ref(1);
+const isActive = ref(1);
 const filter = ref(0);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 
 // Opciones y headers
-const activeOptions = [
+const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
   { id: 0, name: "INACTIVOS" },
 ];
@@ -161,13 +161,12 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "Marca", key: "brand" },
-  { title: "Modelo", key: "model" },
-  { title: "Año", key: "year" },
-  { title: "Transmisión", key: "transmission" },
-  { title: "Color", key: "color" },
-  { title: "Estado", key: "status" },
   { title: "UUID", key: "uiid" },
+  { title: "F. compra", key: "purchase_date" },
+  { title: "VIN", key: "vin" },
+  { title: "Año", key: "model_year" },
+  { title: "Precio compra", key: "purchase_price" },
+  { title: "Estado", key: "status" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -177,29 +176,8 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    //const endpoint = `${URL_API}/${routeName}?active=${active.value}&filter=${filter.value}`
-    //const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              active: 1,
-              uiid: "E-0001",
-              key: 0,
-              brand: "VW",
-              model: "VENTO",
-              year: "2017",
-              transmission: "MANUAL",
-              color: "BLANCO",
-              status: "INFO. VENTA PEND.",
-            },
-          ],
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
     items.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

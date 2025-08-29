@@ -48,8 +48,8 @@
                   </v-col>
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="A. paterno"
-                      v-model="item.p_surname"
+                      label="Apellido paterno"
+                      v-model="item.paternal_surname"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -60,8 +60,8 @@
                   </v-col>
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="A. materno"
-                      v-model="item.m_surname"
+                      label="Apellido materno*"
+                      v-model="item.maternal_surname"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -71,11 +71,11 @@
                     />
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-autocomplete
+                    <v-select
                       label="Tipo"
-                      v-model="item.type_id"
-                      :items="types"
-                      :loading="typesLoading"
+                      v-model="item.investor_type_id"
+                      :items="investorTypes"
+                      :loading="investorTypesLoading"
                       item-value="id"
                       item-title="name"
                       variant="outlined"
@@ -85,15 +85,90 @@
                   </v-col>
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Piso %"
-                      v-model="item.percent"
+                      label="Teléfono"
+                      v-model="item.phone"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="10"
+                      counter
+                      :rules="rules.phoneRequired"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="E-mail"
+                      v-model="item.email"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="65"
+                      counter
+                      :rules="rules.emailRequired"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="EMPRESAS" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row
+                  dense
+                  v-for="(investor_company, i) of item.investor_companies"
+                  :key="i"
+                >
+                  <v-col cols="12" md="8">
+                    <v-select
+                      label="Nombre"
+                      v-model="investor_company.company_id"
+                      :items="companies"
+                      :loading="companiesLoading"
+                      item-value="id"
+                      item-title="name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Porcentaje de Piso"
+                      v-model="investor_company.floor_percentage"
                       type="number"
                       variant="outlined"
                       density="compact"
-                      maxlength="2"
-                      counter
                       :rules="rules.required"
                     />
+                  </v-col>
+                  <v-col cols="12" md="1" class="text-center pt-2">
+                    <v-btn
+                      v-if="i != 0"
+                      icon
+                      size="x-small"
+                      color="error"
+                      @click="companyRemove(i)"
+                    >
+                      <v-icon size="x-small">mdi-minus</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col cols="12">
+                    <v-btn size="x-small" color="warning" @click="companyAdd()">
+                      Agregar
+                      <v-icon size="x-small" end>mdi-plus</v-icon>
+                    </v-btn>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -155,8 +230,10 @@ const isLoading = ref(true);
 const formRef = ref(null);
 const item = ref(null);
 const rules = getRules();
-const types = ref([]);
-const typesLoading = ref(true);
+const investorTypes = ref([]);
+const investorTypesLoading = ref(true);
+const companies = ref([]);
+const companiesLoading = ref(true);
 
 // Constantes fijas
 const routeName = "investors";
@@ -167,26 +244,23 @@ const getCatalogs = async () => {
   let response = null;
 
   try {
-    // endpoint = `${URL_API}/system/fiscal_regimes`;
-    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              name: "TIPO 1",
-            },
-          ],
-        },
-      },
-    };
-    types.value = getRsp(response).data.items;
+    endpoint = `${URL_API}/investor_types`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    investorTypes.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
-    typesLoading.value = false;
+    investorTypesLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/companies?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    companies.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    companiesLoading.value = false;
   }
 };
 
@@ -194,55 +268,51 @@ const getCatalogs = async () => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      id: 1,
-      active: true,
+      id: null,
       name: null,
-      p_surname: null,
-      m_surname: null,
-      type_id: null,
-      percent: null,
+      paternal_surname: null,
+      maternal_surname: null,
+      phone: null,
+      email: null,
+      investor_type_id: null,
+      role_id: 4,
+      investor_companies: [
+        {
+          id: null,
+          is_active: 1,
+          company_id: null,
+          floor_percentage: null,
+        },
+      ],
     };
     isLoading.value = false;
   } else {
     try {
-      // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-      // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      const response = {
-        data: {
-          msg: "Registro retornado correctamente",
-          data: {
-            item: {
-              id: 1,
-              active: 1,
-              created_at: "2025-07-31 17:31:16",
-              updated_at: "2025-08-06 20:57:17",
-              created_by_id: 1,
-              updated_by_id: 1,
-              created_by: {
-                email: "samuel@svr.mx",
-              },
-              updated_by: {
-                email: "samuel@svr.mx",
-              },
-              uiid: "I-0001",
-              name: "INVERSIONISTA",
-              p_surname: "PRUEBA",
-              m_surname: null,
-              type_id: 1,
-              type: {
-                name: "TIPO 1",
-              },
-              percent: "5",
-            },
-          },
-        },
-      };
+      const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
     } finally {
       isLoading.value = false;
     }
+  }
+};
+
+const companyAdd = async () => {
+  item.value.investor_companies.push({
+    id: null,
+    is_active: 1,
+    company_id: null,
+    floor_percentage: null,
+  });
+};
+
+const companyRemove = async (i) => {
+  if (item.value.investor_companies[i].id === null) {
+    item.value.investor_companies.splice(i, 1);
+  } else {
+    item.value.investor_companies[i].is_active = 0;
   }
 };
 
@@ -263,30 +333,22 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}${
-    //   !isStoreMode.value ? `/${payload.id}` : ""
-    // }`;
-    // const response = getRsp(
-    //   await axios.post(
-    //     endpoint,
-    //     payload,
-    //     getHdrs(store.getAuth?.token, true)
-    //   )
-    // );
+    const endpoint = `${URL_API}/${routeName}${
+      !isStoreMode.value ? `/${payload.id}` : ""
+    }`;
+    const response = getRsp(
+      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
+    );
 
-    // alert?.show("success", response.msg);
-
-    // router.push({
-    //   name: `${routeName}/show`,
-    //   params: {
-    //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
-    //   },
-    // });
-
-    alert?.show("success", "Registro agregado correctamente");
+    alert?.show("success", response.msg);
 
     router.push({
-      name: `${routeName}`,
+      name: `${routeName}/show`,
+      params: {
+        id: getEncodeId(
+          isStoreMode.value ? response.data.item.id : itemId.value
+        ),
+      },
     });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

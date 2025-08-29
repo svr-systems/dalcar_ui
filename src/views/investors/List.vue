@@ -31,11 +31,11 @@
               class="pb-0"
             >
               <v-select
-                v-model="active"
+                v-model="isActive"
                 label="Mostrar"
                 variant="outlined"
                 density="compact"
-                :items="activeOptions"
+                :items="isActiveOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -111,7 +111,7 @@
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.active ? '' : 'red-darken-3'"
+                  :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
                     params: { id: getEncodeId(item.id) },
@@ -154,13 +154,13 @@ const route = useRoute();
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
-const active = ref(1);
+const isActive = ref(1);
 const filter = ref(0);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 
 // Opciones y headers
-const activeOptions = [
+const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
   { id: 0, name: "INACTIVOS" },
 ];
@@ -168,7 +168,7 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "Nombre", key: "name" },
+  { title: "Nombre", key: "user.name" },
   { title: "Tipo", key: "type" },
   { title: "Piso %", key: "percent" },
   { title: "UIID", key: "uiid" },
@@ -181,26 +181,8 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    //const endpoint = `${URL_API}/${routeName}?active=${active.value}&filter=${filter.value}`
-    //const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              active: 1,
-              key: 0,
-              uiid: "I-0001",
-              name: "INVERSIONISTA PRUEBA",
-              type: "TIPO 1",
-              percent: "5",
-            },
-          ],
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

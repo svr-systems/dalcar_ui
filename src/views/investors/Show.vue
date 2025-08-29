@@ -8,7 +8,7 @@
         </v-col>
         <v-col v-if="item" cols="2" class="text-right">
           <v-btn
-            v-if="item.active"
+            v-if="item.user.is_active"
             icon
             variant="flat"
             size="x-small"
@@ -27,7 +27,7 @@
 
     <v-card-text v-if="item">
       <v-row>
-        <v-col v-if="!item.active" cols="12">
+        <v-col v-if="!item.user.is_active" cols="12">
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
@@ -59,39 +59,67 @@
                 <v-col cols="11">
                   <CardTitle :text="'DATOS GENERALES | ' + item.uiid" sub />
                 </v-col>
-                <v-col cols="1" class="text-right">
-                  <v-btn
-                    v-if="store.getAuth?.user?.role_id === 1"
-                    icon
-                    variant="flat"
-                    size="x-small"
-                    @click.prevent="regDialog = true"
-                  >
-                    <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left"
-                      >Registro</v-tooltip
-                    >
-                  </v-btn>
-                </v-col>
+                <v-col cols="1" class="text-right" />
               </v-row>
             </v-card-title>
-
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="6">
                   <VisVal label="Nombre" :value="item.name" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="A. paterno" :value="item.p_surname" />
+                  <VisVal
+                    label="Apellido paterno"
+                    :value="item.paternal_surname"
+                  />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="A. materno" :value="item.m_surname" />
+                  <VisVal
+                    label="Apellido materno"
+                    :value="item.maternal_surname"
+                  />
                 </v-col>
                 <v-col cols="12" md="6">
-                  <VisVal label="Tipo" :value="item.type.name" />
+                  <VisVal label="Tipo" :value="item.investor_type.name" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="Piso %" :value="item.percent" />
+                  <VisVal label="E-mail" :value="item.phone" />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <VisVal label="E-mail" :value="item.email" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="EMPRESAS" sub />
+                </v-col>
+                <v-col cols="1" class="text-right" />
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-row
+                dense
+                v-for="(investor_company, i) of item.investor_companies"
+                :key="i"
+              >
+                <v-col cols="12" md="8">
+                  <!-- <VisVal
+                    label="Nombre"
+                    :value="investor_company.company.name"
+                  /> -->
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal
+                    label="Porcentaje de Piso"
+                    :value="investor_company.floor_percentage"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -99,7 +127,7 @@
         </v-col>
 
         <v-col
-          v-if="item.active && store.getAuth?.user?.role_id === 1"
+          v-if="item.user.is_active && store.getAuth?.user?.role_id === 1"
           cols="12"
         >
           <v-btn
@@ -158,38 +186,8 @@ const regDialog = ref(false);
 const getItem = async () => {
   isLoading.value = true;
   try {
-    // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    const response = {
-      data: {
-        msg: "Registro retornado correctamente",
-        data: {
-          item: {
-            id: 1,
-            active: 1,
-            created_at: "2025-07-31 17:31:16",
-            updated_at: "2025-08-06 20:57:17",
-            created_by_id: 1,
-            updated_by_id: 1,
-            created_by: {
-              email: "samuel@svr.mx",
-            },
-            updated_by: {
-              email: "samuel@svr.mx",
-            },
-            uiid: "I-0001",
-            name: "INVERSIONISTA",
-            p_surname: "PRUEBA",
-            m_surname: null,
-            type_id: 1,
-            type: {
-              name: "TIPO 1",
-            },
-            percent: "5",
-          },
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     item.value = getRsp(response).data.item;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -204,20 +202,17 @@ const deleteItem = async () => {
   if (!confirmed) return;
 
   isLoading.value = true;
-  // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-  //   const response = getRsp(
-  //     await axios.delete(endpoint, getHdrs(store.getAuth?.token))
-  //   );
-  //   alert?.show("red-darken-1", response.msg);
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
-  alert?.show("red-darken-1", "Registro desactivado correctamente");
-  router.push({ name: routeName });
-  isLoading.value = false;
+  try {
+    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("red-darken-1", response.msg);
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Reactivar
@@ -226,24 +221,22 @@ const restoreItem = async () => {
   if (!confirmed) return;
 
   isLoading.value = true;
-  // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/restore`;
-  //   const response = getRsp(
-  //     await axios.post(
-  //       endpoint,
-  //       { id: itemId.value },
-  //       getHdrs(store.getAuth?.token)
-  //     )
-  //   );
-  //   item.value = response.data.item;
-  //   alert?.show("success", response.msg);
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
-  alert?.show("red-darken-1", "Registro activado correctamente");
-  isLoading.value = false;
+  try {
+    const endpoint = `${URL_API}/${routeName}/restore`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        { id: itemId.value },
+        getHdrs(store.getAuth?.token)
+      )
+    );
+    item.value = response.data.item;
+    alert?.show("success", response.msg);
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Inicializar
