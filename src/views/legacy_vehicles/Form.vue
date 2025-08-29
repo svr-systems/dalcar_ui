@@ -82,15 +82,16 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Transmisión"
-                      v-model="item.transmission"
-                      type="text"
+                      v-model="item.vehicle_transmission_id"
+                      :items="vehicleTransmissions"
+                      :loading="vehicleTransmissionsLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -203,17 +204,19 @@
               <v-card-text>
                 <v-row
                   dense
-                  v-for="(car_investor, i) of item.car_investors"
+                  v-for="(
+                    legacy_vehicle_investor, i
+                  ) of item.legacy_vehicle_investors"
                   :key="i"
                 >
-                  <v-col cols="12" md="9">
+                  <v-col cols="12" md="6">
                     <v-autocomplete
                       label="Inversionista"
-                      v-model="car_investor.investor_id"
+                      v-model="legacy_vehicle_investor.investor_id"
                       :items="investors"
                       :loading="investorsLoading"
                       item-value="id"
-                      item-title="name"
+                      item-title="full_name"
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
@@ -222,7 +225,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Porcentaje %"
-                      v-model="car_investor.percentage"
+                      v-model="legacy_vehicle_investor.percentage"
                       type="number"
                       variant="outlined"
                       density="compact"
@@ -230,13 +233,27 @@
                       :rules="rules.required"
                     />
                   </v-col>
+                  <v-col cols="12" md="2">
+                    {{ getAmountFormat(legacy_vehicle_investor.amount) }}
+                  </v-col>
+                  <v-col cols="12" md="1" class="text-center pt-2">
+                    <v-btn
+                      v-if="i != 0"
+                      icon
+                      size="x-small"
+                      color="error"
+                      @click="legacyVehicleInvestorsRemove(i)"
+                    >
+                      <v-icon size="x-small">mdi-minus</v-icon>
+                    </v-btn>
+                  </v-col>
                 </v-row>
                 <v-row dense>
                   <v-col cols="12">
                     <v-btn
                       size="x-small"
                       color="warning"
-                      @click="carInvestorAdd()"
+                      @click="legacyVehicleInvestorsAdd()"
                     >
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
@@ -358,7 +375,8 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
-import { getObj, getFormData } from "@/utils/helpers";
+import { getObj } from "@/utils/helpers";
+import { getAmountFormat } from "@/utils/formatters";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
@@ -383,8 +401,8 @@ const item = ref(null);
 const rules = getRules();
 const investors = ref([]);
 const investorsLoading = ref(true);
-const overheadTypes = ref([]);
-const overheadTypesLoading = ref(true);
+const vehicleTransmissions = ref([]);
+const vehicleTransmissionsLoading = ref(true);
 
 // Obtener catálogos
 const getCatalogs = async () => {
@@ -392,29 +410,8 @@ const getCatalogs = async () => {
   let response = null;
 
   try {
-    // endpoint = `${URL_API}/fiscal_regimes`;
-    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              name: "LORENA MACIAS",
-            },
-            {
-              id: 2,
-              name: "CARLOS MACIAS",
-            },
-            {
-              id: 3,
-              name: "DANIEL MACIAS",
-            },
-          ],
-        },
-      },
-    };
+    endpoint = `${URL_API}/investors?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     investors.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -423,13 +420,13 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/expense_types`;
+    endpoint = `${URL_API}/vehicle_transmissions`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    overheadTypes.value = getRsp(response).data.items;
+    vehicleTransmissions.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
-    overheadTypesLoading.value = false;
+    vehicleTransmissionsLoading.value = false;
   }
 };
 
@@ -438,39 +435,22 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       branch_id: 1,
-      vendor_id: null,
       purchase_date: null,
+      vendor_id: null,
+      vehicle_brand_id: null,
       vehicle_model_id: null,
-      model_year: null,
       vehicle_transmission_id: null,
+      model_year: null,
       vehicle_color_id: null,
       vin: null,
       purchase_price: null,
       commission_amount: null,
       vat_type_id: null,
       invoice_amount: null,
-      legacy_vehicle_investors: [
-        {
-          id: null,
-          is_active: 1,
-          investor_id: null,
-          percentages: null,
-          amount: null,
-        },
-      ],
-      legacy_vehicle_expenses: [
-        {
-          id: null,
-          is_active: 1,
-          expense_type_id: null,
-          note: null,
-          expense_date: null,
-          amount: null,
-        },
-      ],
+      legacy_vehicle_investors: [],
+      legacy_vehicle_expenses: [],
     };
-    carInvestorAdd();
-    overheadAdd();
+    legacyVehicleInvestorsAdd();
     isLoading.value = false;
   } else {
     try {
@@ -498,58 +478,58 @@ const handleAction = async () => {
   );
   if (!confirmed) return;
 
-  isLoading.value = true;
-  const payload = getObj(item.value, isStoreMode.value);
+  // isLoading.value = true;
+  // const payload = getObj(item.value, isStoreMode.value);
 
-  try {
-    // const endpoint = `${URL_API}/${routeName}${
-    //   !isStoreMode.value ? `/${payload.id}` : ""
-    // }`;
-    // const response = getRsp(
-    //   await axios.post(
-    //     endpoint,
-    //     getFormData(payload),
-    //     getHdrs(store.getAuth?.token, true)
-    //   )
-    // );
+  // try {
+  //   // const endpoint = `${URL_API}/${routeName}${
+  //   //   !isStoreMode.value ? `/${payload.id}` : ""
+  //   // }`;
+  //   // const response = getRsp(
+  //   //   await axios.post(
+  //   //     endpoint,
+  //   //     getFormData(payload),
+  //   //     getHdrs(store.getAuth?.token, true)
+  //   //   )
+  //   // );
 
-    // alert?.show("success", response.msg);
+  //   // alert?.show("success", response.msg);
 
-    // router.push({
-    //   name: `${routeName}/show`,
-    //   params: {
-    //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
-    //   },
-    // });
+  //   // router.push({
+  //   //   name: `${routeName}/show`,
+  //   //   params: {
+  //   //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
+  //   //   },
+  //   // });
 
-    alert?.show("success", "Registro agregado correctamente");
+  //   alert?.show("success", "Registro agregado correctamente");
 
-    router.push({
-      name: `${routeName}`,
-    });
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    isLoading.value = false;
-  }
+  //   router.push({
+  //     name: `${routeName}`,
+  //   });
+  // } catch (err) {
+  //   alert?.show("red-darken-1", getErr(err));
+  // } finally {
+  //   isLoading.value = false;
+  // }
 };
 
-const carInvestorAdd = async () => {
-  item.value.car_investors.push({
+const legacyVehicleInvestorsAdd = async () => {
+  item.value.legacy_vehicle_investors.push({
     id: null,
+    is_active: 1,
     investor_id: null,
     percentage: null,
+    amount: null,
   });
 };
 
-const overheadAdd = async () => {
-  item.value.overheads.push({
-    id: null,
-    overhead_type_id: null,
-    observation: null,
-    date: null,
-    amount: null,
-  });
+const legacyVehicleInvestorsRemove = async (i) => {
+  if (item.value.legacy_vehicle_investors[i].id === null) {
+    item.value.legacy_vehicle_investors.splice(i, 1);
+  } else {
+    item.value.legacy_vehicle_investors[i].is_active = 0;
+  }
 };
 
 // Inicialización
