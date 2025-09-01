@@ -45,15 +45,16 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Proveedor"
-                      v-model="item.provider"
-                      type="text"
+                      v-model="item.vendor_id"
+                      :items="vendorTypes"
+                      :loading="vendorTypesLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -80,7 +81,6 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
-                      :disabled="!item.vehicle_brand_id"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -97,27 +97,26 @@
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Año"
                       v-model="item.year"
-                      type="number"
+                      :items="years"
                       variant="outlined"
                       density="compact"
-                      maxlength="4"
-                      counter
                       :rules="rules.yearRequired"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <v-select
                       label="Color"
-                      v-model="item.color"
-                      type="text"
+                      v-model="item.vehicle_color_id"
+                      :items="vehicleColors"
+                      :loading="vehicleColorsLoading"
+                      item-value="id"
+                      item-title="name"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
                     />
                   </v-col>
                   <v-col cols="12" md="3">
@@ -357,7 +356,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted, watch } from "vue";
+import { ref, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -401,24 +400,11 @@ const vehicleModels = ref([]);
 const vehicleModelsLoading = ref(true);
 const vatTypes = ref([]);
 const vatTypesLoading = ref(true);
-
-watch(() => item.value?.vehicle_brand_id, async (newBrandId) => {
-  if (newBrandId) {
-    vehicleModelsLoading.value = true;
-    try {
-      const endpoint = `${URL_API}/vehicle_models?vehicle_brand_id=${newBrandId}`;
-      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      vehicleModels.value = getRsp(response).data.items;
-    } catch (err) {
-      alert?.show("red-darken-1", getErr(err));
-    } finally {
-      vehicleModelsLoading.value = false;
-    }
-  } else {
-    vehicleModels.value = [];
-  }
-});
-
+const vendorTypes = ref([]);
+const vendorTypesLoading = ref(true);
+const vehicleColors = ref([]);
+const vehicleColorsLoading = ref(true);
+const years = ref([]);
 
 // Obtener catálogos
 const getCatalogs = async () => {
@@ -456,6 +442,16 @@ const getCatalogs = async () => {
   }
   
   try {
+    endpoint = `${URL_API}/vehicle_models`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vehicleModels.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleModelsLoading.value = false;
+  }
+
+  try {
     endpoint = `${URL_API}/vat_types`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vatTypes.value = getRsp(response).data.items;
@@ -464,9 +460,38 @@ const getCatalogs = async () => {
   } finally {
     vatTypesLoading.value = false;
   }
+
+  try {
+    endpoint = `${URL_API}/vendor_types`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vendorTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vendorTypesLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/vehicle_colors`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vehicleColors.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleColorsLoading.value = false;
+  }
 };
 
-// Obtener datos
+const getYears = () => {
+  const currentYear = new Date().getFullYear();
+  const startYear = 1980;
+  const yearList = [];
+  for (let year = currentYear; year >= startYear; year--) {
+    yearList.push(year);
+  }
+  years.value = yearList;
+};
+
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
@@ -501,7 +526,6 @@ const getItem = async () => {
   }
 };
 
-// Agregar o editar
 const handleAction = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) {
@@ -513,41 +537,6 @@ const handleAction = async () => {
     `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
   );
   if (!confirmed) return;
-
-  // isLoading.value = true;
-  // const payload = getObj(item.value, isStoreMode.value);
-
-  // try {
-  //   // const endpoint = `${URL_API}/${routeName}${
-  //   //   !isStoreMode.value ? `/${payload.id}` : ""
-  //   // }`;
-  //   // const response = getRsp(
-  //   //   await axios.post(
-  //   //     endpoint,
-  //   //     getFormData(payload),
-  //   //     getHdrs(store.getAuth?.token, true)
-  //   //   )
-  //   // );
-
-  //   // alert?.show("success", response.msg);
-
-  //   // router.push({
-  //   //   name: `${routeName}/show`,
-  //   //   params: {
-  //   //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
-  //   //   },
-  //   // });
-
-  //   alert?.show("success", "Registro agregado correctamente");
-
-  //   router.push({
-  //     name: `${routeName}`,
-  //   });
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
 };
 
 const legacyVehicleInvestorsAdd = async () => {
@@ -572,5 +561,6 @@ const legacyVehicleInvestorsRemove = async (i) => {
 onMounted(() => {
   getCatalogs();
   getItem();
+  getYears();
 });
 </script>
