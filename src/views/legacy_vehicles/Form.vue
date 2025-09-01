@@ -533,10 +533,46 @@ const handleAction = async () => {
     return;
   }
 
+  // Agregar o editar
   const confirmed = await confirm?.show(
     `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
   );
   if (!confirmed) return;
+
+  // isLoading.value = true;
+  // const payload = getObj(item.value, isStoreMode.value);
+
+  // try {
+  //   // const endpoint = `${URL_API}/${routeName}${
+  //   //   !isStoreMode.value ? `/${payload.id}` : ""
+  //   // }`;
+  //   // const response = getRsp(
+  //   //   await axios.post(
+  //   //     endpoint,
+  //   //     getFormData(payload),
+  //   //     getHdrs(store.getAuth?.token, true)
+  //   //   )
+  //   // );
+
+  //   // alert?.show("success", response.msg);
+
+  //   // router.push({
+  //   //   name: `${routeName}/show`,
+  //   //   params: {
+  //   //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
+  //   //   },
+  //   // });
+
+  //   alert?.show("success", "Registro agregado correctamente");
+
+  //   router.push({
+  //     name: `${routeName}`,
+  //   });
+  // } catch (err) {
+  //   alert?.show("red-darken-1", getErr(err));
+  // } finally {
+  //   isLoading.value = false;
+  // }
 };
 
 const legacyVehicleInvestorsAdd = async () => {
