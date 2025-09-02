@@ -23,29 +23,27 @@
                 <v-row dense>
                   <v-col cols="11">
                     <CardTitle
-                      :text="`AUTO${
-                        isStoreMode ? '' : ' | ' + (item.uiid || '')
-                      }`"
+                      :text="`AUTO${isStoreMode ? '' : ' | ' + (item.uiid || '')}`"
                       sub
                     />
                   </v-col>
                   <v-col cols="1" class="text-right" />
                 </v-row>
               </v-card-title>
+
               <v-card-text>
                 <v-row dense>
                   <v-col cols="12" md="3">
-                    <v-date-input
+                    <InpDate
                       label="Fecha de compra"
                       v-model="item.adquisition"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      :rules="rules.textRequired"
+                      :rules="rules.required"
+                      :before="true"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
-                    <v-select
+                    <v-autocomplete
                       label="Proveedor"
                       v-model="item.vendor_id"
                       :items="vendorTypes"
@@ -57,8 +55,10 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-select
+                      v-if="!isAddingNewBrand"
                       label="Marca"
                       v-model="item.vehicle_brand_id"
                       :items="vehicleBrands"
@@ -69,9 +69,35 @@
                       density="compact"
                       :rules="rules.required"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newBrandInputRef"
+                      label="Nueva Marca"
+                      v-model="newBrandName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewBrandAndModel"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewBrand"
+                          @click="addNewBrandAndModel"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-select
+                      v-if="!isAddingNewModel"
                       label="Modelo"
                       v-model="item.vehicle_model_id"
                       :items="vehicleModels"
@@ -82,7 +108,32 @@
                       density="compact"
                       :rules="rules.required"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newModelInputRef"
+                      label="Nuevo Modelo"
+                      v-model="newModelName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewModel"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewModel"
+                          @click="addNewModel"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-select
                       label="Transmisión"
@@ -96,16 +147,17 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
-                    <v-select
+                    <InpYear
                       label="Año"
                       v-model="item.year"
-                      :items="years"
-                      variant="outlined"
-                      density="compact"
                       :rules="rules.yearRequired"
+                      :maxYear="currentYear"
+                      :minYear="currentYear - 40"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-select
                       label="Color"
@@ -119,6 +171,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="VIN"
@@ -131,6 +184,7 @@
                       :rules="rules.textRequired"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Precio compra"
@@ -142,6 +196,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Comisión"
@@ -153,6 +208,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-select
                       label="IVA"
@@ -166,6 +222,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Monto factura"
@@ -192,12 +249,11 @@
                   <v-col cols="1" class="text-right" />
                 </v-row>
               </v-card-title>
+
               <v-card-text>
                 <v-row
                   dense
-                  v-for="(
-                    legacy_vehicle_investor, i
-                  ) of item.legacy_vehicle_investors"
+                  v-for="(legacy_vehicle_investor, i) of item.legacy_vehicle_investors"
                   :key="i"
                 >
                   <v-col cols="12" md="6">
@@ -213,6 +269,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Porcentaje %"
@@ -224,12 +281,14 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="2">
                     {{ getAmountFormat(legacy_vehicle_investor.amount) }}
                   </v-col>
+
                   <v-col cols="12" md="1" class="text-center pt-2">
                     <v-btn
-                      v-if="i != 0"
+                      v-if="i !== 0"
                       icon
                       size="x-small"
                       color="error"
@@ -239,13 +298,10 @@
                     </v-btn>
                   </v-col>
                 </v-row>
+
                 <v-row dense>
                   <v-col cols="12">
-                    <v-btn
-                      size="x-small"
-                      color="warning"
-                      @click="legacyVehicleInvestorsAdd()"
-                    >
+                    <v-btn size="x-small" color="warning" @click="legacyVehicleInvestorsAdd()">
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
@@ -265,6 +321,7 @@
                   <v-col cols="1" class="text-right" />
                 </v-row>
               </v-card-title>
+
               <v-card-text>
                 <v-row dense v-for="(overhead, i) of item.overheads" :key="i">
                   <v-col cols="12" md="3">
@@ -280,6 +337,7 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Observación"
@@ -292,17 +350,15 @@
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
-                    <v-text-field
+                    <InpDate
                       label="Fecha"
                       v-model="overhead.date"
-                      type="date"
-                      variant="outlined"
-                      density="compact"
-                      counter
                       :rules="rules.required"
                     />
                   </v-col>
+
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Monto"
@@ -315,13 +371,10 @@
                     />
                   </v-col>
                 </v-row>
+
                 <v-row dense>
                   <v-col cols="12">
-                    <v-btn
-                      size="x-small"
-                      color="warning"
-                      @click="overheadAdd()"
-                    >
+                    <v-btn size="x-small" color="warning" @click="overheadAdd()">
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
@@ -342,9 +395,7 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left"
-                  >Continuar</v-tooltip
-                >
+                <v-tooltip activator="parent" location="left">Continuar</v-tooltip>
               </v-btn>
             </div>
           </v-col>
@@ -356,7 +407,7 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -364,14 +415,15 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getDecodeId, getEncodeId } from "@/utils/coders";
+import { getDecodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
-import { getObj } from "@/utils/helpers";
 import { getAmountFormat } from "@/utils/formatters";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
+import InpDate from "@/components/InpDate.vue";
+import InpYear from "@/components/InpYear.vue";
 
 // Constantes fijas
 const routeName = "legacy_vehicles";
@@ -397,7 +449,7 @@ const vehicleTransmissionsLoading = ref(true);
 const vehicleBrands = ref([]);
 const vehicleBrandsLoading = ref(true);
 const vehicleModels = ref([]);
-const vehicleModelsLoading = ref(true);
+const vehicleModelsLoading = ref(false);
 const vatTypes = ref([]);
 const vatTypesLoading = ref(true);
 const vendorTypes = ref([]);
@@ -406,10 +458,33 @@ const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(true);
 const years = ref([]);
 
-// Obtener catálogos
+const overheadTypes = ref([]);
+const overheadTypesLoading = ref(true);
+
+const isAddingNewBrand = ref(false);
+const isAddingNewModel = ref(false);
+const newBrandName = ref("");
+const newModelName = ref("");
+const newBrandInputRef = ref(null);
+const newModelInputRef = ref(null);
+const isSavingNewBrand = ref(false);
+const isSavingNewModel = ref(false);
+
+const currentYear = ref(new Date().getFullYear());
+
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
+
+  try {
+    endpoint = `${URL_API}/overhead_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    overheadTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    overheadTypesLoading.value = false;
+  }
 
   try {
     endpoint = `${URL_API}/investors?is_active=1&filter=0`;
@@ -422,7 +497,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vehicle_transmissions`;
+    endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vehicleTransmissions.value = getRsp(response).data.items;
   } catch (err) {
@@ -432,27 +507,19 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vehicle_brands`;
+    endpoint = `${URL_API}/vehicle_brands?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vehicleBrands.value = getRsp(response).data.items;
+    // Agrega opción OTRO
+    vehicleBrands.value.push({ id: 0, name: "OTRO" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     vehicleBrandsLoading.value = false;
   }
-  
-  try {
-    endpoint = `${URL_API}/vehicle_models`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vehicleModels.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vehicleModelsLoading.value = false;
-  }
 
   try {
-    endpoint = `${URL_API}/vat_types`;
+    endpoint = `${URL_API}/vat_types?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vatTypes.value = getRsp(response).data.items;
   } catch (err) {
@@ -462,7 +529,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vendor_types`;
+    endpoint = `${URL_API}/vendor_types?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vendorTypes.value = getRsp(response).data.items;
   } catch (err) {
@@ -472,7 +539,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vehicle_colors`;
+    endpoint = `${URL_API}/vehicle_colors?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vehicleColors.value = getRsp(response).data.items;
   } catch (err) {
@@ -482,47 +549,152 @@ const getCatalogs = async () => {
   }
 };
 
-const getYears = () => {
-  const currentYear = new Date().getFullYear();
-  const startYear = 1980;
-  const yearList = [];
-  for (let year = currentYear; year >= startYear; year--) {
-    yearList.push(year);
+const getVehicleModels = async (brandId) => {
+  if (!brandId) {
+    vehicleModels.value = [];
+    return;
   }
-  years.value = yearList;
+  vehicleModelsLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/vehicle_models?is_active=1&vehicle_brand_id=${brandId}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const models = getRsp(response).data.items;
+    models.push({ id: 0, name: "OTRO" });
+    vehicleModels.value = models;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleModelsLoading.value = false;
+  }
 };
 
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       branch_id: 1,
-      purchase_date: null,
+      adquisition: null,
       vendor_id: null,
       vehicle_brand_id: null,
       vehicle_model_id: null,
       vehicle_transmission_id: null,
-      model_year: null,
+      year: null,
       vehicle_color_id: null,
       vin: null,
-      purchase_price: null,
-      commission_amount: null,
+      purchase: null,
+      commission: null,
       vat_type_id: null,
-      invoice_amount: null,
+      invoice: null,
       legacy_vehicle_investors: [],
-      legacy_vehicle_expenses: [],
+      overheads: [],
     };
     legacyVehicleInvestorsAdd();
+    overheadAdd();
     isLoading.value = false;
   } else {
     try {
       const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
       const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
+
+      if (item.value?.vehicle_brand_id) {
+        await getVehicleModels(item.value.vehicle_brand_id);
+      }
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
     } finally {
       isLoading.value = false;
     }
+  }
+};
+
+const addNewBrandAndModel = async () => {
+  if (!newBrandName.value || newBrandName.value.trim() === "") {
+    alert?.show("red-darken-1", "Por favor, ingresa el nombre de la nueva marca.");
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar la nueva marca "${newBrandName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewBrand.value = true;
+  try {
+    const payload = {
+      name: newBrandName.value.trim(),
+      vehicle_models: [{ name: "OTRO" }],
+    };
+    const endpoint = `${URL_API}/vehicle_brands`;
+    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const newBrand = getRsp(response).data.item;
+
+    alert?.show("green-darken-1", "Nueva marca agregada con éxito.");
+
+    // Elimina la opción "OTRO" de la lista para poder reordenarla
+    const otroOption = vehicleBrands.value.pop();
+    // Inserta la nueva marca
+    vehicleBrands.value.push(newBrand);
+    // Vuelve a agregar la opción "OTRO" al final
+    vehicleBrands.value.push(otroOption);
+
+    // Selecciona la nueva marca
+    item.value.vehicle_brand_id = newBrand.id;
+
+    // Reset UI
+    newBrandName.value = "";
+    isAddingNewBrand.value = false;
+    newBrandInputRef.value?.resetValidation();
+
+    // Cargar modelos de la marca recién creada
+    await getVehicleModels(newBrand.id);
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewBrand.value = false;
+  }
+};
+
+const addNewModel = async () => {
+  if (!newModelName.value || newModelName.value.trim() === "") {
+    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo modelo.");
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar el nuevo modelo "${newModelName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewModel.value = true;
+  try {
+    const payload = {
+      name: newModelName.value.trim(),
+      vehicle_brand_id: item.value.vehicle_brand_id,
+    };
+    const endpoint = `${URL_API}/vehicle_models`;
+    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const newModel = getRsp(response).data.item;
+
+    alert?.show("green-darken-1", "Nuevo modelo agregado con éxito.");
+
+    // Elimina la opción "OTRO" de la lista para poder reordenarla
+    const otroOption = vehicleModels.value.pop();
+    // Inserta el nuevo modelo
+    vehicleModels.value.push(newModel);
+    // Vuelve a agregar la opción "OTRO" al final
+    vehicleModels.value.push(otroOption);
+
+    // Selecciona el modelo recién creado
+    item.value.vehicle_model_id = newModel.id;
+
+    // Reset UI
+    newModelName.value = "";
+    isAddingNewModel.value = false;
+    newModelInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewModel.value = false;
   }
 };
 
@@ -575,7 +747,7 @@ const handleAction = async () => {
   // }
 };
 
-const legacyVehicleInvestorsAdd = async () => {
+const legacyVehicleInvestorsAdd = () => {
   item.value.legacy_vehicle_investors.push({
     id: null,
     is_active: 1,
@@ -585,7 +757,7 @@ const legacyVehicleInvestorsAdd = async () => {
   });
 };
 
-const legacyVehicleInvestorsRemove = async (i) => {
+const legacyVehicleInvestorsRemove = (i) => {
   if (item.value.legacy_vehicle_investors[i].id === null) {
     item.value.legacy_vehicle_investors.splice(i, 1);
   } else {
@@ -593,10 +765,58 @@ const legacyVehicleInvestorsRemove = async (i) => {
   }
 };
 
-// Inicialización
+const overheadAdd = () => {
+  item.value.overheads.push({
+    id: null,
+    overhead_type_id: null,
+    observation: null,
+    date: null,
+    amount: null,
+  });
+};
+
+// Cambios de marca
+watch(
+  () => item.value?.vehicle_brand_id,
+  (newBrandId) => {
+    if (!item.value) return;
+    if (newBrandId === 0) {
+      // Seleccionó "OTRO"
+      isAddingNewBrand.value = true;
+      item.value.vehicle_model_id = null; // limpiar modelo
+    } else if (newBrandId) {
+      isAddingNewBrand.value = false;
+      newBrandName.value = "";
+      newBrandInputRef.value?.resetValidation();
+      item.value.vehicle_model_id = null;
+      getVehicleModels(newBrandId);
+    } else {
+      // Limpieza si se borra
+      isAddingNewBrand.value = false;
+      newBrandName.value = "";
+      vehicleModels.value = [];
+    }
+  }
+);
+
+// Cambios de modelo
+watch(
+  () => item.value?.vehicle_model_id,
+  (newModelId) => {
+    if (!item.value) return;
+    if (newModelId === 0) {
+      isAddingNewModel.value = true; // mostrar input de modelo
+    } else {
+      isAddingNewModel.value = false;
+      newModelName.value = "";
+      newModelInputRef.value?.resetValidation();
+    }
+  }
+);
+
+// Init
 onMounted(() => {
   getCatalogs();
   getItem();
-  getYears();
 });
 </script>
