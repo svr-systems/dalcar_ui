@@ -8,19 +8,24 @@
 export const getDateTime = (
   dateSep = "-",
   dateTimeSep = " ",
-  timeSep = ":"
+  timeSep = ":",
+  showTime = true
 ) => {
   const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
 
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
   const date = [year, month, day].join(dateSep);
+
+  if (!showTime) {
+    return date;
+  }
+
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+  const seconds = pad(now.getSeconds());
   const time = [hours, minutes, seconds].join(timeSep);
 
   return `${date}${dateTimeSep}${time}`;

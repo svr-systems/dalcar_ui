@@ -36,7 +36,7 @@
                   <v-col cols="12" md="3">
                     <InpDate
                       label="Fecha de compra"
-                      v-model="item.adquisition"
+                      v-model="item.issued_at"
                       :rules="rules.required"
                       :before="true"
                     />
@@ -151,7 +151,7 @@
                   <v-col cols="12" md="3">
                     <InpYear
                       label="Año"
-                      v-model="item.year"
+                      v-model="item.plan_year"
                       :rules="rules.yearRequired"
                       :maxYear="currentYear"
                       :minYear="currentYear - 40"
@@ -328,8 +328,6 @@
                     <v-autocomplete
                       label="Tipo"
                       v-model="overhead.overhead_type_id"
-                      :items="overheadTypes"
-                      :loading="overheadTypesLoading"
                       item-value="id"
                       item-title="name"
                       variant="outlined"
@@ -418,6 +416,8 @@ import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
 import { getAmountFormat } from "@/utils/formatters";
+import { getCurrentYear } from "@/utils/helpers";
+import { getDateTime } from "@/utils/formatters";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
@@ -427,6 +427,8 @@ import InpYear from "@/components/InpYear.vue";
 
 // Constantes fijas
 const routeName = "legacy_vehicles";
+const currentDate = ref(getDateTime("-", "", "", false));
+const currentYear = ref(getCurrentYear());
 
 // Estado y referencias
 const alert = inject("alert");
@@ -456,11 +458,6 @@ const vendorTypes = ref([]);
 const vendorTypesLoading = ref(true);
 const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(true);
-const years = ref([]);
-
-const overheadTypes = ref([]);
-const overheadTypesLoading = ref(true);
-
 const isAddingNewBrand = ref(false);
 const isAddingNewModel = ref(false);
 const newBrandName = ref("");
@@ -470,22 +467,10 @@ const newModelInputRef = ref(null);
 const isSavingNewBrand = ref(false);
 const isSavingNewModel = ref(false);
 
-const currentYear = ref(new Date().getFullYear());
-
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
-
-  try {
-    endpoint = `${URL_API}/overhead_types?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    overheadTypes.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    overheadTypesLoading.value = false;
-  }
-
+  
   try {
     endpoint = `${URL_API}/investors?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -529,7 +514,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vendor_types?is_active=1&filter=0`;
+    endpoint = `${URL_API}/vendors?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vendorTypes.value = getRsp(response).data.items;
   } catch (err) {
@@ -572,12 +557,12 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       branch_id: 1,
-      adquisition: null,
+      issued_at: currentDate.value,
       vendor_id: null,
       vehicle_brand_id: null,
       vehicle_model_id: null,
       vehicle_transmission_id: null,
-      year: null,
+      plan_year: currentYear.value,
       vehicle_color_id: null,
       vin: null,
       purchase: null,
@@ -626,16 +611,20 @@ const addNewBrandAndModel = async () => {
     };
     const endpoint = `${URL_API}/vehicle_brands`;
     const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
-    const newBrand = getRsp(response).data.item;
+    // Obtener el ID del nuevo registro desde la respuesta del POST
+    const newBrandId = getRsp(response).data.item.id;
 
     alert?.show("green-darken-1", "Nueva marca agregada con éxito.");
 
+    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    const getEndpoint = `${URL_API}/vehicle_brands/${newBrandId}`;
+    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const newBrand = getRsp(getResponse).data.item; // Obtener el objeto completo
+
     // Elimina la opción "OTRO" de la lista para poder reordenarla
     const otroOption = vehicleBrands.value.pop();
-    // Inserta la nueva marca
-    vehicleBrands.value.push(newBrand);
-    // Vuelve a agregar la opción "OTRO" al final
-    vehicleBrands.value.push(otroOption);
+    // Crea una nueva referencia al arreglo para asegurar la reactividad
+    vehicleBrands.value = [...vehicleBrands.value, newBrand, otroOption];
 
     // Selecciona la nueva marca
     item.value.vehicle_brand_id = newBrand.id;
@@ -673,16 +662,20 @@ const addNewModel = async () => {
     };
     const endpoint = `${URL_API}/vehicle_models`;
     const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
-    const newModel = getRsp(response).data.item;
+    // Obtener el ID del nuevo registro desde la respuesta del POST
+    const newModelId = getRsp(response).data.item.id;
 
     alert?.show("green-darken-1", "Nuevo modelo agregado con éxito.");
 
+    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    const getEndpoint = `${URL_API}/vehicle_models/${newModelId}`;
+    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const newModel = getRsp(getResponse).data.item; // Obtener el objeto completo
+
     // Elimina la opción "OTRO" de la lista para poder reordenarla
     const otroOption = vehicleModels.value.pop();
-    // Inserta el nuevo modelo
-    vehicleModels.value.push(newModel);
-    // Vuelve a agregar la opción "OTRO" al final
-    vehicleModels.value.push(otroOption);
+    // Crea una nueva referencia al arreglo para asegurar la reactividad
+    vehicleModels.value = [...vehicleModels.value, newModel, otroOption];
 
     // Selecciona el modelo recién creado
     item.value.vehicle_model_id = newModel.id;
