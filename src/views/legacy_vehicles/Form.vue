@@ -160,6 +160,7 @@
 
                   <v-col cols="12" md="3">
                     <v-select
+                      v-if="!isAddingNewColor"
                       label="Color"
                       v-model="item.vehicle_color_id"
                       :items="vehicleColors"
@@ -170,6 +171,30 @@
                       density="compact"
                       :rules="rules.required"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newColorInputRef"
+                      label="Nuevo Color"
+                      v-model="newColorName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewColor"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewColor"
+                          @click="addNewColor"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
 
                   <v-col cols="12" md="3">
@@ -460,12 +485,16 @@ const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(true);
 const isAddingNewBrand = ref(false);
 const isAddingNewModel = ref(false);
+const isAddingNewColor = ref(false);
 const newBrandName = ref("");
 const newModelName = ref("");
+const newColorName = ref("");
 const newBrandInputRef = ref(null);
 const newModelInputRef = ref(null);
+const newColorInputRef = ref(null);
 const isSavingNewBrand = ref(false);
 const isSavingNewModel = ref(false);
+const isSavingNewColor = ref(false);
 
 const getCatalogs = async () => {
   let endpoint = null;
@@ -527,6 +556,7 @@ const getCatalogs = async () => {
     endpoint = `${URL_API}/vehicle_colors?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vehicleColors.value = getRsp(response).data.items;
+    vehicleColors.value.push({ id: 0, name: "OTRO" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -691,6 +721,53 @@ const addNewModel = async () => {
   }
 };
 
+const addNewColor = async () => {
+  if (!newColorName.value || newColorName.value.trim() === "") {
+    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo color.");
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar el nuevo color "${newColorName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewColor.value = true;
+  try {
+    const payload = {
+      name: newColorName.value.trim(),
+    };
+    const endpoint = `${URL_API}/vehicle_colors`;
+    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    // Obtener el ID del nuevo registro desde la respuesta del POST
+    const newColorId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nuevo color agregado con éxito.");
+
+    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    const getEndpoint = `${URL_API}/vehicle_colors/${newColorId}`;
+    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const newColor = getRsp(getResponse).data.item; // Obtener el objeto completo
+
+    // Elimina la opción "OTRO" de la lista para poder reordenarla
+    const otroOption = vehicleColors.value.pop();
+    // Crea una nueva referencia al arreglo para asegurar la reactividad
+    vehicleColors.value = [...vehicleColors.value, newColor, otroOption];
+
+    // Selecciona el color recién creado
+    item.value.vehicle_color_id = newColor.id;
+
+    // Reset UI
+    newColorName.value = "";
+    isAddingNewColor.value = false;
+    newColorInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewColor.value = false;
+  }
+};
+
 const handleAction = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) {
@@ -807,7 +884,22 @@ watch(
   }
 );
 
-// Init
+// Cambios de color
+watch(
+  () => item.value?.vehicle_color_id,
+  (newColorId) => {
+    if (!item.value) return;
+    if (newColorId === 0) {
+      isAddingNewColor.value = true;
+    } else {
+      isAddingNewColor.value = false;
+      newColorName.value = "";
+      newColorInputRef.value?.resetValidation();
+    }
+  }
+);
+
+// Inicialización
 onMounted(() => {
   getCatalogs();
   getItem();
