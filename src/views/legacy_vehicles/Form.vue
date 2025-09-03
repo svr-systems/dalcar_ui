@@ -352,7 +352,9 @@
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Tipo"
-                      v-model="overhead.overhead_type_id"
+                      v-model="overhead.expense_type_id"
+                      :items="expenseTypes"
+                      :loading="expenseTypesLoading"
                       item-value="id"
                       item-title="name"
                       variant="outlined"
@@ -370,7 +372,7 @@
                       density="compact"
                       maxlength="50"
                       counter
-                      :rules="rules.required"
+                      :rules="rules.textRequired"
                     />
                   </v-col>
 
@@ -483,6 +485,8 @@ const vendorTypes = ref([]);
 const vendorTypesLoading = ref(true);
 const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(true);
+const expenseTypes = ref([]);
+const expenseTypesLoading = ref(true);
 const isAddingNewBrand = ref(false);
 const isAddingNewModel = ref(false);
 const isAddingNewColor = ref(false);
@@ -561,6 +565,16 @@ const getCatalogs = async () => {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     vehicleColorsLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/expense_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    expenseTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    expenseTypesLoading.value = false;
   }
 };
 
@@ -646,7 +660,7 @@ const addNewBrandAndModel = async () => {
 
     alert?.show("green-darken-1", "Nueva marca agregada con éxito.");
 
-    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_brands/${newBrandId}`;
     const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
     const newBrand = getRsp(getResponse).data.item; // Obtener el objeto completo
@@ -697,7 +711,7 @@ const addNewModel = async () => {
 
     alert?.show("green-darken-1", "Nuevo modelo agregado con éxito.");
 
-    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_models/${newModelId}`;
     const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
     const newModel = getRsp(getResponse).data.item; // Obtener el objeto completo
@@ -744,7 +758,7 @@ const addNewColor = async () => {
 
     alert?.show("green-darken-1", "Nuevo color agregado con éxito.");
 
-    // Realizar una SEGUNDA LLAMADA a la API para obtener el registro completo
+    // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_colors/${newColorId}`;
     const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
     const newColor = getRsp(getResponse).data.item; // Obtener el objeto completo
@@ -775,46 +789,57 @@ const handleAction = async () => {
     return;
   }
 
-  // Agregar o editar
   const confirmed = await confirm?.show(
     `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
   );
   if (!confirmed) return;
 
-  // isLoading.value = true;
-  // const payload = getObj(item.value, isStoreMode.value);
+  isLoading.value = true;
+  
+  const payload = {
+    branch_id: item.value.branch_id,
+    vendor_id: item.value.vendor_id,
+    purchase_date: item.value.issued_at,
+    vehicle_model_id: item.value.vehicle_model_id,
+    model_year: item.value.plan_year,
+    vehicle_transmission_id: item.value.vehicle_transmission_id,
+    vehicle_color_id: item.value.vehicle_color_id,
+    vin: item.value.vin,
+    purchase_price: item.value.purchase,
+    commission_amount: item.value.commission,
+    vat_type_id: item.value.vat_type_id,
+    invoice_amount: item.value.invoice,
+    legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(investor => ({
+      id: investor.id,
+      is_active: investor.is_active,
+      investor_id: investor.investor_id,
+      percentages: investor.percentage,
+      amount: investor.amount,
+    })),
+    legacy_vehicle_expenses: item.value.overheads.map(expense => ({
+      id: expense.id,
+      is_active: 1, // Asumiendo que los nuevos gastos siempre están activos
+      expense_type_id: expense.expense_type_id,
+      note: expense.observation,
+      expense_date: expense.date,
+      amount: expense.amount,
+    })),
+  };
 
-  // try {
-  //   // const endpoint = `${URL_API}/${routeName}${
-  //   //   !isStoreMode.value ? `/${payload.id}` : ""
-  //   // }`;
-  //   // const response = getRsp(
-  //   //   await axios.post(
-  //   //     endpoint,
-  //   //     getFormData(payload),
-  //   //     getHdrs(store.getAuth?.token, true)
-  //   //   )
-  //   // );
+  try {
+    const endpoint = `${URL_API}/${routeName}`;
+    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
 
-  //   // alert?.show("success", response.msg);
+    alert?.show("green-darken-1", getRsp(response).msg);
 
-  //   // router.push({
-  //   //   name: `${routeName}/show`,
-  //   //   params: {
-  //   //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
-  //   //   },
-  //   // });
-
-  //   alert?.show("success", "Registro agregado correctamente");
-
-  //   router.push({
-  //     name: `${routeName}`,
-  //   });
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
+    router.push({
+      name: `${routeName}`,
+    });
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const legacyVehicleInvestorsAdd = () => {
@@ -838,7 +863,7 @@ const legacyVehicleInvestorsRemove = (i) => {
 const overheadAdd = () => {
   item.value.overheads.push({
     id: null,
-    overhead_type_id: null,
+    expense_type_id: null,
     observation: null,
     date: null,
     amount: null,
