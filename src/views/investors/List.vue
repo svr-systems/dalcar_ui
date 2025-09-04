@@ -169,7 +169,7 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
   { title: "Nombre", key: "user.name" },
-  { title: "Tipo", key: "type" },
+  { title: "Tipo", key: "investor_type.name" },
   { title: "Piso %", key: "percent" },
   { title: "UIID", key: "uiid" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
