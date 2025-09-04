@@ -23,7 +23,9 @@
                 <v-row dense>
                   <v-col cols="11">
                     <CardTitle
-                      :text="`AUTO${isStoreMode ? '' : ' | ' + (item.uiid || '')}`"
+                      :text="`AUTO${
+                        isStoreMode ? '' : ' | ' + (item.uiid || '')
+                      }`"
                       sub
                     />
                   </v-col>
@@ -204,7 +206,7 @@
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
+                      maxlength="17"
                       counter
                       :rules="rules.textRequired"
                     />
@@ -278,7 +280,9 @@
               <v-card-text>
                 <v-row
                   dense
-                  v-for="(legacy_vehicle_investor, i) of item.legacy_vehicle_investors"
+                  v-for="(
+                    legacy_vehicle_investor, i
+                  ) of item.legacy_vehicle_investors"
                   :key="i"
                 >
                   <v-col cols="12" md="6">
@@ -326,7 +330,11 @@
 
                 <v-row dense>
                   <v-col cols="12">
-                    <v-btn size="x-small" color="warning" @click="legacyVehicleInvestorsAdd()">
+                    <v-btn
+                      size="x-small"
+                      color="warning"
+                      @click="legacyVehicleInvestorsAdd()"
+                    >
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
@@ -381,6 +389,7 @@
                       label="Fecha"
                       v-model="overhead.date"
                       :rules="rules.required"
+                      :before="true"
                     />
                   </v-col>
 
@@ -399,7 +408,11 @@
 
                 <v-row dense>
                   <v-col cols="12">
-                    <v-btn size="x-small" color="warning" @click="overheadAdd()">
+                    <v-btn
+                      size="x-small"
+                      color="warning"
+                      @click="overheadAdd()"
+                    >
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
@@ -420,7 +433,9 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left">Continuar</v-tooltip>
+                <v-tooltip activator="parent" location="left"
+                  >Continuar</v-tooltip
+                >
               </v-btn>
             </div>
           </v-col>
@@ -503,7 +518,7 @@ const isSavingNewColor = ref(false);
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
-  
+
   try {
     endpoint = `${URL_API}/investors?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -638,7 +653,10 @@ const getItem = async () => {
 
 const addNewBrandAndModel = async () => {
   if (!newBrandName.value || newBrandName.value.trim() === "") {
-    alert?.show("red-darken-1", "Por favor, ingresa el nombre de la nueva marca.");
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre de la nueva marca."
+    );
     return;
   }
 
@@ -654,7 +672,11 @@ const addNewBrandAndModel = async () => {
       vehicle_models: [{ name: "OTRO" }],
     };
     const endpoint = `${URL_API}/vehicle_brands`;
-    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
     // Obtener el ID del nuevo registro desde la respuesta del POST
     const newBrandId = getRsp(response).data.item.id;
 
@@ -662,7 +684,10 @@ const addNewBrandAndModel = async () => {
 
     // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_brands/${newBrandId}`;
-    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
     const newBrand = getRsp(getResponse).data.item; // Obtener el objeto completo
 
     // Elimina la opción "OTRO" de la lista para poder reordenarla
@@ -689,7 +714,10 @@ const addNewBrandAndModel = async () => {
 
 const addNewModel = async () => {
   if (!newModelName.value || newModelName.value.trim() === "") {
-    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo modelo.");
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre del nuevo modelo."
+    );
     return;
   }
 
@@ -705,7 +733,11 @@ const addNewModel = async () => {
       vehicle_brand_id: item.value.vehicle_brand_id,
     };
     const endpoint = `${URL_API}/vehicle_models`;
-    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
     // Obtener el ID del nuevo registro desde la respuesta del POST
     const newModelId = getRsp(response).data.item.id;
 
@@ -713,7 +745,10 @@ const addNewModel = async () => {
 
     // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_models/${newModelId}`;
-    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
     const newModel = getRsp(getResponse).data.item; // Obtener el objeto completo
 
     // Elimina la opción "OTRO" de la lista para poder reordenarla
@@ -737,7 +772,10 @@ const addNewModel = async () => {
 
 const addNewColor = async () => {
   if (!newColorName.value || newColorName.value.trim() === "") {
-    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo color.");
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre del nuevo color."
+    );
     return;
   }
 
@@ -752,7 +790,11 @@ const addNewColor = async () => {
       name: newColorName.value.trim(),
     };
     const endpoint = `${URL_API}/vehicle_colors`;
-    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
     // Obtener el ID del nuevo registro desde la respuesta del POST
     const newColorId = getRsp(response).data.item.id;
 
@@ -760,7 +802,10 @@ const addNewColor = async () => {
 
     // SEGUNDA LLAMADA a la API para obtener el registro completo
     const getEndpoint = `${URL_API}/vehicle_colors/${newColorId}`;
-    const getResponse = await axios.get(getEndpoint, getHdrs(store.getAuth?.token));
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
     const newColor = getRsp(getResponse).data.item; // Obtener el objeto completo
 
     // Elimina la opción "OTRO" de la lista para poder reordenarla
@@ -789,13 +834,36 @@ const handleAction = async () => {
     return;
   }
 
+  // Validación de aceptación pendiente
+  if (isAddingNewBrand.value && newBrandName.value.trim()) {
+    alert?.show(
+      "red-darken-1",
+      "Aceptación pendiente para carga en catálogo de marca"
+    );
+    return;
+  }
+  if (isAddingNewModel.value && newModelName.value.trim()) {
+    alert?.show(
+      "red-darken-1",
+      "Aceptación pendiente para carga en catálogo de modelo"
+    );
+    return;
+  }
+  if (isAddingNewColor.value && newColorName.value.trim()) {
+    alert?.show(
+      "red-darken-1",
+      "Aceptación pendiente para carga en catálogo de color"
+    );
+    return;
+  }
+
   const confirmed = await confirm?.show(
     `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
   );
   if (!confirmed) return;
 
   isLoading.value = true;
-  
+
   const payload = {
     branch_id: item.value.branch_id,
     vendor_id: item.value.vendor_id,
@@ -809,16 +877,18 @@ const handleAction = async () => {
     commission_amount: item.value.commission,
     vat_type_id: item.value.vat_type_id,
     invoice_amount: item.value.invoice,
-    legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(investor => ({
-      id: investor.id,
-      is_active: investor.is_active,
-      investor_id: investor.investor_id,
-      percentages: investor.percentage,
-      amount: investor.amount,
-    })),
-    legacy_vehicle_expenses: item.value.overheads.map(expense => ({
+    legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(
+      (investor) => ({
+        id: investor.id,
+        is_active: investor.is_active,
+        investor_id: investor.investor_id,
+        percentages: investor.percentage,
+        amount: investor.amount,
+      })
+    ),
+    legacy_vehicle_expenses: item.value.overheads.map((expense) => ({
       id: expense.id,
-      is_active: 1, // Asumiendo que los nuevos gastos siempre están activos
+      is_active: 1,
       expense_type_id: expense.expense_type_id,
       note: expense.observation,
       expense_date: expense.date,
@@ -828,7 +898,11 @@ const handleAction = async () => {
 
   try {
     const endpoint = `${URL_API}/${routeName}`;
-    const response = await axios.post(endpoint, payload, getHdrs(store.getAuth?.token));
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
 
     alert?.show("green-darken-1", getRsp(response).msg);
 
