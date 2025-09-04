@@ -161,11 +161,11 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "UUID", key: "uiid" },
   { title: "F. compra", key: "purchase_date" },
   { title: "VIN", key: "vin" },
   { title: "Año", key: "model_year" },
   { title: "Precio compra", key: "purchase_price" },
+  { title: "UUID", key: "uiid" },
   { title: "Estado", key: "status" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
@@ -176,8 +176,8 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
