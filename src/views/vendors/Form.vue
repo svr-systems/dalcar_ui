@@ -211,21 +211,8 @@ const getCatalogs = async () => {
   let response = null;
 
   try {
-    // endpoint = `${URL_API}/system/fiscal_regimes`;
-    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              name: "TIPO 1",
-            },
-          ],
-        },
-      },
-    };
+    endpoint = `${URL_API}/vendor_types`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     types.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -234,21 +221,8 @@ const getCatalogs = async () => {
   }
 
   try {
-    // endpoint = `${URL_API}/system/states`;
-    // response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const response = {
-      data: {
-        msg: "Registros retornados correctamente",
-        data: {
-          items: [
-            {
-              id: 1,
-              name: "BBVA",
-            },
-          ],
-        },
-      },
-    };
+    endpoint = `${URL_API}/banks`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     banks.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -261,12 +235,12 @@ const getCatalogs = async () => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      id: 1,
-      active: true,
+      id: null,
+      is_active: 1, 
       name: null,
-      type_id: null,
-      days: null,
-      provider_banks: [],
+      vendor_type_id: null, 
+      payment_days: null, 
+      vendor_banks: [],
     };
     bankAdd();
     isLoading.value = false;
