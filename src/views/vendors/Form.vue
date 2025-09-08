@@ -49,7 +49,7 @@
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Tipo"
-                      v-model="item.type_id"
+                      v-model="item.vendor_type_id"
                       :items="types"
                       :loading="typesLoading"
                       item-value="id"
@@ -62,7 +62,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Días limite de pago"
-                      v-model="item.days"
+                      v-model="item.payment_days"
                       type="number"
                       variant="outlined"
                       density="compact"
@@ -89,13 +89,13 @@
               <v-card-text>
                 <v-row
                   dense
-                  v-for="(provider_bank, i) of item.provider_banks"
+                  v-for="(vendor_bank, i) of item.vendor_banks"
                   :key="i"
                 >
                   <v-col cols="12" md="4">
                     <v-autocomplete
                       label="Banco"
-                      v-model="provider_bank.bank_id"
+                      v-model="vendor_bank.bank_id"
                       :items="banks"
                       :loading="banksLoading"
                       item-value="id"
@@ -108,7 +108,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       label="CLABE"
-                      v-model="provider_bank.clabe"
+                      v-model="vendor_bank.clabe_number"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -120,7 +120,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       label="Cuenta"
-                      v-model="provider_bank.account"
+                      v-model="vendor_bank.account_number"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -236,56 +236,18 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       id: null,
-      is_active: 1, 
+      is_active: 1,
       name: null,
-      vendor_type_id: null, 
-      payment_days: null, 
+      vendor_type_id: null,
+      payment_days: null,
       vendor_banks: [],
     };
     bankAdd();
     isLoading.value = false;
   } else {
     try {
-      // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-      // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      const response = {
-        data: {
-          msg: "Registro retornado correctamente",
-          data: {
-            item: {
-              id: 1,
-              active: 1,
-              created_at: "2025-07-31 17:31:16",
-              updated_at: "2025-08-06 20:57:17",
-              created_by_id: 1,
-              updated_by_id: 1,
-              created_by: {
-                email: "samuel@svr.mx",
-              },
-              updated_by: {
-                email: "samuel@svr.mx",
-              },
-              uiid: "P-0001",
-              name: "PROVEEDOR PRUEBA",
-              type_id: 1,
-              type: {
-                name: "TIPO 1",
-              },
-              days: "3",
-              provider_banks: [
-                {
-                  bank_id: 1,
-                  bank: {
-                    name: "BBVA",
-                  },
-                  clabe: "123456789012345678",
-                  account: "093456789012345678",
-                },
-              ],
-            },
-          },
-        },
-      };
+      const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
@@ -296,11 +258,13 @@ const getItem = async () => {
 };
 
 const bankAdd = async () => {
-  item.value.provider_banks.push({
+  item.value.vendor_banks.push({
     id: null,
+    is_active: 1,
+    vendor_id: null,
     bank_id: null,
-    clabe: null,
-    account: null,
+    clabe_number: null,
+    account_number: null,
   });
 };
 
@@ -321,30 +285,20 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}${
-    //   !isStoreMode.value ? `/${payload.id}` : ""
-    // }`;
-    // const response = getRsp(
-    //   await axios.post(
-    //     endpoint,
-    //     payload,
-    //     getHdrs(store.getAuth?.token, true)
-    //   )
-    // );
+    const endpoint = `${URL_API}/${routeName}${
+      !isStoreMode.value ? `/${payload.id}` : ""
+    }`;
+    const response = getRsp(
+      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token, true))
+    );
 
-    // alert?.show("success", response.msg);
-
-    // router.push({
-    //   name: `${routeName}/show`,
-    //   params: {
-    //     id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
-    //   },
-    // });
-
-    alert?.show("success", "Registro agregado correctamente");
+    alert?.show("success", response.msg);
 
     router.push({
-      name: `${routeName}`,
+      name: `${routeName}/show`,
+      params: {
+        id: btoa(isStoreMode.value ? response.data.item.id : itemId.value),
+      },
     });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

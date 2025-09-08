@@ -8,7 +8,7 @@
         </v-col>
         <v-col v-if="item" cols="2" class="text-right">
           <v-btn
-            v-if="item.active"
+            v-if="item.is_active"
             icon
             variant="flat"
             size="x-small"
@@ -27,7 +27,7 @@
 
     <v-card-text v-if="item">
       <v-row>
-        <v-col v-if="!item.active" cols="12">
+        <v-col v-if="!item.is_active" cols="12">
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
@@ -82,10 +82,12 @@
                   <VisVal label="Nombre" :value="item.name" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="Tipo" :value="item.type.name" />
+                  <VisVal label="Tipo" :value="item.vendor_type.name" />
                 </v-col>
                 <v-col cols="12" md="3">
-                  <VisVal label="Días limite de pago" :value="item.days" />
+                  <VisVal
+                    label="Días limite de pago" :value="item.payment_days"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -105,17 +107,17 @@
             <v-card-text>
               <v-row
                 dense
-                v-for="(provider_bank, i) of item.provider_banks"
+                v-for="(vendor_bank, i) of item.vendor_banks"
                 :key="i"
               >
                 <v-col cols="12" md="4">
-                  <VisVal label="Banco" :value="provider_bank.bank.name" />
+                  <VisVal label="Banco" :value="vendor_bank.bank_id" />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal label="CLABE" :value="provider_bank.clabe" />
+                  <VisVal label="CLABE" :value="vendor_bank.clabe_number" />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal label="Cuenta" :value="provider_bank.account" />
+                  <VisVal label="Cuenta" :value="vendor_bank.account_number" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -123,7 +125,7 @@
         </v-col>
 
         <v-col
-          v-if="item.active && store.getAuth?.user?.role_id === 1"
+          v-if="item.is_active && store.getAuth?.user?.role_id === 1"
           cols="12"
         >
           <v-btn
@@ -183,46 +185,8 @@ const regDialog = ref(false);
 const getItem = async () => {
   isLoading.value = true;
   try {
-    // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    const response = {
-      data: {
-        msg: "Registro retornado correctamente",
-        data: {
-          item: {
-            id: 1,
-            active: 1,
-            created_at: "2025-07-31 17:31:16",
-            updated_at: "2025-08-06 20:57:17",
-            created_by_id: 1,
-            updated_by_id: 1,
-            created_by: {
-              email: "samuel@svr.mx",
-            },
-            updated_by: {
-              email: "samuel@svr.mx",
-            },
-            uiid: "P-0001",
-            name: "PROVEEDOR PRUEBA",
-            type_id: 1,
-            type: {
-              name: "TIPO 1",
-            },
-            days: "3",
-            provider_banks: [
-              {
-                bank_id: 1,
-                bank: {
-                  name: "BBVA",
-                },
-                clabe: "123456789012345678",
-                account: "093456789012345678",
-              },
-            ],
-          },
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     item.value = getRsp(response).data.item;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -238,20 +202,18 @@ const deleteItem = async () => {
 
   isLoading.value = true;
 
-  // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
-  //   const response = getRsp(
-  //     await axios.delete(endpoint, getHdrs(store.getAuth?.token))
-  //   );
-  //   alert?.show("red-darken-1", response.msg);
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
-  alert?.show("red-darken-1", "Registro desactivado correctamente");
-  router.push({ name: routeName });
-  isLoading.value = false;
+  try {
+    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("red-darken-1", response.msg);
+    router.push({ name: routeName });
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Reactivar
@@ -260,24 +222,22 @@ const restoreItem = async () => {
   if (!confirmed) return;
 
   isLoading.value = true;
-  // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/restore`;
-  //   const response = getRsp(
-  //     await axios.post(
-  //       endpoint,
-  //       { id: itemId.value },
-  //       getHdrs(store.getAuth?.token)
-  //     )
-  //   );
-  //   item.value = response.data.item;
-  //   alert?.show("success", response.msg);
-  // } catch (err) {
-  //   alert?.show("red-darken-1", getErr(err));
-  // } finally {
-  //   isLoading.value = false;
-  // }
-  alert?.show("red-darken-1", "Registro activado correctamente");
-  isLoading.value = false;
+  try {
+    const endpoint = `${URL_API}/${routeName}/restore`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        { id: itemId.value },
+        getHdrs(store.getAuth?.token)
+      )
+    );
+    item.value = response.data.item;
+    alert?.show("success", response.msg);
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Inicializar
