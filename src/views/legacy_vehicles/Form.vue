@@ -148,16 +148,41 @@
 
                   <v-col cols="12" md="3">
                     <v-select
+                      v-if="!isAddingNewVersion"
                       label="Versión"
-                      v-model="item.vehicle_transmission_id"
-                      :items="vehicleTransmissions"
-                      :loading="vehicleTransmissionsLoading"
+                      v-model="item.vehicle_version_id"
+                      :items="vehicleVersions"
+                      :loading="vehicleVersionsLoading"
                       item-value="id"
                       item-title="name"
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newVersionInputRef"
+                      label="Nueva Versión"
+                      v-model="newVersionName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewVersion"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewVersion"
+                          @click="addNewVersion"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
 
                   <v-col cols="12" md="3">
@@ -337,7 +362,7 @@
               <v-card-title>
                 <v-row dense>
                   <v-col cols="11">
-                    <CardTitle text="Procedencia" sub />
+                    <CardTitle text="PROCEDENCIA" sub />
                   </v-col>
                   <v-col cols="1" class="text-right" />
                 </v-row>
@@ -385,8 +410,8 @@
                     <v-autocomplete
                       label="Aduana"
                       v-model="item.procedencia.customs_id"
-                      :items="expenseTypes"
-                      :loading="expenseTypesLoading"
+                      :items="customsOffices"
+                      :loading="customsOfficesLoading"
                       item-value="id"
                       item-title="name"
                       variant="outlined"
@@ -569,6 +594,35 @@
           </v-col>
 
           <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="PRECIO DE VENTA" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="12">
+                    <v-text-field
+                      label="Monto $"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      counter
+                      v-model="item.sale_price"
+                      :rules="rules.textOptional"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
             <div class="text-right">
               <v-btn
                 icon
@@ -640,6 +694,8 @@ const vehicleBrands = ref([]);
 const vehicleBrandsLoading = ref(true);
 const vehicleModels = ref([]);
 const vehicleModelsLoading = ref(false);
+const vehicleVersions = ref([]);
+const vehicleVersionsLoading = ref(false);
 const vatTypes = ref([]);
 const vatTypesLoading = ref(true);
 const vendorTypes = ref([]);
@@ -648,17 +704,23 @@ const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(true);
 const expenseTypes = ref([]);
 const expenseTypesLoading = ref(true);
+const customsOffices = ref([]);
+const customsOfficesLoading = ref(true);
 const isAddingNewBrand = ref(false);
 const isAddingNewModel = ref(false);
+const isAddingNewVersion = ref(false);
 const isAddingNewColor = ref(false);
 const newBrandName = ref("");
 const newModelName = ref("");
+const newVersionName = ref("");
 const newColorName = ref("");
 const newBrandInputRef = ref(null);
 const newModelInputRef = ref(null);
+const newVersionInputRef = ref(null);
 const newColorInputRef = ref(null);
 const isSavingNewBrand = ref(false);
 const isSavingNewModel = ref(false);
+const isSavingNewVersion = ref(false);
 const isSavingNewColor = ref(false);
 
 const getCatalogs = async () => {
@@ -737,6 +799,16 @@ const getCatalogs = async () => {
   } finally {
     expenseTypesLoading.value = false;
   }
+
+  try {
+    endpoint = `https://apidev.dalcar.com.mx/api/customs_offices?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    customsOffices.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    customsOfficesLoading.value = false;
+  }
 };
 
 const getVehicleModels = async (brandId) => {
@@ -758,6 +830,25 @@ const getVehicleModels = async (brandId) => {
   }
 };
 
+const getVehicleVersions = async (modelId, year) => {
+  if (!modelId || !year) {
+    vehicleVersions.value = [];
+    return;
+  }
+  vehicleVersionsLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/vehicle_versions?is_active=1&vehicle_model_id=${modelId}&model_year=${year}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const versions = getRsp(response).data.items;
+    versions.push({ id: 0, name: "OTRO" });
+    vehicleVersions.value = versions;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleVersionsLoading.value = false;
+  }
+};
+
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
@@ -767,6 +858,7 @@ const getItem = async () => {
       vehicle_brand_id: null,
       vehicle_model_id: null,
       vehicle_transmission_id: null,
+      vehicle_version_id: null,
       plan_year: currentYear.value,
       vehicle_color_id: null,
       vin: null,
@@ -778,6 +870,7 @@ const getItem = async () => {
       commission: null,
       vat_type_id: null,
       invoice: null,
+      sale_price: null,
       procedencia: {
         origin_type_id: null,
         pediment_number: null,
@@ -799,6 +892,12 @@ const getItem = async () => {
 
       if (item.value?.vehicle_brand_id) {
         await getVehicleModels(item.value.vehicle_brand_id);
+      }
+      if (item.value?.vehicle_model_id && item.value?.plan_year) {
+        await getVehicleVersions(
+          item.value.vehicle_model_id,
+          item.value.plan_year
+        );
       }
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
@@ -914,6 +1013,73 @@ const addNewModel = async () => {
   }
 };
 
+const addNewVersion = async () => {
+  if (!newVersionName.value || newVersionName.value.trim() === "") {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre de la nueva versión."
+    );
+    return;
+  }
+  if (!item.value.vehicle_model_id) {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, selecciona un modelo antes de agregar una nueva versión."
+    );
+    return;
+  }
+  if (!item.value.plan_year) {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, selecciona un año antes de agregar una nueva versión."
+    );
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar la nueva versión "${newVersionName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewVersion.value = true;
+  try {
+    const payload = {
+      name: newVersionName.value.trim(),
+      vehicle_model_id: item.value.vehicle_model_id,
+      model_year: item.value.plan_year,
+    };
+    const endpoint = `${URL_API}/vehicle_versions`;
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
+    const newVersionId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nueva versión agregada con éxito.");
+
+    const getEndpoint = `${URL_API}/vehicle_versions/${newVersionId}`;
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
+    const newVersion = getRsp(getResponse).data.item;
+
+    const otroOption = vehicleVersions.value.pop();
+    vehicleVersions.value = [...vehicleVersions.value, newVersion, otroOption];
+
+    item.value.vehicle_version_id = newVersion.id;
+
+    newVersionName.value = "";
+    isAddingNewVersion.value = false;
+    newVersionInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewVersion.value = false;
+  }
+};
+
 const addNewColor = async () => {
   if (!newColorName.value || newColorName.value.trim() === "") {
     alert?.show(
@@ -986,6 +1152,13 @@ const handleAction = async () => {
     );
     return;
   }
+  if (isAddingNewVersion.value && newVersionName.value.trim()) {
+    alert?.show(
+      "red-darken-1",
+      "Aceptación pendiente para carga en catálogo de versión"
+    );
+    return;
+  }
   if (isAddingNewColor.value && newColorName.value.trim()) {
     alert?.show(
       "red-darken-1",
@@ -1008,6 +1181,7 @@ const handleAction = async () => {
     vehicle_brand_id: item.value.vehicle_brand_id,
     vehicle_model_id: item.value.vehicle_model_id,
     model_year: item.value.plan_year,
+    vehicle_version_id: item.value.vehicle_version_id,
     vehicle_transmission_id: item.value.vehicle_transmission_id,
     vehicle_color_id: item.value.vehicle_color_id,
     vin: item.value.vin,
@@ -1019,6 +1193,7 @@ const handleAction = async () => {
     commission_amount: item.value.commission,
     vat_type_id: item.value.vat_type_id,
     invoice_amount: item.value.invoice,
+    sale_price: item.value.sale_price,
     procedencia: item.value.procedencia,
     legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(
       (investor) => ({
@@ -1095,11 +1270,13 @@ watch(
     if (newBrandId === 0) {
       isAddingNewBrand.value = true;
       item.value.vehicle_model_id = null;
+      item.value.vehicle_version_id = null;
     } else if (newBrandId) {
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       newBrandInputRef.value?.resetValidation();
       item.value.vehicle_model_id = null;
+      item.value.vehicle_version_id = null;
       getVehicleModels(newBrandId);
     } else {
       isAddingNewBrand.value = false;
@@ -1109,17 +1286,47 @@ watch(
   }
 );
 
-// Cambios de modelo
+// Cambios de modelo y año
 watch(
-  () => item.value?.vehicle_model_id,
-  (newModelId) => {
+  () => [item.value?.vehicle_model_id, item.value?.plan_year],
+  ([newModelId, newYear], [oldModelId, oldYear]) => {
     if (!item.value) return;
+
     if (newModelId === 0) {
       isAddingNewModel.value = true;
+      item.value.vehicle_version_id = null;
+      vehicleVersions.value = [{ id: 0, name: "OTRO" }];
+      return;
+    }
+
+    isAddingNewModel.value = false;
+    newModelName.value = "";
+    newModelInputRef.value?.resetValidation();
+
+    // Si cambia el modelo o el año, resetea la versión seleccionada
+    if (newModelId !== oldModelId || newYear !== oldYear) {
+      item.value.vehicle_version_id = null;
+    }
+
+    if (newModelId && newYear) {
+      getVehicleVersions(newModelId, newYear);
     } else {
-      isAddingNewModel.value = false;
-      newModelName.value = "";
-      newModelInputRef.value?.resetValidation();
+      vehicleVersions.value = [];
+    }
+  }
+);
+
+// Cambios de versión
+watch(
+  () => item.value?.vehicle_version_id,
+  (newVersionId) => {
+    if (!item.value) return;
+    if (newVersionId === 0) {
+      isAddingNewVersion.value = true;
+    } else {
+      isAddingNewVersion.value = false;
+      newVersionName.value = "";
+      newVersionInputRef.value?.resetValidation();
     }
   }
 );
