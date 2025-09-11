@@ -462,7 +462,7 @@
                   ) of item.legacy_vehicle_investors"
                   :key="i"
                 >
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="7">
                     <v-autocomplete
                       label="Inversionista"
                       v-model="legacy_vehicle_investor.investor_id"
@@ -476,7 +476,7 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <v-text-field
                       label="Porcentaje %"
                       v-model="legacy_vehicle_investor.percentages"
@@ -573,7 +573,7 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="2">
                     <v-text-field
                       :label="
                         'Monto ' +
@@ -587,6 +587,17 @@
                       min="0"
                       :rules="rules.required"
                     />
+                  </v-col>
+                  <v-col cols="12" md="1" class="text-center pt-2">
+                    <v-btn
+                      v-if="i !== 0"
+                      icon
+                      size="x-small"
+                      color="error"
+                      @click="legacyVehicleExpenseRemove(i)"
+                    >
+                      <v-icon size="x-small">mdi-minus</v-icon>
+                    </v-btn>
                   </v-col>
                 </v-row>
 
@@ -1166,6 +1177,14 @@ const legacyVehicleExpenseAdd = () => {
     expense_date: null,
     amount: null,
   });
+};
+
+const legacyVehicleExpenseRemove = (i) => {
+  if (item.value.legacy_vehicle_expenses[i].id === null) {
+    item.value.legacy_vehicle_expenses.splice(i, 1);
+  } else {
+    item.value.legacy_vehicle_expenses[i].is_active = 0;
+  }
 };
 
 // Cambios de marca
