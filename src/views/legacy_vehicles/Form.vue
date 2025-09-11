@@ -373,7 +373,7 @@
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Procedencia"
-                      v-model="item.origin_id"
+                      v-model="item.origin_type_id"
                       :items="originTypes"
                       item-value="id"
                       item-title="name"
@@ -482,7 +482,14 @@
                   </v-col>
 
                   <v-col cols="12" md="2">
-                    {{ getAmountFormat(legacy_vehicle_investor.amount) }}
+                    <v-text-field
+                      label="Monto"
+                      v-model="legacy_vehicle_investor.amount"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
+                    />
                   </v-col>
 
                   <v-col cols="12" md="1" class="text-center pt-2">
@@ -530,7 +537,7 @@
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Tipo"
-                      v-model="item.vehicle_origin_type_id"
+                      v-model="overhead.expense_type_id"
                       :items="expenseTypes"
                       :loading="expenseTypesLoading"
                       item-value="id"
@@ -802,7 +809,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/origin_types?is_active=1&filter=0`;
+    endpoint = `${URL_API}/origin_types`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     originTypes.value = getRsp(response).data.items;
   } catch (err) {
@@ -881,7 +888,7 @@ const getItem = async () => {
       vat_type_id: null,
       invoice: null,
       observation: null,
-      vehicle_origin_type_id: null,
+      origin_type_id: null,
       pediment: null,
       origin_id: null,
       import_date: null,
@@ -943,7 +950,6 @@ const addNewBrand = async () => {
       getHdrs(store.getAuth?.token)
     );
     const newBrandId = getRsp(response).data.item.id;
-
     alert?.show("green-darken-1", "Nueva marca agregada con éxito.");
 
     const getEndpoint = `${URL_API}/vehicle_brands/${newBrandId}`;
@@ -1136,55 +1142,53 @@ const handleAction = async () => {
 
   isLoading.value = true;
   try {
-    const payload = {
-      branch_id: item.value.branch_id,
-      vendor_id: item.value.vendor_id,
-      purchase_date: item.value.issued_at,
-      vehicle_model_id: item.value.vehicle_model_id,
-      vehicle_version_id: item.value.vehicle_version_id,
-      vehicle_transmission_id: item.value.vehicle_transmission_id,
-      vehicle_color_id: item.value.vehicle_color_id,
-      vin: item.value.vin,
-      engine_number: item.value.engine_number,
-      repuve: item.value.repuve,
-      vehicle_key: item.value.vehicle_key,
-      purchase_price: parseFloat(item.value.purchase),
-      commission_amount: parseFloat(item.value.commission),
-      vat_type_id: item.value.vat_type_id,
-      invoice_amount: parseFloat(item.value.invoice),
-      notes: item.value.observation,
-      origin_type_id: item.value.vehicle_origin_type_id,
-      pediment_number: item.value.pediment,
-      origin_id: item.value.origin_id,
-      pediment_date: item.value.import_date,
-      custom_office_id: item.value.customs_office_id,
-      pediment_notes: item.value.origin_observation,
-      sale_price: item.value.sale_price
-        ? parseFloat(item.value.sale_price)
-        : null,
-      legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(
-        (inv) => ({
-          id: inv.id,
-          is_active: inv.is_active,
-          investor_id: inv.investor_id,
-          percentages: parseFloat(inv.percentage),
-          amount: parseFloat(inv.amount),
-        })
-      ),
-      legacy_vehicle_expenses: item.value.overheads.map((exp) => ({
-        id: exp.id,
-        is_active: 1,
-        expense_type_id: exp.overhead_type_id,
-        note: exp.observation,
-        expense_date: exp.date,
-        amount: parseFloat(exp.amount),
-      })),
-    };
-
     const endpoint = `${URL_API}/${routeName}`;
     const response = await axios.post(
       endpoint,
-      payload,
+      {
+        branch_id: 1,
+        vendor_id: item.value.vendor_id,
+        purchase_date: item.value.issued_at,
+        vehicle_model_id: item.value.vehicle_model_id,
+        vehicle_version_id: item.value.vehicle_version_id,
+        vehicle_transmission_id: item.value.vehicle_transmission_id,
+        vehicle_color_id: item.value.vehicle_color_id,
+        vin: item.value.vin,
+        engine_number: item.value.engine_number,
+        repuve: item.value.repuve,
+        vehicle_key: item.value.vehicle_key,
+        purchase_price: parseFloat(item.value.purchase),
+        commission_amount: parseFloat(item.value.commission),
+        vat_type_id: item.value.vat_type_id,
+        invoice_amount: parseFloat(item.value.invoice),
+        notes: item.value.observation,
+        origin_type_id: item.value.origin_type_id,
+        pediment_number: item.value.pediment,
+        origin_id: item.value.origin_id,
+        pediment_date: item.value.import_date,
+        custom_office_id: item.value.customs_office_id,
+        pediment_notes: item.value.origin_observation,
+        sale_price: item.value.sale_price
+          ? parseFloat(item.value.sale_price)
+          : null,
+        legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(
+          (inv) => ({
+            id: inv.id,
+            is_active: inv.is_active,
+            investor_id: inv.investor_id,
+            percentages: parseFloat(inv.percentage),
+            amount: parseFloat(inv.amount),
+          })
+        ),
+        legacy_vehicle_expenses: item.value.overheads.map((exp) => ({
+          id: exp.id,
+          is_active: 1,
+          expense_type_id: exp.expense_type_id,
+          note: exp.observation,
+          expense_date: exp.date,
+          amount: parseFloat(exp.amount),
+        })),
+      },
       getHdrs(store.getAuth?.token)
     );
 
@@ -1222,7 +1226,7 @@ const legacyVehicleInvestorsRemove = (i) => {
 const overheadAdd = () => {
   item.value.overheads.push({
     id: null,
-    overhead_type_id: null,
+    expense_type_id: null,
     observation: null,
     date: null,
     amount: null,
