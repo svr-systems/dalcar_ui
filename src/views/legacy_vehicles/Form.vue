@@ -38,7 +38,7 @@
                   <v-col cols="12" md="3">
                     <InpDate
                       label="Fecha de compra"
-                      v-model="item.issued_at"
+                      v-model="item.purchase_date"
                       :rules="rules.required"
                       :before="true"
                     />
@@ -59,7 +59,7 @@
                   </v-col>
 
                   <v-col cols="12" md="3">
-                    <v-select
+                    <v-autocomplete
                       v-if="!isAddingNewBrand"
                       label="Marca"
                       v-model="item.vehicle_brand_id"
@@ -98,7 +98,7 @@
                   </v-col>
 
                   <v-col cols="12" md="3">
-                    <v-select
+                    <v-autocomplete
                       v-if="!isAddingNewModel"
                       label="Modelo"
                       v-model="item.vehicle_model_id"
@@ -147,7 +147,7 @@
                   </v-col>
 
                   <v-col cols="12" md="3">
-                    <v-select
+                    <v-autocomplete
                       v-if="!isAddingNewVersion"
                       label="Versión"
                       v-model="item.vehicle_version_id"
@@ -253,7 +253,7 @@
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Número de motor*"
+                      label="Motor*"
                       v-model="item.engine_number"
                       type="text"
                       variant="outlined"
@@ -292,24 +292,28 @@
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Precio de compra"
-                      v-model="item.purchase"
+                      :label="'Compra ' + getAmountFormat(item.purchase_price)"
+                      v-model="item.purchase_price"
                       type="number"
                       variant="outlined"
                       density="compact"
                       counter
+                      min="0"
                       :rules="rules.required"
                     />
                   </v-col>
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Comisión"
-                      v-model="item.commission"
+                      :label="
+                        'Comisión ' + getAmountFormat(item.commission_amount)
+                      "
+                      v-model="item.commission_amount"
                       type="number"
                       variant="outlined"
                       density="compact"
                       counter
+                      min="0"
                       :rules="rules.required"
                     />
                   </v-col>
@@ -330,12 +334,15 @@
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Monto factura"
-                      v-model="item.invoice"
+                      :label="
+                        'Monto factura ' + getAmountFormat(item.invoice_amount)
+                      "
+                      v-model="item.invoice_amount"
                       type="number"
                       variant="outlined"
                       density="compact"
                       counter
+                      min="0"
                       :rules="rules.required"
                     />
                   </v-col>
@@ -343,7 +350,7 @@
                   <v-col cols="12" md="12">
                     <v-text-field
                       label="Observaciones*"
-                      v-model="item.observation"
+                      v-model="item.notes"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -371,7 +378,7 @@
               <v-card-text>
                 <v-row dense>
                   <v-col cols="12" md="3">
-                    <v-autocomplete
+                    <v-select
                       label="Procedencia"
                       v-model="item.origin_type_id"
                       :items="originTypes"
@@ -383,10 +390,10 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
                     <v-text-field
                       label="Pedimento"
-                      v-model="item.pediment"
+                      v-model="item.pediment_number"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -396,19 +403,19 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
                     <InpDate
-                      label="Fecha de pedimento"
-                      v-model="item.import_date"
+                      label="Fecha"
+                      v-model="item.pediment_date"
                       :rules="rules.required"
                       :before="true"
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
                     <v-autocomplete
                       label="Aduana"
-                      v-model="item.customs_office_id"
+                      v-model="item.custom_office_id"
                       :items="customsOffices"
                       :loading="customsOfficesLoading"
                       item-value="id"
@@ -419,10 +426,10 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="12">
+                  <v-col v-if="item.origin_type_id == 2" cols="12" md="12">
                     <v-text-field
                       label="Observaciones*"
-                      v-model="item.origin_observation"
+                      v-model="item.pediment_notes"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -472,22 +479,12 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Porcentaje %"
-                      v-model="legacy_vehicle_investor.percentage"
+                      v-model="legacy_vehicle_investor.percentages"
                       type="number"
                       variant="outlined"
                       density="compact"
                       counter
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      label="Monto"
-                      v-model="legacy_vehicle_investor.amount"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
+                      min="0"
                       :rules="rules.required"
                     />
                   </v-col>
@@ -533,11 +530,17 @@
               </v-card-title>
 
               <v-card-text>
-                <v-row dense v-for="(overhead, i) of item.overheads" :key="i">
+                <v-row
+                  dense
+                  v-for="(
+                    legacy_vehicle_expense, i
+                  ) of item.legacy_vehicle_expenses"
+                  :key="i"
+                >
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       label="Tipo"
-                      v-model="overhead.expense_type_id"
+                      v-model="legacy_vehicle_expense.expense_type_id"
                       :items="expenseTypes"
                       :loading="expenseTypesLoading"
                       item-value="id"
@@ -551,7 +554,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Observación"
-                      v-model="overhead.observation"
+                      v-model="legacy_vehicle_expense.note"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -564,7 +567,7 @@
                   <v-col cols="12" md="3">
                     <InpDate
                       label="Fecha"
-                      v-model="overhead.date"
+                      v-model="legacy_vehicle_expense.expense_date"
                       :rules="rules.required"
                       :before="true"
                     />
@@ -572,12 +575,16 @@
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Monto"
-                      v-model="overhead.amount"
+                      :label="
+                        'Monto ' +
+                        getAmountFormat(legacy_vehicle_expense.amount)
+                      "
+                      v-model="legacy_vehicle_expense.amount"
                       type="number"
                       variant="outlined"
                       density="compact"
                       counter
+                      min="0"
                       :rules="rules.required"
                     />
                   </v-col>
@@ -588,40 +595,11 @@
                     <v-btn
                       size="x-small"
                       color="warning"
-                      @click="overheadAdd()"
+                      @click="legacyVehicleExpenseAdd()"
                     >
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12">
-            <v-card>
-              <v-card-title>
-                <v-row dense>
-                  <v-col cols="11">
-                    <CardTitle text="PRECIO DE VENTA" sub />
-                  </v-col>
-                  <v-col cols="1" class="text-right" />
-                </v-row>
-              </v-card-title>
-
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="12" md="12">
-                    <v-text-field
-                      label="Monto $"
-                      v-model="item.sale_price"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      :rules="rules.textOptional"
-                    />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -663,9 +641,8 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
-import { getAmountFormat } from "@/utils/formatters";
-import { getCurrentYear } from "@/utils/helpers";
-import { getDateTime } from "@/utils/formatters";
+import { getCurrentYear, getObj } from "@/utils/helpers";
+import { getDateTime, getAmountFormat } from "@/utils/formatters";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
@@ -870,36 +847,34 @@ const getVehicleVersions = async (modelId, year) => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      branch_id: store.getAuth?.user.branch_id,
-      issued_at: currentDate.value,
+      branch_id: 2,
+      purchase_date: currentDate.value,
       vendor_id: null,
       vehicle_brand_id: null,
       vehicle_model_id: null,
+      plan_year: currentYear.value,
       vehicle_version_id: null,
       vehicle_transmission_id: null,
-      plan_year: currentYear.value,
       vehicle_color_id: null,
       vin: null,
       engine_number: null,
       repuve: null,
       vehicle_key: null,
-      purchase: null,
-      commission: null,
+      purchase_price: null,
+      commission_amount: null,
       vat_type_id: null,
-      invoice: null,
-      observation: null,
+      invoice_amount: null,
+      notes: null,
       origin_type_id: null,
-      pediment: null,
-      origin_id: null,
-      import_date: null,
-      customs_office_id: null,
-      origin_observation: null,
-      sale_price: null,
+      pediment_number: null,
+      pediment_date: null,
+      custom_office_id: null,
+      pediment_notes: null,
       legacy_vehicle_investors: [],
-      overheads: [],
+      legacy_vehicle_expenses: [],
     };
     legacyVehicleInvestorsAdd();
-    overheadAdd();
+    legacyVehicleExpenseAdd();
     isLoading.value = false;
   } else {
     try {
@@ -1141,54 +1116,13 @@ const handleAction = async () => {
   if (!confirmed) return;
 
   isLoading.value = true;
+  const payload = getObj(item.value, isStoreMode.value);
+
   try {
     const endpoint = `${URL_API}/${routeName}`;
     const response = await axios.post(
       endpoint,
-      {
-        branch_id: 1,
-        vendor_id: item.value.vendor_id,
-        purchase_date: item.value.issued_at,
-        vehicle_model_id: item.value.vehicle_model_id,
-        vehicle_version_id: item.value.vehicle_version_id,
-        vehicle_transmission_id: item.value.vehicle_transmission_id,
-        vehicle_color_id: item.value.vehicle_color_id,
-        vin: item.value.vin,
-        engine_number: item.value.engine_number,
-        repuve: item.value.repuve,
-        vehicle_key: item.value.vehicle_key,
-        purchase_price: parseFloat(item.value.purchase),
-        commission_amount: parseFloat(item.value.commission),
-        vat_type_id: item.value.vat_type_id,
-        invoice_amount: parseFloat(item.value.invoice),
-        notes: item.value.observation,
-        origin_type_id: item.value.origin_type_id,
-        pediment_number: item.value.pediment,
-        origin_id: item.value.origin_id,
-        pediment_date: item.value.import_date,
-        custom_office_id: item.value.customs_office_id,
-        pediment_notes: item.value.origin_observation,
-        sale_price: item.value.sale_price
-          ? parseFloat(item.value.sale_price)
-          : null,
-        legacy_vehicle_investors: item.value.legacy_vehicle_investors.map(
-          (inv) => ({
-            id: inv.id,
-            is_active: inv.is_active,
-            investor_id: inv.investor_id,
-            percentages: parseFloat(inv.percentage),
-            amount: parseFloat(inv.amount),
-          })
-        ),
-        legacy_vehicle_expenses: item.value.overheads.map((exp) => ({
-          id: exp.id,
-          is_active: 1,
-          expense_type_id: exp.expense_type_id,
-          note: exp.observation,
-          expense_date: exp.date,
-          amount: parseFloat(exp.amount),
-        })),
-      },
+      payload,
       getHdrs(store.getAuth?.token)
     );
 
@@ -1210,7 +1144,7 @@ const legacyVehicleInvestorsAdd = () => {
     id: null,
     is_active: 1,
     investor_id: null,
-    percentage: null,
+    percentages: null,
     amount: null,
   });
 };
@@ -1223,12 +1157,13 @@ const legacyVehicleInvestorsRemove = (i) => {
   }
 };
 
-const overheadAdd = () => {
-  item.value.overheads.push({
+const legacyVehicleExpenseAdd = () => {
+  item.value.legacy_vehicle_expenses.push({
     id: null,
+    is_active: 1,
     expense_type_id: null,
-    observation: null,
-    date: null,
+    note: null,
+    expense_date: null,
     amount: null,
   });
 };
