@@ -94,8 +94,12 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.status="{ item }">
-              <span style="color: orange">{{ item.status }}</span>
+            <template #item.purchase_price="{ item }">
+              {{ getAmountFormat(item.purchase_price) }}
+            </template>
+
+            <template #item.invoice_amount="{ item }">
+              {{ getAmountFormat(item.invoice_amount) }}
             </template>
 
             <template #item.action="{ item }">
@@ -136,6 +140,7 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
+import { getAmountFormat } from "@/utils/formatters";
 
 // Constantes
 const routeName = "legacy_vehicles";
@@ -161,12 +166,16 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "F. compra", key: "purchase_date" },
+  { title: "Fecha de compra", key: "purchase_date" },
+  { title: "Marca", key: "vehicle_version.vehicle_model.vehicle_brand.name" },
+  { title: "Modelo", key: "vehicle_version.vehicle_model.name" },
+  { title: "Año", key: "vehicle_version.model_year" },
+  { title: "Versión", key: "vehicle_version.name" },
+  { title: "Color", key: "vehicle_color.name" },
   { title: "VIN", key: "vin" },
-  { title: "Año", key: "model_year" },
-  { title: "Precio compra", key: "purchase_price" },
+  { title: "Compra", key: "purchase_price" },
+  { title: "Monto factura", key: "invoice_amount" },
   { title: "UUID", key: "uiid" },
-  { title: "Estado", key: "status" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 

@@ -62,7 +62,9 @@
                     <v-autocomplete
                       v-if="!isAddingNewBrand"
                       label="Marca"
-                      v-model="item.vehicle_brand_id"
+                      v-model="
+                        item.vehicle_version.vehicle_model.vehicle_brand_id
+                      "
                       :items="vehicleBrands"
                       :loading="vehicleBrandsLoading"
                       item-value="id"
@@ -101,7 +103,7 @@
                     <v-autocomplete
                       v-if="!isAddingNewModel"
                       label="Modelo"
-                      v-model="item.vehicle_model_id"
+                      v-model="item.vehicle_version.vehicle_model_id"
                       :items="vehicleModels"
                       :loading="vehicleModelsLoading"
                       item-value="id"
@@ -139,7 +141,7 @@
                   <v-col cols="12" md="3">
                     <InpYear
                       label="Año"
-                      v-model="item.plan_year"
+                      v-model="item.vehicle_version.model_year"
                       :rules="rules.yearRequired"
                       :maxYear="currentYear"
                       :minYear="currentYear - 40"
@@ -628,9 +630,9 @@
                 :loading="isLoading"
               >
                 <v-icon>mdi-check</v-icon>
-                <v-tooltip activator="parent" location="left"
-                  >Continuar</v-tooltip
-                >
+                <v-tooltip activator="parent" location="left">
+                  Continuar
+                </v-tooltip>
               </v-btn>
             </div>
           </v-col>
@@ -650,7 +652,7 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getDecodeId } from "@/utils/coders";
+import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
 import { getCurrentYear, getObj } from "@/utils/helpers";
 import { getDateTime, getAmountFormat } from "@/utils/formatters";
@@ -822,7 +824,9 @@ const getVehicleModels = async (brandId) => {
     vehicleModels.value = [];
     return;
   }
+
   vehicleModelsLoading.value = true;
+
   try {
     const endpoint = `${URL_API}/vehicle_models?is_active=1&vehicle_brand_id=${brandId}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -858,13 +862,17 @@ const getVehicleVersions = async (modelId, year) => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      branch_id: 2,
+      branch_id: 1,
       purchase_date: currentDate.value,
       vendor_id: null,
-      vehicle_brand_id: null,
-      vehicle_model_id: null,
-      plan_year: currentYear.value,
       vehicle_version_id: null,
+      vehicle_version: {
+        vehicle_model_id: null,
+        vehicle_model: {
+          vehicle_brand_id: null,
+        },
+        model_year: null,
+      },
       vehicle_transmission_id: null,
       vehicle_color_id: null,
       vin: null,
@@ -892,16 +900,6 @@ const getItem = async () => {
       const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
       const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
-
-      if (item.value?.vehicle_brand_id) {
-        await getVehicleModels(item.value.vehicle_brand_id);
-      }
-      if (item.value?.vehicle_model_id && item.value?.plan_year) {
-        await getVehicleVersions(
-          item.value.vehicle_model_id,
-          item.value.plan_year
-        );
-      }
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
     } finally {
@@ -947,7 +945,7 @@ const addNewBrand = async () => {
 
     const otroOption = vehicleBrands.value.pop();
     vehicleBrands.value = [...vehicleBrands.value, newBrand, otroOption];
-    item.value.vehicle_brand_id = newBrand.id;
+    item.value.vehicle_version.vehicle_model.vehicle_brand_id = newBrand.id;
 
     newBrandName.value = "";
     isAddingNewBrand.value = false;
@@ -979,7 +977,8 @@ const addNewModel = async () => {
   try {
     const payload = {
       name: newModelName.value.trim(),
-      vehicle_brand_id: item.value.vehicle_brand_id,
+      vehicle_brand_id:
+        item.value.item.vehicle_version.vehicle_model.vehicle_brand_id,
     };
     const endpoint = `${URL_API}/vehicle_models`;
     const response = await axios.post(
@@ -1000,7 +999,7 @@ const addNewModel = async () => {
 
     const otroOption = vehicleModels.value.pop();
     vehicleModels.value = [...vehicleModels.value, newModel, otroOption];
-    item.value.vehicle_model_id = newModel.id;
+    item.value.vehicle_version.vehicle_model_id = newModel.id;
 
     newModelName.value = "";
     isAddingNewModel.value = false;
@@ -1030,8 +1029,8 @@ const addNewVersion = async () => {
   try {
     const payload = {
       name: newVersionName.value.trim(),
-      vehicle_model_id: item.value.vehicle_model_id,
-      model_year: item.value.plan_year,
+      vehicle_model_id: item.value.vehicle_version.vehicle_model_id,
+      model_year: item.value.vehicle_version.model_year,
     };
     const endpoint = `${URL_API}/vehicle_versions`;
     const response = await axios.post(
@@ -1130,18 +1129,22 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    const endpoint = `${URL_API}/${routeName}`;
-    const response = await axios.post(
-      endpoint,
-      payload,
-      getHdrs(store.getAuth?.token)
+    const endpoint = `${URL_API}/${routeName}${
+      !isStoreMode.value ? `/${payload.id}` : ""
+    }`;
+    const response = getRsp(
+      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
     );
 
-    const responseData = getRsp(response).data;
-    alert?.show("green-darken-1", responseData.msg);
+    alert?.show("success", response.msg);
 
     router.push({
-      name: `${routeName}`,
+      name: `${routeName}/show`,
+      params: {
+        id: getEncodeId(
+          isStoreMode.value ? response.data.item.id : itemId.value
+        ),
+      },
     });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -1189,40 +1192,82 @@ const legacyVehicleExpenseRemove = (i) => {
 
 // Cambios de marca
 watch(
-  () => item.value?.vehicle_brand_id,
-  (newBrandId) => {
+  () => item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id,
+  (newBrandId, oldBrandId) => {
     if (!item.value) return;
+
+    const isEditMode = !isStoreMode.value;
+    const isFirstRunInEdit = isEditMode && oldBrandId === undefined;
+
+    if (isFirstRunInEdit) {
+      if (newBrandId) getVehicleModels(newBrandId);
+      return;
+    }
+
+    if (newBrandId === oldBrandId) return;
+
     if (newBrandId === 0) {
       isAddingNewBrand.value = true;
-      item.value.vehicle_model_id = null;
-    } else if (newBrandId) {
+      newBrandName.value = "";
+      vehicleModels.value = [];
+      item.value.vehicle_version.vehicle_model_id = null;
+      return;
+    }
+
+    if (newBrandId) {
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       newBrandInputRef.value?.resetValidation();
-      item.value.vehicle_model_id = null;
+      item.value.vehicle_version.vehicle_model_id = null;
       getVehicleModels(newBrandId);
     } else {
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       vehicleModels.value = [];
+      item.value.vehicle_version.vehicle_model_id = null;
     }
   }
 );
 
-// Cambios de modelo y año
 watch(
-  () => [item.value?.vehicle_model_id, item.value?.plan_year],
-  ([newModelId, newYear]) => {
+  () => [
+    item.value?.vehicle_version?.vehicle_model_id,
+    item.value?.vehicle_version?.model_year,
+  ],
+  ([newModelId, newYear], [oldModelId, oldYear]) => {
     if (!item.value) return;
+
+    const isEditMode = !isStoreMode.value;
+    const isFirstRunInEdit =
+      isEditMode && oldModelId === undefined && oldYear === undefined;
+
+    if (isFirstRunInEdit) {
+      if (newModelId && newYear) getVehicleVersions(newModelId, newYear);
+      return;
+    }
+
+    if (newModelId === oldModelId && newYear === oldYear) return;
+
     if (newModelId === 0) {
       isAddingNewModel.value = true;
-    } else {
+      item.value.vehicle_version_id = null;
+    } else if (newModelId) {
       isAddingNewModel.value = false;
       newModelName.value = "";
       newModelInputRef.value?.resetValidation();
-      item.value.vehicle_version_id = null;
+
+      if (isStoreMode.value) {
+        item.value.vehicle_version_id = null;
+      }
+
+      getVehicleVersions(newModelId, newYear);
+    } else {
+      isAddingNewModel.value = false;
+      newModelName.value = "";
+      if (isStoreMode.value) {
+        item.value.vehicle_version_id = null;
+      }
     }
-    getVehicleVersions(newModelId, newYear);
   }
 );
 

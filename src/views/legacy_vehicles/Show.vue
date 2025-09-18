@@ -8,7 +8,7 @@
         </v-col>
         <v-col v-if="item" cols="2" class="text-right">
           <v-btn
-            v-if="item.active"
+            v-if="item.is_active"
             icon
             variant="flat"
             size="x-small"
@@ -27,7 +27,7 @@
 
     <v-card-text v-if="item">
       <v-row>
-        <v-col v-if="!item.active" cols="12">
+        <v-col v-if="!item.is_active" cols="12">
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
@@ -57,65 +57,135 @@
             <v-card-title>
               <v-row dense>
                 <v-col cols="11">
-                  <CardTitle :text="'AUTO | ' + item.uiid" sub />
+                  <CardTitle :text="`AUTO | ${item.uiid}`" sub />
                 </v-col>
-                <v-col cols="1" class="text-right">
-                  <v-btn
-                    v-if="store.getAuth?.user?.role_id === 1"
-                    icon
-                    variant="flat"
-                    size="x-small"
-                    @click.prevent="regDialog = true"
-                  >
-                    <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left">
-                      Registro
-                    </v-tooltip>
-                  </v-btn>
-                </v-col>
+                <v-col cols="1" class="text-right" />
               </v-row>
             </v-card-title>
 
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="3">
-                  <VisVal label="Fecha de compra" :value="item.adquisition" />
+                  <VisVal label="Fecha de compra" :value="item.purchase_date" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Proveedor" :value="item.provider" />
+                  <VisVal label="Proveedor" :value="item.vendor.name" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Marca" :value="item.brand" />
+                  <VisVal
+                    label="Marca"
+                    :value="item.vehicle_version.vehicle_model.vehicle_brand.name"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Modelo" :value="item.model" />
+                  <VisVal label="Modelo" :value="item.vehicle_version.vehicle_model.name" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Transmisión" :value="item.transmission" />
+                  <VisVal
+                    label="Año"
+                    :value="item.vehicle_version.model_year"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Año" :value="item.year" />
+                  <VisVal label="Versión" :value="item.vehicle_version.name" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Color" :value="item.color" />
+                  <VisVal
+                    label="Transmisión"
+                    :value="item.vehicle_transmission.name"
+                  />
                 </v-col>
+
+                <v-col cols="12" md="3">
+                  <VisVal label="Color" :value="item.vehicle_color.name" />
+                </v-col>
+
                 <v-col cols="12" md="3">
                   <VisVal label="VIN" :value="item.vin" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Precio compra" :value="item.purchase" />
+                  <VisVal label="Motor" :value="item.engine_number" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Comisión" :value="item.commission" />
+                  <VisVal label="REPUVE" :value="item.repuve" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="IVA" :value="item.tax" />
+                  <VisVal label="Clave vehicular" :value="item.vehicle_key" />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Monto factura" :value="item.invoice" />
+                  <VisVal
+                    label="Compra"
+                    :value="getAmountFormat(item.purchase_price)"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Precio de venta" :value="item.sales" />
+                  <VisVal
+                    label="Comisión"
+                    :value="getAmountFormat(item.commission_amount)"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="3">
+                  <VisVal label="IVA" :value="item.vat_type.name" />
+                </v-col>
+
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Monto factura"
+                    :value="getAmountFormat(item.invoice_amount)"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="12">
+                  <VisVal label="Observaciones" :value="item.notes" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="PROCEDENCIA" sub />
+                </v-col>
+                <v-col cols="1" class="text-right" />
+              </v-row>
+            </v-card-title>
+
+            <v-card-text>
+              <v-row dense>
+                <v-col cols="12" md="3">
+                  <VisVal label="Procedencia" :value="item.origin_type?.name" />
+                </v-col>
+
+                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <VisVal label="Pedimento" :value="item.pediment_number" />
+                </v-col>
+
+                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <VisVal label="Fecha" :value="item.pediment_date" />
+                </v-col>
+
+                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <VisVal label="Aduana" :value="item.custom_office?.name" />
+                </v-col>
+
+                <v-col v-if="item.origin_type_id == 2" cols="12" md="12">
+                  <VisVal label="Observaciones" :value="item.pediment_notes" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -132,22 +202,26 @@
                 <v-col cols="1" class="text-right" />
               </v-row>
             </v-card-title>
+
             <v-card-text>
               <v-row
                 dense
-                v-for="(car_investor, i) of item.car_investors"
+                v-for="(
+                  legacy_vehicle_investor, i
+                ) of item.legacy_vehicle_investors"
                 :key="i"
               >
-                <v-col cols="12" md="9">
+                <v-col cols="12" md="7">
                   <VisVal
                     label="Inversionista"
-                    :value="car_investor.investor.name"
+                    :value="legacy_vehicle_investor.investor?.user?.full_name"
                   />
                 </v-col>
-                <v-col cols="12" md="3">
+
+                <v-col cols="12" md="5">
                   <VisVal
                     label="Porcentaje %"
-                    :value="car_investor.percentage"
+                    :value="legacy_vehicle_investor.percentages"
                   />
                 </v-col>
               </v-row>
@@ -165,19 +239,41 @@
                 <v-col cols="1" class="text-right" />
               </v-row>
             </v-card-title>
+
             <v-card-text>
-              <v-row dense v-for="(overhead, i) of item.overheads" :key="i">
+              <v-row
+                dense
+                v-for="(
+                  legacy_vehicle_expense, i
+                ) of item.legacy_vehicle_expenses"
+                :key="i"
+              >
                 <v-col cols="12" md="3">
-                  <VisVal label="Tipo" :value="overhead.overhead_type.name" />
+                  <VisVal
+                    label="Tipo"
+                    :value="legacy_vehicle_expense.expense_type?.name"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Observación" :value="overhead.observation" />
+                  <VisVal
+                    label="Observación"
+                    :value="legacy_vehicle_expense.note"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Fecha" :value="overhead.date" />
+                  <VisVal
+                    label="Fecha"
+                    :value="legacy_vehicle_expense.expense_date"
+                  />
                 </v-col>
+
                 <v-col cols="12" md="3">
-                  <VisVal label="Monto" :value="overhead.amount" />
+                  <VisVal
+                    label="Monto"
+                    :value="getAmountFormat(legacy_vehicle_expense.amount)"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -185,7 +281,7 @@
         </v-col>
 
         <v-col
-          v-if="item.active && store.getAuth?.user?.role_id === 1"
+          v-if="item.is_active && store.getAuth?.user?.role_id === 1"
           cols="12"
         >
           <v-btn
@@ -223,6 +319,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
+import { getAmountFormat } from "@/utils/formatters";
 
 // Constantes fijas
 const routeName = "legacy_vehicles";
@@ -244,84 +341,8 @@ const regDialog = ref(false);
 const getItem = async () => {
   isLoading.value = true;
   try {
-    // const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    const response = {
-      data: {
-        msg: "Registro retornado correctamente",
-        data: {
-          item: {
-            id: 1,
-            active: 1,
-            created_at: "2025-07-31 17:31:16",
-            updated_at: "2025-08-06 20:57:17",
-            created_by_id: 1,
-            updated_by_id: 1,
-            created_by: {
-              email: "samuel@svr.mx",
-            },
-            updated_by: {
-              email: "samuel@svr.mx",
-            },
-            uiid: "AM-0001",
-            name: "PROVEEDOR PRUEBA",
-            type_id: 1,
-            type: {
-              name: "TIPO 1",
-            },
-            days: "3",
-            provider_banks: [
-              {
-                bank_id: 1,
-                bank: {
-                  name: "BBVA",
-                },
-                clabe: "123456789012345678",
-                account: "093456789012345678",
-              },
-            ],
-
-            adquisition: "2025-01-10",
-            provider: "PROVEEDOR TEST",
-            brand: "VW",
-            model: "VENTO",
-            transmission: "MANUAL",
-            year: "2017",
-            color: "BLANCO",
-            vin: "XXYYZZWW12345",
-            purchase: "$140,000.00",
-            commission: "$2,000.00",
-            tax: "IVA",
-            invoice: "$180,000.00",
-            sales: "$180,000.00",
-            car_investors: [
-              {
-                investor: {
-                  name: "LORENA MACIAS",
-                },
-                percentage: "50%",
-              },
-              {
-                investor: {
-                  name: "CARLOS MACIAS",
-                },
-                percentage: "50%",
-              },
-            ],
-            overheads: [
-              {
-                overhead_type: {
-                  name: "HOJALATERIA",
-                },
-                observation: "PUERTA DERECHA",
-                date: "2025-01-15",
-                amount: "$1,000.00",
-              },
-            ],
-          },
-        },
-      },
-    };
+    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     item.value = getRsp(response).data.item;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -337,7 +358,7 @@ const deleteItem = async () => {
 
   isLoading.value = true;
   // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
+  //   const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
   //   const response = getRsp(
   //     await axios.delete(endpoint, getHdrs(store.getAuth?.token))
   //   );
@@ -359,7 +380,7 @@ const restoreItem = async () => {
 
   isLoading.value = true;
   // try {
-  //   const endpoint = `${URL_API}/system/${routeName}/restore`;
+  //   const endpoint = `${URL_API}/${routeName}/restore`;
   //   const response = getRsp(
   //     await axios.post(
   //       endpoint,
