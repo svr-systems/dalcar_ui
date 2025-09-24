@@ -89,6 +89,15 @@
                           icon
                           variant="text"
                           size="small"
+                          color="error"
+                          @click="cancelAddingNewBrand"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
                           color="success"
                           :loading="isSavingNewBrand"
                           @click="addNewBrand"
@@ -124,6 +133,15 @@
                       @keydown.enter.prevent="addNewModel"
                     >
                       <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="error"
+                          @click="cancelAddingNewModel"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
                         <v-btn
                           icon
                           variant="text"
@@ -177,6 +195,15 @@
                           icon
                           variant="text"
                           size="small"
+                          color="error"
+                          @click="cancelAddingNewVersion"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
                           color="success"
                           :loading="isSavingNewVersion"
                           @click="addNewVersion"
@@ -226,6 +253,15 @@
                       @keydown.enter.prevent="addNewColor"
                     >
                       <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="error"
+                          @click="cancelAddingNewColor"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
                         <v-btn
                           icon
                           variant="text"
@@ -978,7 +1014,7 @@ const addNewModel = async () => {
     const payload = {
       name: newModelName.value.trim(),
       vehicle_brand_id:
-        item.value.item.vehicle_version.vehicle_model.vehicle_brand_id,
+        item.value.vehicle_version.vehicle_model.vehicle_brand_id,
     };
     const endpoint = `${URL_API}/vehicle_models`;
     const response = await axios.post(
@@ -1111,6 +1147,34 @@ const addNewColor = async () => {
   } finally {
     isSavingNewColor.value = false;
   }
+};
+
+const cancelAddingNewBrand = () => {
+  isAddingNewBrand.value = false;
+  newBrandName.value = "";
+  newBrandInputRef.value?.resetValidation();
+  item.value.vehicle_version.vehicle_model.vehicle_brand_id = null;
+};
+
+const cancelAddingNewModel = () => {
+  isAddingNewModel.value = false;
+  newModelName.value = "";
+  newModelInputRef.value?.resetValidation();
+  item.value.vehicle_version.vehicle_model_id = null;
+};
+
+const cancelAddingNewVersion = () => {
+  isAddingNewVersion.value = false;
+  newVersionName.value = "";
+  newVersionInputRef.value?.resetValidation();
+  item.value.vehicle_version_id = null;
+};
+
+const cancelAddingNewColor = () => {
+  isAddingNewColor.value = false;
+  newColorName.value = "";
+  newColorInputRef.value?.resetValidation();
+  item.value.vehicle_color_id = null;
 };
 
 const handleAction = async () => {
