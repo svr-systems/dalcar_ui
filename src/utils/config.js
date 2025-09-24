@@ -2,7 +2,7 @@
 export const APP_NAME = "DALCAR";
 
 // Versión actual de la aplicación
-export const APP_VERSION = "1.25.09.17";
+export const APP_VERSION = "1.25.09.23";
 
 // URL base del backend
 const BASE_URL = "https://apidev.dalcar.com.mx";

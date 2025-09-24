@@ -814,7 +814,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vehicle_colors?is_active=1&filter=0`;
+    endpoint = `${URL_API}/vehicle_colors?is_active=1&filter=0&vehicle_brand_id=23`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     vehicleColors.value = getRsp(response).data.items;
     vehicleColors.value.push({ id: 0, name: "OTRO" });
