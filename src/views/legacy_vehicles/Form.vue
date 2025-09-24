@@ -733,7 +733,7 @@ const vatTypesLoading = ref(true);
 const vendorTypes = ref([]);
 const vendorTypesLoading = ref(true);
 const vehicleColors = ref([]);
-const vehicleColorsLoading = ref(true);
+const vehicleColorsLoading = ref(false);
 const expenseTypes = ref([]);
 const expenseTypesLoading = ref(true);
 const customsOffices = ref([]);
@@ -814,17 +814,6 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vehicle_colors?is_active=1&filter=0&vehicle_brand_id=23`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vehicleColors.value = getRsp(response).data.items;
-    vehicleColors.value.push({ id: 0, name: "OTRO" });
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vehicleColorsLoading.value = false;
-  }
-
-  try {
     endpoint = `${URL_API}/expense_types?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     expenseTypes.value = getRsp(response).data.items;
@@ -873,6 +862,27 @@ const getVehicleModels = async (brandId) => {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     vehicleModelsLoading.value = false;
+  }
+};
+
+const getVehicleColors = async (brandId) => {
+  if (!brandId) {
+    vehicleColors.value = [];
+    return;
+  }
+
+  vehicleColorsLoading.value = true;
+
+  try {
+    const endpoint = `${URL_API}/vehicle_colors?is_active=1&vehicle_brand_id=${brandId}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const colors = getRsp(response).data.items;
+    colors.push({ id: 0, name: "OTRO" });
+    vehicleColors.value = colors;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleColorsLoading.value = false;
   }
 };
 
@@ -988,6 +998,7 @@ const addNewBrand = async () => {
     newBrandInputRef.value?.resetValidation();
 
     await getVehicleModels(newBrand.id);
+    await getVehicleColors(newBrand.id);
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -1108,6 +1119,16 @@ const addNewColor = async () => {
     return;
   }
 
+  const brandId = item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id;
+
+  if (!brandId) {
+    alert?.show(
+      "red-darken-1",
+      "Debes seleccionar una Marca de Vehículo antes de agregar un nuevo color."
+    );
+    return;
+  }
+
   const confirmed = await confirm?.show(
     `¿Confirma agregar el nuevo color "${newColorName.value}"?`
   );
@@ -1117,6 +1138,7 @@ const addNewColor = async () => {
   try {
     const payload = {
       name: newColorName.value.trim(),
+      vehicle_brand_id: brandId,
     };
     const endpoint = `${URL_API}/vehicle_colors`;
     const response = await axios.post(
@@ -1264,7 +1286,10 @@ watch(
     const isFirstRunInEdit = isEditMode && oldBrandId === undefined;
 
     if (isFirstRunInEdit) {
-      if (newBrandId) getVehicleModels(newBrandId);
+      if (newBrandId) {
+        getVehicleModels(newBrandId);
+        getVehicleColors(newBrandId);
+      }
       return;
     }
 
@@ -1274,7 +1299,9 @@ watch(
       isAddingNewBrand.value = true;
       newBrandName.value = "";
       vehicleModels.value = [];
+      vehicleColors.value = [];
       item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
       return;
     }
 
@@ -1283,12 +1310,16 @@ watch(
       newBrandName.value = "";
       newBrandInputRef.value?.resetValidation();
       item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
       getVehicleModels(newBrandId);
+      getVehicleColors(newBrandId);
     } else {
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       vehicleModels.value = [];
+      vehicleColors.value = [];
       item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
     }
   }
 );
