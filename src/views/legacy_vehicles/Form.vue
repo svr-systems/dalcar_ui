@@ -35,30 +35,16 @@
 
               <v-card-text>
                 <v-row dense>
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <InpDate
-                      label="Fecha de compra"
+                      label="Fecha de adquisición"
                       v-model="item.purchase_date"
                       :rules="rules.required"
                       :before="true"
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
-                    <v-autocomplete
-                      label="Proveedor"
-                      v-model="item.vendor_id"
-                      :items="vendorTypes"
-                      :loading="vendorTypesLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <v-autocomplete
                       v-if="!isAddingNewBrand"
                       label="Marca"
@@ -72,6 +58,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
                     <v-text-field
                       v-else
@@ -81,6 +68,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.textRequired"
+                      autocomplete="off"
                       maxlength="50"
                       @keydown.enter.prevent="addNewBrand"
                     >
@@ -108,7 +96,7 @@
                     </v-text-field>
                   </v-col>
 
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <v-autocomplete
                       v-if="!isAddingNewModel"
                       label="Modelo"
@@ -120,6 +108,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
                     <v-text-field
                       v-else
@@ -129,6 +118,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.textRequired"
+                      autocomplete="off"
                       maxlength="50"
                       @keydown.enter.prevent="addNewModel"
                     >
@@ -178,6 +168,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
                     <v-text-field
                       v-else
@@ -187,6 +178,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.textRequired"
+                      autocomplete="off"
                       maxlength="50"
                       @keydown.enter.prevent="addNewVersion"
                     >
@@ -216,20 +208,6 @@
 
                   <v-col cols="12" md="3">
                     <v-select
-                      label="Transmisión"
-                      v-model="item.vehicle_transmission_id"
-                      :items="vehicleTransmissions"
-                      :loading="vehicleTransmissionsLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-select
                       v-if="!isAddingNewColor"
                       label="Color"
                       v-model="item.vehicle_color_id"
@@ -240,6 +218,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
                     <v-text-field
                       v-else
@@ -249,6 +228,7 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.textRequired"
+                      autocomplete="off"
                       maxlength="50"
                       @keydown.enter.prevent="addNewColor"
                     >
@@ -277,6 +257,20 @@
                   </v-col>
 
                   <v-col cols="12" md="3">
+                    <v-select
+                      label="Transmisión"
+                      v-model="item.vehicle_transmission_id"
+                      :items="vehicleTransmissions"
+                      :loading="vehicleTransmissionsLoading"
+                      item-value="id"
+                      item-title="name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="3">
                     <v-text-field
                       label="VIN"
                       v-model="item.vin"
@@ -286,6 +280,7 @@
                       maxlength="17"
                       counter
                       :rules="rules.textRequired"
+                      autocomplete="off"
                     />
                   </v-col>
 
@@ -299,6 +294,7 @@
                       maxlength="30"
                       counter
                       :rules="rules.textOptional"
+                      autocomplete="off"
                     />
                   </v-col>
 
@@ -312,6 +308,7 @@
                       maxlength="25"
                       counter
                       :rules="rules.textOptional"
+                      autocomplete="off"
                     />
                   </v-col>
 
@@ -325,67 +322,11 @@
                       maxlength="20"
                       counter
                       :rules="rules.textOptional"
+                      autocomplete="off"
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      :label="'Compra ' + getAmountFormat(item.purchase_price)"
-                      v-model="item.purchase_price"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      min="0"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      :label="
-                        'Comisión ' + getAmountFormat(item.commission_amount)
-                      "
-                      v-model="item.commission_amount"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      min="0"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-select
-                      label="IVA"
-                      v-model="item.vat_type_id"
-                      :items="vatTypes"
-                      :loading="vatTypesLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      :label="
-                        'Monto factura ' + getAmountFormat(item.invoice_amount)
-                      "
-                      v-model="item.invoice_amount"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      min="0"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="12">
+                  <v-col cols="12">
                     <v-text-field
                       label="Observaciones*"
                       v-model="item.notes"
@@ -395,6 +336,7 @@
                       maxlength="255"
                       counter
                       :rules="rules.textOptional"
+                      autocomplete="off"
                     />
                   </v-col>
                 </v-row>
@@ -438,6 +380,7 @@
                       maxlength="30"
                       counter
                       :rules="rules.textRequired"
+                      autocomplete="off"
                     />
                   </v-col>
 
@@ -461,10 +404,11 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id == 2" cols="12" md="12">
+                  <v-col v-if="item.origin_type_id == 2" cols="12">
                     <v-text-field
                       label="Observaciones*"
                       v-model="item.pediment_notes"
@@ -474,181 +418,8 @@
                       maxlength="255"
                       counter
                       :rules="rules.textOptional"
+                      autocomplete="off"
                     />
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12">
-            <v-card>
-              <v-card-title>
-                <v-row dense>
-                  <v-col cols="11">
-                    <CardTitle text="INVERSIONISTAS" sub />
-                  </v-col>
-                  <v-col cols="1" class="text-right" />
-                </v-row>
-              </v-card-title>
-
-              <v-card-text>
-                <v-row
-                  dense
-                  v-for="(
-                    legacy_vehicle_investor, i
-                  ) of item.legacy_vehicle_investors"
-                  :key="i"
-                >
-                  <v-col cols="12" md="7">
-                    <v-autocomplete
-                      label="Inversionista"
-                      v-model="legacy_vehicle_investor.investor_id"
-                      :items="investors"
-                      :loading="investorsLoading"
-                      item-value="id"
-                      item-title="full_name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      label="Porcentaje %"
-                      v-model="legacy_vehicle_investor.percentages"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      min="0"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="1" class="text-center pt-2">
-                    <v-btn
-                      v-if="i !== 0"
-                      icon
-                      size="x-small"
-                      color="error"
-                      @click="legacyVehicleInvestorsRemove(i)"
-                    >
-                      <v-icon size="x-small">mdi-minus</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
-                <v-row dense>
-                  <v-col cols="12">
-                    <v-btn
-                      size="x-small"
-                      color="warning"
-                      @click="legacyVehicleInvestorsAdd()"
-                    >
-                      Agregar
-                      <v-icon size="x-small" end>mdi-plus</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12">
-            <v-card>
-              <v-card-title>
-                <v-row dense>
-                  <v-col cols="11">
-                    <CardTitle text="GASTOS" sub />
-                  </v-col>
-                  <v-col cols="1" class="text-right" />
-                </v-row>
-              </v-card-title>
-
-              <v-card-text>
-                <v-row
-                  dense
-                  v-for="(
-                    legacy_vehicle_expense, i
-                  ) of item.legacy_vehicle_expenses"
-                  :key="i"
-                >
-                  <v-col cols="12" md="3">
-                    <v-autocomplete
-                      label="Tipo"
-                      v-model="legacy_vehicle_expense.expense_type_id"
-                      :items="expenseTypes"
-                      :loading="expenseTypesLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Observación"
-                      v-model="legacy_vehicle_expense.note"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textRequired"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <InpDate
-                      label="Fecha"
-                      v-model="legacy_vehicle_expense.expense_date"
-                      :rules="rules.required"
-                      :before="true"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      :label="
-                        'Monto ' +
-                        getAmountFormat(legacy_vehicle_expense.amount)
-                      "
-                      v-model="legacy_vehicle_expense.amount"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      counter
-                      min="0"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="1" class="text-center pt-2">
-                    <v-btn
-                      v-if="i !== 0"
-                      icon
-                      size="x-small"
-                      color="error"
-                      @click="legacyVehicleExpenseRemove(i)"
-                    >
-                      <v-icon size="x-small">mdi-minus</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
-                <v-row dense>
-                  <v-col cols="12">
-                    <v-btn
-                      size="x-small"
-                      color="warning"
-                      @click="legacyVehicleExpenseAdd()"
-                    >
-                      Agregar
-                      <v-icon size="x-small" end>mdi-plus</v-icon>
-                    </v-btn>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -679,12 +450,10 @@
 </template>
 
 <script setup>
-// Importaciones de librerías externas
 import { ref, inject, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
-// Importaciones internas del proyecto
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
@@ -693,94 +462,66 @@ import { getRules } from "@/utils/validators";
 import { getCurrentYear, getObj } from "@/utils/helpers";
 import { getDateTime, getAmountFormat } from "@/utils/formatters";
 
-// Componentes
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import InpDate from "@/components/InpDate.vue";
 import InpYear from "@/components/InpYear.vue";
 
-// Constantes fijas
 const routeName = "legacy_vehicles";
 const currentDate = ref(getDateTime("-", "", "", false));
 const currentYear = ref(getCurrentYear());
 
-// Estado y referencias
 const alert = inject("alert");
 const confirm = inject("confirm");
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-// Estado reactivo
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 const isStoreMode = ref(!itemId.value);
 const isLoading = ref(true);
 const formRef = ref(null);
 const item = ref(null);
 const rules = getRules();
-const investors = ref([]);
-const investorsLoading = ref(true);
-const vehicleTransmissions = ref([]);
-const vehicleTransmissionsLoading = ref(true);
+
 const vehicleBrands = ref([]);
 const vehicleBrandsLoading = ref(true);
 const vehicleModels = ref([]);
 const vehicleModelsLoading = ref(false);
 const vehicleVersions = ref([]);
 const vehicleVersionsLoading = ref(false);
-const vatTypes = ref([]);
-const vatTypesLoading = ref(true);
-const vendorTypes = ref([]);
-const vendorTypesLoading = ref(true);
 const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(false);
-const expenseTypes = ref([]);
-const expenseTypesLoading = ref(true);
-const customsOffices = ref([]);
-const customsOfficesLoading = ref(true);
+const vehicleTransmissions = ref([]);
+const vehicleTransmissionsLoading = ref(true);
 const originTypes = ref([]);
 const originTypesLoading = ref(true);
+const customsOffices = ref([]);
+const customsOfficesLoading = ref(true);
 
 const isAddingNewBrand = ref(false);
-const isAddingNewModel = ref(false);
-const isAddingNewVersion = ref(false);
-const isAddingNewColor = ref(false);
 const newBrandName = ref("");
-const newModelName = ref("");
-const newVersionName = ref("");
-const newColorName = ref("");
 const newBrandInputRef = ref(null);
-const newModelInputRef = ref(null);
-const newVersionInputRef = ref(null);
-const newColorInputRef = ref(null);
 const isSavingNewBrand = ref(false);
+
+const isAddingNewModel = ref(false);
+const newModelName = ref("");
+const newModelInputRef = ref(null);
 const isSavingNewModel = ref(false);
+
+const isAddingNewVersion = ref(false);
+const newVersionName = ref("");
+const newVersionInputRef = ref(null);
 const isSavingNewVersion = ref(false);
+
+const isAddingNewColor = ref(false);
+const newColorName = ref("");
+const newColorInputRef = ref(null);
 const isSavingNewColor = ref(false);
 
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
-
-  try {
-    endpoint = `${URL_API}/investors?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    investors.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    investorsLoading.value = false;
-  }
-
-  try {
-    endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vehicleTransmissions.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vehicleTransmissionsLoading.value = false;
-  }
 
   try {
     endpoint = `${URL_API}/vehicle_brands?is_active=1&filter=0`;
@@ -794,33 +535,13 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/vat_types?is_active=1&filter=0`;
+    endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vatTypes.value = getRsp(response).data.items;
+    vehicleTransmissions.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
-    vatTypesLoading.value = false;
-  }
-
-  try {
-    endpoint = `${URL_API}/vendors?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vendorTypes.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vendorTypesLoading.value = false;
-  }
-
-  try {
-    endpoint = `${URL_API}/expense_types?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    expenseTypes.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    expenseTypesLoading.value = false;
+    vehicleTransmissionsLoading.value = false;
   }
 
   try {
@@ -865,6 +586,25 @@ const getVehicleModels = async (brandId) => {
   }
 };
 
+const getVehicleVersions = async (modelId, year) => {
+  if (!modelId || !year) {
+    vehicleVersions.value = [];
+    return;
+  }
+  vehicleVersionsLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/vehicle_versions?is_active=1&vehicle_model_id=${modelId}&model_year=${year}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const versions = getRsp(response).data.items;
+    versions.push({ id: 0, name: "OTRO" });
+    vehicleVersions.value = versions;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleVersionsLoading.value = false;
+  }
+};
+
 const getVehicleColors = async (brandId) => {
   if (!brandId) {
     vehicleColors.value = [];
@@ -886,31 +626,11 @@ const getVehicleColors = async (brandId) => {
   }
 };
 
-const getVehicleVersions = async (modelId, year) => {
-  if (!modelId || !year) {
-    vehicleVersions.value = [];
-    return;
-  }
-  vehicleVersionsLoading.value = true;
-  try {
-    const endpoint = `${URL_API}/vehicle_versions?is_active=1&vehicle_model_id=${modelId}&model_year=${year}`;
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const versions = getRsp(response).data.items;
-    versions.push({ id: 0, name: "OTRO" });
-    vehicleVersions.value = versions;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vehicleVersionsLoading.value = false;
-  }
-};
-
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       branch_id: 1,
       purchase_date: currentDate.value,
-      vendor_id: null,
       vehicle_version_id: null,
       vehicle_version: {
         vehicle_model_id: null,
@@ -919,27 +639,19 @@ const getItem = async () => {
         },
         model_year: null,
       },
-      vehicle_transmission_id: null,
       vehicle_color_id: null,
+      vehicle_transmission_id: null,
       vin: null,
       engine_number: null,
       repuve: null,
       vehicle_key: null,
-      purchase_price: null,
-      commission_amount: null,
-      vat_type_id: null,
-      invoice_amount: null,
       notes: null,
       origin_type_id: null,
       pediment_number: null,
       pediment_date: null,
       custom_office_id: null,
       pediment_notes: null,
-      legacy_vehicle_investors: [],
-      legacy_vehicle_expenses: [],
     };
-    legacyVehicleInvestorsAdd();
-    legacyVehicleExpenseAdd();
     isLoading.value = false;
   } else {
     try {
@@ -953,6 +665,54 @@ const getItem = async () => {
     }
   }
 };
+
+// vehicle_brand_id
+watch(
+  () => item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id,
+  (newBrandId, oldBrandId) => {
+    if (!item.value) return;
+
+    const isEditMode = !isStoreMode.value;
+    const isFirstRunInEdit = isEditMode && oldBrandId === undefined;
+
+    if (isFirstRunInEdit) {
+      if (newBrandId) {
+        getVehicleModels(newBrandId);
+        getVehicleColors(newBrandId);
+      }
+      return;
+    }
+
+    if (newBrandId === oldBrandId) return;
+
+    if (newBrandId === 0) {
+      isAddingNewBrand.value = true;
+      newBrandName.value = "";
+      vehicleModels.value = [];
+      vehicleColors.value = [];
+      item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
+      return;
+    }
+
+    if (newBrandId) {
+      isAddingNewBrand.value = false;
+      newBrandName.value = "";
+      newBrandInputRef.value?.resetValidation();
+      item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
+      getVehicleModels(newBrandId);
+      getVehicleColors(newBrandId);
+    } else {
+      isAddingNewBrand.value = false;
+      newBrandName.value = "";
+      vehicleModels.value = [];
+      vehicleColors.value = [];
+      item.value.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle_color_id = null;
+    }
+  }
+);
 
 const addNewBrand = async () => {
   if (!newBrandName.value || newBrandName.value.trim() === "") {
@@ -1006,6 +766,56 @@ const addNewBrand = async () => {
   }
 };
 
+const cancelAddingNewBrand = () => {
+  isAddingNewBrand.value = false;
+  newBrandName.value = "";
+  newBrandInputRef.value?.resetValidation();
+  item.value.vehicle_version.vehicle_model.vehicle_brand_id = null;
+};
+
+// vehicle_model_id
+watch(
+  () => [
+    item.value?.vehicle_version?.vehicle_model_id,
+    item.value?.vehicle_version?.model_year,
+  ],
+  ([newModelId, newYear], [oldModelId, oldYear]) => {
+    if (!item.value) return;
+
+    const isEditMode = !isStoreMode.value;
+    const isFirstRunInEdit =
+      isEditMode && oldModelId === undefined && oldYear === undefined;
+
+    if (isFirstRunInEdit) {
+      if (newModelId && newYear) getVehicleVersions(newModelId, newYear);
+      return;
+    }
+
+    if (newModelId === oldModelId && newYear === oldYear) return;
+
+    if (newModelId === 0) {
+      isAddingNewModel.value = true;
+      item.value.vehicle_version_id = null;
+    } else if (newModelId) {
+      isAddingNewModel.value = false;
+      newModelName.value = "";
+      newModelInputRef.value?.resetValidation();
+
+      if (isStoreMode.value) {
+        item.value.vehicle_version_id = null;
+      }
+
+      getVehicleVersions(newModelId, newYear);
+    } else {
+      isAddingNewModel.value = false;
+      newModelName.value = "";
+      if (isStoreMode.value) {
+        item.value.vehicle_version_id = null;
+      }
+    }
+  }
+);
+
 const addNewModel = async () => {
   if (!newModelName.value || newModelName.value.trim() === "") {
     alert?.show(
@@ -1058,6 +868,28 @@ const addNewModel = async () => {
   }
 };
 
+const cancelAddingNewModel = () => {
+  isAddingNewModel.value = false;
+  newModelName.value = "";
+  newModelInputRef.value?.resetValidation();
+  item.value.vehicle_version.vehicle_model_id = null;
+};
+
+// vehicle_version_id
+watch(
+  () => item.value?.vehicle_version_id,
+  (newVersionId) => {
+    if (!item.value) return;
+    if (newVersionId === 0) {
+      isAddingNewVersion.value = true;
+    } else {
+      isAddingNewVersion.value = false;
+      newVersionName.value = "";
+      newVersionInputRef.value?.resetValidation();
+    }
+  }
+);
+
 const addNewVersion = async () => {
   if (!newVersionName.value || newVersionName.value.trim() === "") {
     alert?.show(
@@ -1109,6 +941,28 @@ const addNewVersion = async () => {
     isSavingNewVersion.value = false;
   }
 };
+
+const cancelAddingNewVersion = () => {
+  isAddingNewVersion.value = false;
+  newVersionName.value = "";
+  newVersionInputRef.value?.resetValidation();
+  item.value.vehicle_version_id = null;
+};
+
+// vehicle_color_id
+watch(
+  () => item.value?.vehicle_color_id,
+  (newColorId) => {
+    if (!item.value) return;
+    if (newColorId === 0) {
+      isAddingNewColor.value = true;
+    } else {
+      isAddingNewColor.value = false;
+      newColorName.value = "";
+      newColorInputRef.value?.resetValidation();
+    }
+  }
+);
 
 const addNewColor = async () => {
   if (!newColorName.value || newColorName.value.trim() === "") {
@@ -1171,27 +1025,6 @@ const addNewColor = async () => {
   }
 };
 
-const cancelAddingNewBrand = () => {
-  isAddingNewBrand.value = false;
-  newBrandName.value = "";
-  newBrandInputRef.value?.resetValidation();
-  item.value.vehicle_version.vehicle_model.vehicle_brand_id = null;
-};
-
-const cancelAddingNewModel = () => {
-  isAddingNewModel.value = false;
-  newModelName.value = "";
-  newModelInputRef.value?.resetValidation();
-  item.value.vehicle_version.vehicle_model_id = null;
-};
-
-const cancelAddingNewVersion = () => {
-  isAddingNewVersion.value = false;
-  newVersionName.value = "";
-  newVersionInputRef.value?.resetValidation();
-  item.value.vehicle_version_id = null;
-};
-
 const cancelAddingNewColor = () => {
   isAddingNewColor.value = false;
   newColorName.value = "";
@@ -1238,163 +1071,6 @@ const handleAction = async () => {
     isLoading.value = false;
   }
 };
-
-const legacyVehicleInvestorsAdd = () => {
-  item.value.legacy_vehicle_investors.push({
-    id: null,
-    is_active: 1,
-    investor_id: null,
-    percentages: null,
-    amount: null,
-  });
-};
-
-const legacyVehicleInvestorsRemove = (i) => {
-  if (item.value.legacy_vehicle_investors[i].id === null) {
-    item.value.legacy_vehicle_investors.splice(i, 1);
-  } else {
-    item.value.legacy_vehicle_investors[i].is_active = 0;
-  }
-};
-
-const legacyVehicleExpenseAdd = () => {
-  item.value.legacy_vehicle_expenses.push({
-    id: null,
-    is_active: 1,
-    expense_type_id: null,
-    note: null,
-    expense_date: null,
-    amount: null,
-  });
-};
-
-const legacyVehicleExpenseRemove = (i) => {
-  if (item.value.legacy_vehicle_expenses[i].id === null) {
-    item.value.legacy_vehicle_expenses.splice(i, 1);
-  } else {
-    item.value.legacy_vehicle_expenses[i].is_active = 0;
-  }
-};
-
-// Cambios de marca
-watch(
-  () => item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id,
-  (newBrandId, oldBrandId) => {
-    if (!item.value) return;
-
-    const isEditMode = !isStoreMode.value;
-    const isFirstRunInEdit = isEditMode && oldBrandId === undefined;
-
-    if (isFirstRunInEdit) {
-      if (newBrandId) {
-        getVehicleModels(newBrandId);
-        getVehicleColors(newBrandId);
-      }
-      return;
-    }
-
-    if (newBrandId === oldBrandId) return;
-
-    if (newBrandId === 0) {
-      isAddingNewBrand.value = true;
-      newBrandName.value = "";
-      vehicleModels.value = [];
-      vehicleColors.value = [];
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-      return;
-    }
-
-    if (newBrandId) {
-      isAddingNewBrand.value = false;
-      newBrandName.value = "";
-      newBrandInputRef.value?.resetValidation();
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-      getVehicleModels(newBrandId);
-      getVehicleColors(newBrandId);
-    } else {
-      isAddingNewBrand.value = false;
-      newBrandName.value = "";
-      vehicleModels.value = [];
-      vehicleColors.value = [];
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-    }
-  }
-);
-
-watch(
-  () => [
-    item.value?.vehicle_version?.vehicle_model_id,
-    item.value?.vehicle_version?.model_year,
-  ],
-  ([newModelId, newYear], [oldModelId, oldYear]) => {
-    if (!item.value) return;
-
-    const isEditMode = !isStoreMode.value;
-    const isFirstRunInEdit =
-      isEditMode && oldModelId === undefined && oldYear === undefined;
-
-    if (isFirstRunInEdit) {
-      if (newModelId && newYear) getVehicleVersions(newModelId, newYear);
-      return;
-    }
-
-    if (newModelId === oldModelId && newYear === oldYear) return;
-
-    if (newModelId === 0) {
-      isAddingNewModel.value = true;
-      item.value.vehicle_version_id = null;
-    } else if (newModelId) {
-      isAddingNewModel.value = false;
-      newModelName.value = "";
-      newModelInputRef.value?.resetValidation();
-
-      if (isStoreMode.value) {
-        item.value.vehicle_version_id = null;
-      }
-
-      getVehicleVersions(newModelId, newYear);
-    } else {
-      isAddingNewModel.value = false;
-      newModelName.value = "";
-      if (isStoreMode.value) {
-        item.value.vehicle_version_id = null;
-      }
-    }
-  }
-);
-
-// Cambios de versión
-watch(
-  () => item.value?.vehicle_version_id,
-  (newVersionId) => {
-    if (!item.value) return;
-    if (newVersionId === 0) {
-      isAddingNewVersion.value = true;
-    } else {
-      isAddingNewVersion.value = false;
-      newVersionName.value = "";
-      newVersionInputRef.value?.resetValidation();
-    }
-  }
-);
-
-// Cambios de color
-watch(
-  () => item.value?.vehicle_color_id,
-  (newColorId) => {
-    if (!item.value) return;
-    if (newColorId === 0) {
-      isAddingNewColor.value = true;
-    } else {
-      isAddingNewColor.value = false;
-      newColorName.value = "";
-      newColorInputRef.value?.resetValidation();
-    }
-  }
-);
 
 // Inicialización
 onMounted(() => {

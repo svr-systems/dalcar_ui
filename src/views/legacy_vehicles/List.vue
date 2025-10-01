@@ -94,14 +94,6 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.purchase_price="{ item }">
-              {{ getAmountFormat(item.purchase_price) }}
-            </template>
-
-            <template #item.invoice_amount="{ item }">
-              {{ getAmountFormat(item.invoice_amount) }}
-            </template>
-
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
@@ -173,8 +165,6 @@ const headers = [
   { title: "Versión", key: "vehicle_version.name" },
   { title: "Color", key: "vehicle_color.name" },
   { title: "VIN", key: "vin" },
-  { title: "Compra", key: "purchase_price" },
-  { title: "Monto factura", key: "invoice_amount" },
   { title: "UUID", key: "uiid" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];

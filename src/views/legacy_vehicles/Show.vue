@@ -2,26 +2,11 @@
   <v-card :loading="isLoading">
     <v-card-title>
       <v-row dense>
-        <v-col cols="10">
+        <v-col cols="11">
           <BtnBack :route="{ name: routeName }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
-        <v-col v-if="item" cols="2" class="text-right">
-          <v-btn
-            v-if="item.is_active"
-            icon
-            variant="flat"
-            size="x-small"
-            color="warning"
-            :to="{
-              name: `${routeName}/update`,
-              params: { id: getEncodeId(itemId) },
-            }"
-          >
-            <v-icon>mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="left">Editar</v-tooltip>
-          </v-btn>
-        </v-col>
+        <v-col v-if="item" cols="1" class="text-right" />
       </v-row>
     </v-card-title>
 
@@ -37,7 +22,6 @@
               >
                 <v-btn
                   icon
-                  variant="flat"
                   size="x-small"
                   color="success"
                   @click.prevent="restoreItem"
@@ -59,21 +43,33 @@
                 <v-col cols="11">
                   <CardTitle :text="`AUTO | ${item.uiid}`" sub />
                 </v-col>
-                <v-col cols="1" class="text-right" />
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    size="x-small"
+                    color="warning"
+                    :to="{
+                      name: `${routeName}/update`,
+                      params: { id: getEncodeId(itemId) },
+                    }"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                    <v-tooltip activator="parent" location="left">
+                      Editar
+                    </v-tooltip>
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-card-title>
 
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="4">
                   <VisVal label="Fecha de compra" :value="item.purchase_date" />
                 </v-col>
 
-                <v-col cols="12" md="3">
-                  <VisVal label="Proveedor" :value="item.vendor.name" />
-                </v-col>
-
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="4">
                   <VisVal
                     label="Marca"
                     :value="
@@ -82,7 +78,7 @@
                   />
                 </v-col>
 
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="4">
                   <VisVal
                     label="Modelo"
                     :value="item.vehicle_version.vehicle_model.name"
@@ -101,14 +97,14 @@
                 </v-col>
 
                 <v-col cols="12" md="3">
+                  <VisVal label="Color" :value="item.vehicle_color.name" />
+                </v-col>
+
+                <v-col cols="12" md="3">
                   <VisVal
                     label="Transmisión"
                     :value="item.vehicle_transmission.name"
                   />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal label="Color" :value="item.vehicle_color.name" />
                 </v-col>
 
                 <v-col cols="12" md="3">
@@ -125,31 +121,6 @@
 
                 <v-col cols="12" md="3">
                   <VisVal label="Clave vehicular" :value="item.vehicle_key" />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Compra"
-                    :value="getAmountFormat(item.purchase_price)"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Comisión"
-                    :value="getAmountFormat(item.commission_amount)"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal label="IVA" :value="item.vat_type.name" />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Monto factura"
-                    :value="getAmountFormat(item.invoice_amount)"
-                  />
                 </v-col>
 
                 <v-col cols="12" md="12">
@@ -202,34 +173,175 @@
             <v-card-title>
               <v-row dense>
                 <v-col cols="11">
-                  <CardTitle text="INVERSIONISTAS" sub />
+                  <CardTitle text="ADQUISICIÓN" sub />
                 </v-col>
-                <v-col cols="1" class="text-right" />
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    variant="text"
+                    size="x-small"
+                    color="success"
+                    @click="legacyVehicleTradeAddDlg()"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                    <v-tooltip activator="parent" location="start">
+                      Agregar
+                    </v-tooltip>
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-card-title>
-
             <v-card-text>
-              <v-row
-                dense
-                v-for="(
-                  legacy_vehicle_investor, i
-                ) of item.legacy_vehicle_investors"
-                :key="i"
-              >
-                <v-col cols="12" md="7">
-                  <VisVal
-                    label="Inversionista"
-                    :value="legacy_vehicle_investor.investor?.user?.full_name"
-                  />
-                </v-col>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Proveedor</th>
+                    <th>Precio Compra</th>
+                    <th>Comisión</th>
+                    <th>Precio Venta</th>
+                    <th>IVA</th>
+                    <th>Monto Factura</th>
+                    <th>Observaciones</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(legacyVehicleTrade, i) in legacyVehicleTrades"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{
+                        legacyVehicleTrade.vendor
+                          ? legacyVehicleTrade.vendor.name
+                          : "-"
+                      }}
+                    </td>
+                    <td>
+                      {{
+                        legacyVehicleTrade.purchase_price
+                          ? getAmountFormat(legacyVehicleTrade.purchase_price)
+                          : "-"
+                      }}
+                    </td>
+                    <td>
+                      {{
+                        legacyVehicleTrade.commission_amount
+                          ? getAmountFormat(
+                              legacyVehicleTrade.commission_amount
+                            )
+                          : "-"
+                      }}
+                    </td>
+                    <td>
+                      {{
+                        legacyVehicleTrade.sale_price
+                          ? getAmountFormat(legacyVehicleTrade.sale_price)
+                          : "-"
+                      }}
+                    </td>
+                    <td>{{ legacyVehicleTrade.vat_type.name }}</td>
+                    <td>
+                      {{
+                        legacyVehicleTrade.invoice_amount
+                          ? getAmountFormat(legacyVehicleTrade.invoice_amount)
+                          : "-"
+                      }}
+                    </td>
+                    <td>{{ legacyVehicleTrade.note }}</td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="
+                          item.is_active && legacyVehicleTrades.length - 1 == i
+                        "
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          legacyVehicleTradeRemove(legacyVehicleTrade.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-                <v-col cols="12" md="5">
-                  <VisVal
-                    label="Porcentaje %"
-                    :value="legacy_vehicle_investor.percentages"
-                  />
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="INVERSIONISTAS" sub />
+                </v-col>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    variant="text"
+                    size="x-small"
+                    color="success"
+                    @click="legacyVehicleInvestorAddDlg()"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                    <v-tooltip activator="parent" location="start">
+                      Agregar
+                    </v-tooltip>
+                  </v-btn>
                 </v-col>
               </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Nombre</th>
+                    <th width="40">%</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(legacyVehicleInvestor, i) in legacyVehicleInvestors"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{ legacyVehicleInvestor.investor.user.full_name }}
+                    </td>
+                    <td>{{ legacyVehicleInvestor.percentages }}</td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="item.is_active"
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          legacyVehicleInvestorRemove(legacyVehicleInvestor.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-card-text>
           </v-card>
         </v-col>
@@ -241,64 +353,14 @@
                 <v-col cols="11">
                   <CardTitle text="GASTOS" sub />
                 </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-
-            <v-card-text>
-              <v-row
-                dense
-                v-for="(
-                  legacy_vehicle_expense, i
-                ) of item.legacy_vehicle_expenses"
-                :key="i"
-              >
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Tipo"
-                    :value="legacy_vehicle_expense.expense_type?.name"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Observación"
-                    :value="legacy_vehicle_expense.note"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Fecha"
-                    :value="legacy_vehicle_expense.expense_date"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Monto"
-                    :value="getAmountFormat(legacy_vehicle_expense.amount)"
-                  />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="FACTURAS" sub />
-                </v-col>
                 <v-col cols="1" class="text-right">
                   <v-btn
+                    v-if="item.is_active"
                     icon
-                    variant="icon"
+                    variant="text"
                     size="x-small"
                     color="success"
-                    @click="legacyVehicleDocumentDlg()"
+                    @click="legacyVehicleExpenseAddDlg()"
                   >
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="start">
@@ -308,55 +370,54 @@
                 </v-col>
               </v-row>
             </v-card-title>
-
             <v-card-text>
-              <v-row
-                dense
-                v-for="(
-                  legacy_vehicle_document_bill, i
-                ) of item.legacy_vehicle_document_bills"
-                :key="i"
-              >
-                <!-- <v-col cols="12" md="3">
-                  <VisVal
-                    label="Tipo"
-                    :value="legacy_vehicle_document_bill.document_type?.name"
-                  />
-                </v-col> -->
-
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Fecha de recepción"
-                    :value="legacy_vehicle_document_bill.received_at"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="8">
-                  <VisDoc
-                    label="Archivo"
-                    :value="legacy_vehicle_document_bill.document_b64"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="1" class="text-right">
-                  <v-btn icon variant="icon" size="x-small" color="error">
-                    <v-icon size="x-small">mdi-minus</v-icon>
-                    <v-tooltip activator="parent" location="start">
-                      Eliminar
-                    </v-tooltip>
-                  </v-btn>
-                </v-col>
-
-                <v-col v-if="legacy_vehicle_document_bill.note" cols="12">
-                  <VisVal
-                    label="Observación"
-                    :value="legacy_vehicle_document_bill.note"
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-divider />
-                </v-col>
-              </v-row>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Tipo</th>
+                    <th>Observaciones</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(legacyVehicleExpense, i) in legacyVehicleExpenses"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{ legacyVehicleExpense.expense_type.name }}
+                    </td>
+                    <td>
+                      {{ legacyVehicleExpense.note }}
+                    </td>
+                    <td>
+                      {{ legacyVehicleExpense.expense_date }}
+                    </td>
+                    <td>{{ getAmountFormat(legacyVehicleExpense.amount) }}</td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="item.is_active"
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          legacyVehicleExpenseRemove(legacyVehicleExpense.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-card-text>
           </v-card>
         </v-col>
@@ -367,7 +428,6 @@
         >
           <v-btn
             icon
-            variant="flat"
             size="x-small"
             color="red-darken-1"
             @click.prevent="deleteItem"
@@ -381,28 +441,29 @@
 
     <DlgReg v-model="regDialog" :item="item" />
 
+    <!-- DIALOGS -->
     <v-dialog
-      v-model="legacy_vehicle_document_bill_dlg"
+      v-model="legacyVehicleTradeDlg"
       persistent
       scrim="black"
-      max-width="900"
+      max-width="1200"
     >
       <v-card
-        :loading="legacy_vehicle_document_bill_ldg"
-        :disabled="legacy_vehicle_document_bill_ldg"
+        :loading="legacyVehicleTradeLdg"
+        :disabled="legacyVehicleTradeLdg"
         flat
       >
         <v-card-title>
           <v-row dense>
             <v-col cols="11">
-              <CardTitle text="FACTURA" subvalue />
+              <CardTitle text="ADQUISICIÓN" subvalue />
             </v-col>
             <v-col cols="1" class="text-right">
               <v-btn
                 icon
                 variant="text"
                 size="x-small"
-                @click="legacy_vehicle_document_bill_dlg = false"
+                @click="legacyVehicleTradeDlg = false"
               >
                 <v-icon>mdi-close</v-icon>
                 <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
@@ -411,50 +472,310 @@
           </v-row>
         </v-card-title>
 
-        <v-card-text v-if="legacy_vehicle_document_bill">
-          <v-form ref="legacy_vehicle_document_bill_form" @submit.prevent>
+        <v-card-text v-if="legacyVehicleTrade">
+          <v-form ref="legacyVehicleTradeForm" @submit.prevent>
             <v-row dense>
-              <v-col cols="3">
-                <InpDate
-                  label="Fecha de compra"
-                  v-model="legacy_vehicle_document_bill.received_at"
-                  :rules="rules.required"
-                  :before="true"
-                />
-              </v-col>
-              <v-col cols="9">
-                <v-file-input
-                  label="Archivo (PDF)"
-                  v-model="legacy_vehicle_document_bill.document_doc"
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12">
+                <v-autocomplete
+                  label="Proveedor"
+                  v-model="legacyVehicleTrade.vendor_id"
+                  :items="vendors"
+                  :loading="vendorsLoading"
+                  item-value="id"
+                  item-title="name"
                   variant="outlined"
                   density="compact"
-                  prepend-icon=""
-                  show-size
-                  accept=".pdf"
-                  :rules="rules.fileRequired"
+                  :rules="rules.required"
+                  autocomplete="off"
                 />
               </v-col>
+
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
+                <v-text-field
+                  :label="
+                    'Precio Compra ' +
+                    getAmountFormat(legacyVehicleTrade.purchase_price)
+                  "
+                  v-model="legacyVehicleTrade.purchase_price"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+              <v-col v-else cols="12" md="3">
+                <v-text-field
+                  :label="
+                    'Precio Venta ' +
+                    getAmountFormat(legacyVehicleTrade.sale_price)
+                  "
+                  v-model="legacyVehicleTrade.sale_price"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
+                <v-text-field
+                  :label="
+                    'Comisión ' +
+                    getAmountFormat(legacyVehicleTrade.commission_amount)
+                  "
+                  v-model="legacyVehicleTrade.commission_amount"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" md="3">
+                <v-select
+                  label="IVA"
+                  v-model="legacyVehicleTrade.vat_type_id"
+                  :items="vatTypes"
+                  :loading="vatTypesLoading"
+                  item-value="id"
+                  item-title="name"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.required"
+                />
+              </v-col>
+
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
+                <v-text-field
+                  :label="
+                    'Monto factura ' +
+                    getAmountFormat(legacyVehicleTrade.invoice_amount)
+                  "
+                  v-model="legacyVehicleTrade.invoice_amount"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
               <v-col cols="12">
                 <v-text-field
-                  label="Observación*"
-                  v-model="legacy_vehicle_document_bill.note"
+                  label="Observaciones*"
+                  v-model="legacyVehicleTrade.note"
                   type="text"
                   variant="outlined"
                   density="compact"
                   maxlength="255"
                   counter
-                  rows="1"
                   :rules="rules.textOptional"
+                  autocomplete="off"
                 />
               </v-col>
+
               <v-col cols="12" class="text-right">
                 <v-btn
                   icon
-                  variant="flat"
                   size="x-small"
                   color="success"
-                  @click.prevent="legacyVehicleDocumentAdd()"
-                  :loading="legacy_vehicle_document_bill_ldg"
+                  @click.prevent="legacyVehicleTradeAdd()"
+                  :loading="legacyVehicleTradeLdg"
+                >
+                  <v-icon>mdi-check</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Continuar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="legacyVehicleInvestorDlg"
+      persistent
+      scrim="black"
+      max-width="1200"
+    >
+      <v-card
+        :loading="legacyVehicleInvestorLdg"
+        :disabled="legacyVehicleInvestorLdg"
+        flat
+      >
+        <v-card-title>
+          <v-row dense>
+            <v-col cols="11">
+              <CardTitle text="INVERSIONISTA" subvalue />
+            </v-col>
+            <v-col cols="1" class="text-right">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                @click="legacyVehicleInvestorDlg = false"
+              >
+                <v-icon>mdi-close</v-icon>
+                <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <v-card-text v-if="legacyVehicleInvestor">
+          <v-form ref="legacyVehicleInvestorForm" @submit.prevent>
+            <v-row dense>
+              <v-col cols="12" md="10">
+                <v-autocomplete
+                  label="Nombre"
+                  v-model="legacyVehicleInvestor.investor_id"
+                  :items="investors"
+                  :loading="investorsLoading"
+                  item-value="id"
+                  item-title="full_name"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" md="2">
+                <v-text-field
+                  label="Porcentaje %"
+                  v-model="legacyVehicleInvestor.percentages"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  icon
+                  size="x-small"
+                  color="success"
+                  @click.prevent="legacyVehicleInvestorAdd()"
+                  :loading="legacyVehicleInvestorLdg"
+                >
+                  <v-icon>mdi-check</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Continuar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="legacyVehicleExpenseDlg"
+      persistent
+      scrim="black"
+      max-width="1200"
+    >
+      <v-card
+        :loading="legacyVehicleExpenseLdg"
+        :disabled="legacyVehicleExpenseLdg"
+        flat
+      >
+        <v-card-title>
+          <v-row dense>
+            <v-col cols="11">
+              <CardTitle text="GASTO" subvalue />
+            </v-col>
+            <v-col cols="1" class="text-right">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                @click="legacyVehicleExpenseDlg = false"
+              >
+                <v-icon>mdi-close</v-icon>
+                <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <v-card-text v-if="legacyVehicleExpense">
+          <v-form ref="legacyVehicleExpenseForm" @submit.prevent>
+            <v-row dense>
+              <v-col cols="12" md="3">
+                <v-autocomplete
+                  label="Tipo"
+                  v-model="legacyVehicleExpense.expense_type_id"
+                  :items="expenseTypes"
+                  :loading="expenseTypesLoading"
+                  item-value="id"
+                  item-title="name"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" md="3">
+                <v-text-field
+                  label="Observaciones"
+                  v-model="legacyVehicleExpense.note"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  maxlength="50"
+                  counter
+                  :rules="rules.textRequired"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" md="3">
+                <InpDate
+                  label="Fecha"
+                  v-model="legacyVehicleExpense.expense_date"
+                  :rules="rules.required"
+                  :before="true"
+                />
+              </v-col>
+
+              <v-col cols="12" md="2">
+                <v-text-field
+                  :label="
+                    'Monto ' + getAmountFormat(legacyVehicleExpense.amount)
+                  "
+                  v-model="legacyVehicleExpense.amount"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  counter
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  icon
+                  size="x-small"
+                  color="success"
+                  @click.prevent="legacyVehicleExpenseAdd()"
+                  :loading="legacyVehicleExpenseLdg"
                 >
                   <v-icon>mdi-check</v-icon>
                   <v-tooltip activator="parent" location="left">
@@ -471,12 +792,10 @@
 </template>
 
 <script setup>
-// Importaciones de librerías externas
 import { ref, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
-// Importaciones internas del proyecto
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
@@ -485,7 +804,6 @@ import { getAmountFormat, getDateTime } from "@/utils/formatters";
 import { getRules } from "@/utils/validators";
 import { getFormData } from "@/utils/helpers";
 
-// Componentes
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
@@ -493,34 +811,116 @@ import VisVal from "@/components/VisVal.vue";
 import VisDoc from "@/components/VisDoc.vue";
 import InpDate from "@/components/InpDate.vue";
 
-// Constantes fijas
 const routeName = "legacy_vehicles";
 const currentDate = ref(getDateTime("-", "", "", false));
 
-// Estado y referencias
 const alert = inject("alert");
 const confirm = inject("confirm");
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-// Estado reactivo
 const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
+const legacyVehicleTrades = ref([]);
+const legacyVehicleInvestors = ref([]);
+const legacyVehicleExpenses = ref([]);
 const regDialog = ref(false);
 const rules = getRules();
-const legacy_vehicle_document_bill = ref(null);
-const legacy_vehicle_document_bill_ldg = ref(false);
-const legacy_vehicle_document_bill_dlg = ref(false);
-const legacy_vehicle_document_bill_form = ref(null);
 
-// Obtener registro
+const vendors = ref([]);
+const vendorsLoading = ref(true);
+const vatTypes = ref([]);
+const vatTypesLoading = ref(true);
+const investors = ref([]);
+const investorsLoading = ref(true);
+const expenseTypes = ref([]);
+const expenseTypesLoading = ref(true);
+
+const getCatalogs = async () => {
+  let endpoint = null;
+  let response = null;
+
+  try {
+    endpoint = `${URL_API}/vendors?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vendors.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vendorsLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/vat_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vatTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vatTypesLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/investors?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    investors.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    investorsLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/expense_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    expenseTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    expenseTypesLoading.value = false;
+  }
+};
+
 const getItem = async () => {
+  let endpoint = null;
+  let response = null;
+
   isLoading.value = true;
   try {
-    const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    endpoint = `${URL_API}/${routeName}/legacy_vehicles_trades`;
+    response = await axios.get(endpoint, {
+      params: {
+        legacy_vehicle_id: itemId.value,
+        is_active: 1,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    legacyVehicleTrades.value = getRsp(response).data.items;
+
+    endpoint = `${URL_API}/${routeName}/legacy_vehicle_investors`;
+    response = await axios.get(endpoint, {
+      params: {
+        legacy_vehicle_id: itemId.value,
+        is_active: 1,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    legacyVehicleInvestors.value = getRsp(response).data.items;
+
+    endpoint = `${URL_API}/${routeName}/legacy_vehicle_expenses`;
+    response = await axios.get(endpoint, {
+      params: {
+        legacy_vehicle_id: itemId.value,
+        is_active: 1,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    legacyVehicleExpenses.value = getRsp(response).data.items;
+
+    endpoint = `${URL_API}/${routeName}/${itemId.value}`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     item.value = getRsp(response).data.item;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -529,7 +929,6 @@ const getItem = async () => {
   }
 };
 
-// Inactivar
 const deleteItem = async () => {
   const confirmed = await confirm?.show("¿Confirma inactivar el registro?");
   if (!confirmed) return;
@@ -540,18 +939,15 @@ const deleteItem = async () => {
     const response = getRsp(
       await axios.delete(endpoint, getHdrs(store.getAuth?.token))
     );
-    alert?.show("red-darken-1", response.msg);
+    alert?.show("success", response.msg);
+    router.push({ name: routeName });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     isLoading.value = false;
   }
-  alert?.show("red-darken-1", "Registro desactivado correctamente");
-  router.push({ name: routeName });
-  isLoading.value = false;
 };
 
-// Reactivar
 const restoreItem = async () => {
   const confirmed = await confirm?.show("¿Confirma activar el registro?");
   if (!confirmed) return;
@@ -573,59 +969,223 @@ const restoreItem = async () => {
   } finally {
     isLoading.value = false;
   }
-  alert?.show("red-darken-1", "Registro activado correctamente");
-  isLoading.value = false;
 };
 
-const legacyVehicleDocumentDlg = async () => {
-  legacy_vehicle_document_bill.value = {
+// legacyVehicleTrade
+const legacyVehicleTrade = ref(null);
+const legacyVehicleTradeLdg = ref(false);
+const legacyVehicleTradeDlg = ref(false);
+const legacyVehicleTradeForm = ref(null);
+
+const legacyVehicleTradeAddDlg = () => {
+  let is_purchase = 1;
+  if (legacyVehicleTrades.value.length > 0) {
+    is_purchase =
+      legacyVehicleTrades.value[legacyVehicleTrades.value.length - 1]
+        .is_purchase == 1
+        ? 0
+        : 1;
+  }
+
+  legacyVehicleTrade.value = {
     id: null,
-    is_active: 1,
     legacy_vehicle_id: itemId.value,
-    document_type_id: 1,
-    is_scheduled: 0,
-    scheduled_at: null,
-    received_at: currentDate.value,
-    document_path: null,
-    document_doc: null,
-    document_dlt: false,
+    is_purchase: is_purchase,
+    vendor_id: null,
+    purchase_price: null,
+    commission_amount: null,
+    vat_type_id: null,
+    invoice_amount: null,
+    sale_price: null,
     note: null,
   };
-  legacy_vehicle_document_bill_ldg.value = false;
-  legacy_vehicle_document_bill_dlg.value = true;
+  legacyVehicleTradeLdg.value = false;
+  legacyVehicleTradeDlg.value = true;
 };
 
-const legacyVehicleDocumentAdd = async () => {
-  const { valid } = await legacy_vehicle_document_bill_form.value.validate();
+const legacyVehicleTradeAdd = async () => {
+  const { valid } = await legacyVehicleTradeForm.value.validate();
   if (!valid) return;
 
   const confirmed = await confirm?.show(`¿Confirma agregar?`);
   if (!confirmed) return;
 
-  legacy_vehicle_document_bill_ldg.value = true;
+  legacyVehicleTradeLdg.value = true;
 
   try {
-    const endpoint = `${URL_API}/legacy_vehicle_documents`;
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicles_trades`;
     const response = getRsp(
       await axios.post(
         endpoint,
-        getFormData(legacy_vehicle_document_bill.value),
-        getHdrs(store.getAuth?.token, true)
+        legacyVehicleTrade.value,
+        getHdrs(store.getAuth?.token)
       )
     );
 
     alert?.show("success", response.msg);
-    legacy_vehicle_document_bill_dlg.value = false;
+    legacyVehicleTradeDlg.value = false;
     getItem();
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
-    legacy_vehicle_document_bill_ldg.value = false;
+    legacyVehicleTradeLdg.value = false;
   }
 };
 
-// Inicializar
+const legacyVehicleTradeRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  isLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicles_trades/${id}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("success", response.msg);
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// legacyVehicleInvestor
+const legacyVehicleInvestor = ref(null);
+const legacyVehicleInvestorLdg = ref(false);
+const legacyVehicleInvestorDlg = ref(false);
+const legacyVehicleInvestorForm = ref(null);
+
+const legacyVehicleInvestorAddDlg = () => {
+  legacyVehicleInvestor.value = {
+    id: null,
+    legacy_vehicle_id: itemId.value,
+    investor_id: null,
+    percentages: null,
+    amount: null,
+  };
+  legacyVehicleInvestorLdg.value = false;
+  legacyVehicleInvestorDlg.value = true;
+};
+
+const legacyVehicleInvestorAdd = async () => {
+  const { valid } = await legacyVehicleInvestorForm.value.validate();
+  if (!valid) return;
+
+  const confirmed = await confirm?.show(`¿Confirma agregar?`);
+  if (!confirmed) return;
+
+  legacyVehicleInvestorLdg.value = true;
+
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_investors`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        legacyVehicleInvestor.value,
+        getHdrs(store.getAuth?.token)
+      )
+    );
+
+    alert?.show("success", response.msg);
+    legacyVehicleInvestorDlg.value = false;
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    legacyVehicleInvestorLdg.value = false;
+  }
+};
+
+const legacyVehicleInvestorRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  isLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_investors/${id}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("success", response.msg);
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// legacyVehicleExpense
+const legacyVehicleExpense = ref(null);
+const legacyVehicleExpenseLdg = ref(false);
+const legacyVehicleExpenseDlg = ref(false);
+const legacyVehicleExpenseForm = ref(null);
+
+const legacyVehicleExpenseAddDlg = () => {
+  legacyVehicleExpense.value = {
+    id: null,
+    legacy_vehicle_id: itemId.value,
+    expense_type_id: null,
+    note: null,
+    expense_date: null,
+    amount: null,
+  };
+  legacyVehicleExpenseLdg.value = false;
+  legacyVehicleExpenseDlg.value = true;
+};
+
+const legacyVehicleExpenseAdd = async () => {
+  const { valid } = await legacyVehicleExpenseForm.value.validate();
+  if (!valid) return;
+
+  const confirmed = await confirm?.show(`¿Confirma agregar?`);
+  if (!confirmed) return;
+
+  legacyVehicleExpenseLdg.value = true;
+
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_expenses`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        legacyVehicleExpense.value,
+        getHdrs(store.getAuth?.token)
+      )
+    );
+
+    alert?.show("success", response.msg);
+    legacyVehicleExpenseDlg.value = false;
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    legacyVehicleExpenseLdg.value = false;
+  }
+};
+
+const legacyVehicleExpenseRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  isLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_expenses/${id}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("success", response.msg);
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 onMounted(() => {
+  getCatalogs();
   getItem();
 });
 </script>
