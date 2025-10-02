@@ -717,6 +717,7 @@
             <v-row dense>
               <v-col cols="12" md="3">
                 <v-autocomplete
+                  v-if="!isAddingNewExpenseType"
                   label="Tipo"
                   v-model="legacyVehicleExpense.expense_type_id"
                   :items="expenseTypes"
@@ -728,6 +729,40 @@
                   :rules="rules.required"
                   autocomplete="off"
                 />
+                <v-text-field
+                  v-else
+                  ref="newExpenseTypeInputRef"
+                  label="Nuevo tipo"
+                  v-model="newExpenseTypeName"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.textRequired"
+                  autocomplete="off"
+                  maxlength="50"
+                  @keydown.enter.prevent="addNewExpenseType"
+                >
+                  <template #append-inner>
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="small"
+                      color="error"
+                      @click="cancelAddingNewExpenseType"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="small"
+                      color="success"
+                      :loading="isSavingNewExpenseType"
+                      @click="addNewExpenseType"
+                    >
+                      <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                  </template>
+                </v-text-field>
               </v-col>
 
               <v-col cols="12" md="3">
@@ -776,6 +811,7 @@
                   color="success"
                   @click.prevent="legacyVehicleExpenseAdd()"
                   :loading="legacyVehicleExpenseLdg"
+                  :disabled="isAddingNewExpenseType"
                 >
                   <v-icon>mdi-check</v-icon>
                   <v-tooltip activator="parent" location="left">
@@ -792,7 +828,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -802,7 +838,7 @@ import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getAmountFormat, getDateTime } from "@/utils/formatters";
 import { getRules } from "@/utils/validators";
-import { getFormData } from "@/utils/helpers";
+import { getFormData, getObj } from "@/utils/helpers";
 
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
@@ -837,6 +873,11 @@ const investors = ref([]);
 const investorsLoading = ref(true);
 const expenseTypes = ref([]);
 const expenseTypesLoading = ref(true);
+
+const isAddingNewExpenseType = ref(false);
+const newExpenseTypeName = ref("");
+const newExpenseTypeInputRef = ref(null);
+const isSavingNewExpenseType = ref(false);
 
 const getCatalogs = async () => {
   let endpoint = null;
@@ -876,6 +917,7 @@ const getCatalogs = async () => {
     endpoint = `${URL_API}/expense_types?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     expenseTypes.value = getRsp(response).data.items;
+    expenseTypes.value.push({ id: 0, name: "OTRO" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -1123,17 +1165,92 @@ const legacyVehicleExpenseLdg = ref(false);
 const legacyVehicleExpenseDlg = ref(false);
 const legacyVehicleExpenseForm = ref(null);
 
+// expense type
+watch(
+  () => legacyVehicleExpense.value?.expense_type_id,
+  (newExpenseTypeId) => {
+    if (!legacyVehicleExpense.value) return;
+
+    if (newExpenseTypeId === 0) {
+      isAddingNewExpenseType.value = true;
+    } else {
+      isAddingNewExpenseType.value = false;
+      newExpenseTypeName.value = "";
+      newExpenseTypeInputRef.value?.resetValidation();
+    }
+  }
+);
+
 const legacyVehicleExpenseAddDlg = () => {
+  isAddingNewExpenseType.value = false;
+  newExpenseTypeName.value = "";
   legacyVehicleExpense.value = {
     id: null,
     legacy_vehicle_id: itemId.value,
     expense_type_id: null,
     note: null,
-    expense_date: null,
+    expense_date: currentDate.value,
     amount: null,
   };
   legacyVehicleExpenseLdg.value = false;
   legacyVehicleExpenseDlg.value = true;
+};
+
+const addNewExpenseType = async () => {
+  if (!newExpenseTypeName.value || newExpenseTypeName.value.trim() === "") {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre del nuevo tipo"
+    );
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar el nuevo tipo "${newExpenseTypeName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewExpenseType.value = true;
+  try {
+    const payload = {
+      name: newExpenseTypeName.value.trim(),
+    };
+    const endpoint = `${URL_API}/expense_types`;
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
+    const newExpenseTypeId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nuevo tipo agregado con éxito");
+
+    const getEndpoint = `${URL_API}/expense_types/${newExpenseTypeId}`;
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
+    const newExpenseType = getRsp(getResponse).data.item;
+
+    const otroOption = expenseTypes.value.pop();
+    expenseTypes.value = [...expenseTypes.value, newExpenseType, otroOption];
+    legacyVehicleExpense.value.expense_type_id = newExpenseType.id;
+
+    newExpenseTypeName.value = "";
+    isAddingNewExpenseType.value = false;
+    newExpenseTypeInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewExpenseType.value = false;
+  }
+};
+
+const cancelAddingNewExpenseType = () => {
+  isAddingNewExpenseType.value = false;
+  newExpenseTypeName.value = "";
+  newExpenseTypeInputRef.value?.resetValidation();
+  legacyVehicleExpense.value.expense_type_id = null;
 };
 
 const legacyVehicleExpenseAdd = async () => {
