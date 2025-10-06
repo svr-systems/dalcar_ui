@@ -326,6 +326,20 @@
                     />
                   </v-col>
 
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      label="Número de pasajeros*"
+                      v-model="item.passenger_capacity"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="50"
+                      counter
+                      :rules="rules.textOptional"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
                   <v-col cols="12">
                     <v-text-field
                       label="Observaciones*"
@@ -555,7 +569,7 @@ const getCatalogs = async () => {
   }
 
   try {
-    endpoint = `${URL_API}/customs_offices?is_active=1&filter=0`;
+    endpoint = `${URL_API}/custom_offices?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     customsOffices.value = getRsp(response).data.items;
   } catch (err) {
@@ -651,6 +665,7 @@ const getItem = async () => {
       pediment_date: null,
       custom_office_id: null,
       pediment_notes: null,
+      passenger_capacity: null,
     };
     isLoading.value = false;
   } else {
