@@ -65,11 +65,11 @@
 
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
                   <VisVal label="Fecha de compra" :value="item.purchase_date" />
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
                   <VisVal
                     label="Marca"
                     :value="
@@ -78,7 +78,7 @@
                   />
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
                   <VisVal
                     label="Modelo"
                     :value="item.vehicle_version.vehicle_model.name"
@@ -121,6 +121,13 @@
 
                 <v-col cols="12" md="3">
                   <VisVal label="Clave vehicular" :value="item.vehicle_key" />
+                </v-col>
+
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Número de pasajeros"
+                    :value="item.passenger_capacity"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="12">
@@ -1198,10 +1205,7 @@ const legacyVehicleExpenseAddDlg = () => {
 
 const addNewExpenseType = async () => {
   if (!newExpenseTypeName.value || newExpenseTypeName.value.trim() === "") {
-    alert?.show(
-      "red-darken-1",
-      "Por favor, ingresa el nombre del nuevo tipo"
-    );
+    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo tipo");
     return;
   }
 

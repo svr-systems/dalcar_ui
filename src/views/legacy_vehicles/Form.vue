@@ -35,7 +35,7 @@
 
               <v-card-text>
                 <v-row dense>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
                     <InpDate
                       label="Fecha de adquisición"
                       v-model="item.purchase_date"
@@ -44,7 +44,7 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
                     <v-autocomplete
                       v-if="!isAddingNewBrand"
                       label="Marca"
@@ -96,7 +96,7 @@
                     </v-text-field>
                   </v-col>
 
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="3">
                     <v-autocomplete
                       v-if="!isAddingNewModel"
                       label="Modelo"
@@ -364,14 +364,14 @@
 
                   <v-col cols="12" md="3">
                     <v-text-field
-                      label="Número de pasajeros*"
+                      label="Número de pasajeros"
                       v-model="item.passenger_capacity"
                       type="number"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
+                      maxlength="70"
                       counter
-                      :rules="rules.textOptional"
+                      :rules="rules.required"
                       autocomplete="off"
                     />
                   </v-col>
@@ -630,7 +630,7 @@ const getCatalogs = async () => {
   }
 
   vehicleTransmissionsLoading.value = false;
-  
+
   try {
     endpoint = `${URL_API}/origin_types`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -726,7 +726,7 @@ const getVehicleTransmissions = async (brandId) => {
     const endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0&vehicle_brand_id=${brandId}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     const transmissions = getRsp(response).data.items;
-    
+
     transmissions.push({ id: 0, name: "OTRO" });
     vehicleTransmissions.value = transmissions;
   } catch (err) {
