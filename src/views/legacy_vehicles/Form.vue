@@ -445,6 +445,7 @@
 
                   <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
                     <v-autocomplete
+                      v-if="!isAddingNewCustomOffice"
                       label="Aduana"
                       v-model="item.custom_office_id"
                       :items="customsOffices"
@@ -456,6 +457,40 @@
                       :rules="rules.required"
                       autocomplete="off"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newCustomOfficeInputRef"
+                      label="Nueva Aduana"
+                      v-model="newCustomOfficeName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      autocomplete="off"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewCustomOffice"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="error"
+                          @click="cancelAddingNewCustomOffice"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewCustomOffice"
+                          @click="addNewCustomOffice"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
 
                   <v-col v-if="item.origin_type_id == 2" cols="12">
@@ -574,6 +609,11 @@ const newTransmissionName = ref("");
 const newTransmissionInputRef = ref(null);
 const isSavingNewTransmission = ref(false);
 
+const isAddingNewCustomOffice = ref(false);
+const newCustomOfficeName = ref("");
+const newCustomOfficeInputRef = ref(null);
+const isSavingNewCustomOffice = ref(false);
+
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
@@ -605,6 +645,7 @@ const getCatalogs = async () => {
     endpoint = `${URL_API}/custom_offices?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     customsOffices.value = getRsp(response).data.items;
+    customsOffices.value.push({ id: 0, name: "OTRO" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -1196,6 +1237,83 @@ const cancelAddingNewTransmission = () => {
   newTransmissionName.value = "";
   newTransmissionInputRef.value?.resetValidation();
   item.value.vehicle_transmission_id = null;
+};
+
+// custom_office_id
+watch(
+  () => item.value?.custom_office_id,
+  (newCustomOfficeId) => {
+    if (!item.value) return;
+    if (newCustomOfficeId === 0) {
+      isAddingNewCustomOffice.value = true;
+      newCustomOfficeName.value = "";
+    } else {
+      isAddingNewCustomOffice.value = false;
+      newCustomOfficeName.value = "";
+      newCustomOfficeInputRef.value?.resetValidation();
+    }
+  }
+);
+
+const addNewCustomOffice = async () => {
+  if (!newCustomOfficeName.value || newCustomOfficeName.value.trim() === "") {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre de la nueva aduana."
+    );
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar la nueva aduana "${newCustomOfficeName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewCustomOffice.value = true;
+  try {
+    const payload = {
+      name: newCustomOfficeName.value.trim(),
+    };
+    const endpoint = `${URL_API}/custom_offices`;
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
+    const newCustomOfficeId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nueva aduana agregada con éxito.");
+
+    const getEndpoint = `${URL_API}/custom_offices/${newCustomOfficeId}`;
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
+    const newCustomOffice = getRsp(getResponse).data.item;
+
+    const otroOption = customsOffices.value.pop();
+    customsOffices.value = [
+      ...customsOffices.value,
+      newCustomOffice,
+      otroOption,
+    ];
+    item.value.custom_office_id = newCustomOffice.id;
+
+    newCustomOfficeName.value = "";
+    isAddingNewCustomOffice.value = false;
+    newCustomOfficeInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewCustomOffice.value = false;
+  }
+};
+
+const cancelAddingNewCustomOffice = () => {
+  isAddingNewCustomOffice.value = false;
+  newCustomOfficeName.value = "";
+  newCustomOfficeInputRef.value?.resetValidation();
+  item.value.custom_office_id = null;
 };
 
 const handleAction = async () => {
