@@ -258,6 +258,7 @@
 
                   <v-col cols="12" md="3">
                     <v-select
+                      v-if="!isAddingNewTransmission"
                       label="Transmisión"
                       v-model="item.vehicle_transmission_id"
                       :items="vehicleTransmissions"
@@ -267,7 +268,42 @@
                       variant="outlined"
                       density="compact"
                       :rules="rules.required"
+                      autocomplete="off"
                     />
+                    <v-text-field
+                      v-else
+                      ref="newTransmissionInputRef"
+                      label="Nueva Transmisión"
+                      v-model="newTransmissionName"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                      autocomplete="off"
+                      maxlength="50"
+                      @keydown.enter.prevent="addNewTransmission"
+                    >
+                      <template #append-inner>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="error"
+                          @click="cancelAddingNewTransmission"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          variant="text"
+                          size="small"
+                          color="success"
+                          :loading="isSavingNewTransmission"
+                          @click="addNewTransmission"
+                        >
+                          <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
                   </v-col>
 
                   <v-col cols="12" md="3">
@@ -507,7 +543,7 @@ const vehicleVersionsLoading = ref(false);
 const vehicleColors = ref([]);
 const vehicleColorsLoading = ref(false);
 const vehicleTransmissions = ref([]);
-const vehicleTransmissionsLoading = ref(true);
+const vehicleTransmissionsLoading = ref(false);
 const originTypes = ref([]);
 const originTypesLoading = ref(true);
 const customsOffices = ref([]);
@@ -533,6 +569,11 @@ const newColorName = ref("");
 const newColorInputRef = ref(null);
 const isSavingNewColor = ref(false);
 
+const isAddingNewTransmission = ref(false);
+const newTransmissionName = ref("");
+const newTransmissionInputRef = ref(null);
+const isSavingNewTransmission = ref(false);
+
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
@@ -548,16 +589,8 @@ const getCatalogs = async () => {
     vehicleBrandsLoading.value = false;
   }
 
-  try {
-    endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0`;
-    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    vehicleTransmissions.value = getRsp(response).data.items;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    vehicleTransmissionsLoading.value = false;
-  }
-
+  vehicleTransmissionsLoading.value = false;
+  
   try {
     endpoint = `${URL_API}/origin_types`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -640,6 +673,28 @@ const getVehicleColors = async (brandId) => {
   }
 };
 
+const getVehicleTransmissions = async (brandId) => {
+  if (!brandId) {
+    vehicleTransmissions.value = [];
+    return;
+  }
+
+  vehicleTransmissionsLoading.value = true;
+
+  try {
+    const endpoint = `${URL_API}/vehicle_transmissions?is_active=1&filter=0&vehicle_brand_id=${brandId}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const transmissions = getRsp(response).data.items;
+    
+    transmissions.push({ id: 0, name: "OTRO" });
+    vehicleTransmissions.value = transmissions;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vehicleTransmissionsLoading.value = false;
+  }
+};
+
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
@@ -694,6 +749,7 @@ watch(
       if (newBrandId) {
         getVehicleModels(newBrandId);
         getVehicleColors(newBrandId);
+        getVehicleTransmissions(newBrandId);
       }
       return;
     }
@@ -705,8 +761,10 @@ watch(
       newBrandName.value = "";
       vehicleModels.value = [];
       vehicleColors.value = [];
+      vehicleTransmissions.value = [];
       item.value.vehicle_version.vehicle_model_id = null;
       item.value.vehicle_color_id = null;
+      item.value.vehicle_transmission_id = null;
       return;
     }
 
@@ -716,15 +774,19 @@ watch(
       newBrandInputRef.value?.resetValidation();
       item.value.vehicle_version.vehicle_model_id = null;
       item.value.vehicle_color_id = null;
+      item.value.vehicle_transmission_id = null;
       getVehicleModels(newBrandId);
       getVehicleColors(newBrandId);
+      getVehicleTransmissions(newBrandId);
     } else {
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       vehicleModels.value = [];
       vehicleColors.value = [];
+      vehicleTransmissions.value = [];
       item.value.vehicle_version.vehicle_model_id = null;
       item.value.vehicle_color_id = null;
+      item.value.vehicle_transmission_id = null;
     }
   }
 );
@@ -774,6 +836,7 @@ const addNewBrand = async () => {
 
     await getVehicleModels(newBrand.id);
     await getVehicleColors(newBrand.id);
+    await getVehicleTransmissions(newBrand.id);
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -1045,6 +1108,94 @@ const cancelAddingNewColor = () => {
   newColorName.value = "";
   newColorInputRef.value?.resetValidation();
   item.value.vehicle_color_id = null;
+};
+
+// vehicle_transmission_id
+watch(
+  () => item.value?.vehicle_transmission_id,
+  (newTransmissionId) => {
+    if (!item.value) return;
+    if (newTransmissionId === 0) {
+      isAddingNewTransmission.value = true;
+      newTransmissionName.value = "";
+    } else {
+      isAddingNewTransmission.value = false;
+      newTransmissionName.value = "";
+      newTransmissionInputRef.value?.resetValidation();
+    }
+  }
+);
+
+const addNewTransmission = async () => {
+  if (!newTransmissionName.value || newTransmissionName.value.trim() === "") {
+    alert?.show(
+      "red-darken-1",
+      "Por favor, ingresa el nombre de la nueva transmisión."
+    );
+    return;
+  }
+
+  const brandId = item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id;
+
+  if (!brandId) {
+    alert?.show(
+      "red-darken-1",
+      "Debes seleccionar una Marca de Vehículo antes de agregar una nueva transmisión."
+    );
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar la nueva transmisión "${newTransmissionName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewTransmission.value = true;
+  try {
+    const payload = {
+      name: newTransmissionName.value.trim(),
+      vehicle_brand_id: brandId,
+    };
+    const endpoint = `${URL_API}/vehicle_transmissions`;
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
+    const newTransmissionId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nueva transmisión agregada con éxito.");
+
+    const getEndpoint = `${URL_API}/vehicle_transmissions/${newTransmissionId}`;
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
+    const newTransmission = getRsp(getResponse).data.item;
+
+    const otroOption = vehicleTransmissions.value.pop();
+    vehicleTransmissions.value = [
+      ...vehicleTransmissions.value,
+      newTransmission,
+      otroOption,
+    ];
+    item.value.vehicle_transmission_id = newTransmission.id;
+
+    newTransmissionName.value = "";
+    isAddingNewTransmission.value = false;
+    newTransmissionInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewTransmission.value = false;
+  }
+};
+
+const cancelAddingNewTransmission = () => {
+  isAddingNewTransmission.value = false;
+  newTransmissionName.value = "";
+  newTransmissionInputRef.value?.resetValidation();
+  item.value.vehicle_transmission_id = null;
 };
 
 const handleAction = async () => {
