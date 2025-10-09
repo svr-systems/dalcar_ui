@@ -290,6 +290,150 @@
             <v-card-title>
               <v-row dense>
                 <v-col cols="11">
+                  <CardTitle text="FACTURAS" sub />
+                </v-col>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    variant="text"
+                    size="x-small"
+                    color="success"
+                    @click="legacyVehicleInvoiceAddDlg()"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                    <v-tooltip activator="parent" location="start">
+                      Agregar
+                    </v-tooltip>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Observaciones</th>
+                    <th width="40">Archivo</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(legacyVehicleInvoice, i) in legacyVehicleInvoices"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{ legacyVehicleInvoice.note }}
+                    </td>
+                    <td>
+                      <VisDoc :value="legacyVehicleInvoice.document_b64" />
+                    </td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="item.is_active"
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          legacyVehicleInvoiceRemove(legacyVehicleInvoice.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="DOCUMENTOS" sub />
+                </v-col>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    variant="text"
+                    size="x-small"
+                    color="success"
+                    @click="legacyVehicleDocumentAddDlg()"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                    <v-tooltip activator="parent" location="start">
+                      Agregar
+                    </v-tooltip>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Tipo</th>
+                    <th>Observaciones</th>
+                    <th width="40">Archivo</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(legacyVehicleDocument, i) in legacyVehicleDocuments"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{ legacyVehicleDocument.document_type.name }}
+                    </td>
+                    <td>
+                      {{ legacyVehicleDocument.note }}
+                    </td>
+                    <td>
+                      <VisDoc :value="legacyVehicleDocument.document_b64" />
+                    </td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="item.is_active"
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          legacyVehicleDocumentRemove(legacyVehicleDocument.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
                   <CardTitle text="INVERSIONISTAS" sub />
                 </v-col>
                 <v-col cols="1" class="text-right">
@@ -831,6 +975,217 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="legacyVehicleDocumentDlg"
+      persistent
+      scrim="black"
+      max-width="1200"
+    >
+      <v-card
+        :loading="legacyVehicleDocumentLdg"
+        :disabled="legacyVehicleDocumentLdg"
+        flat
+      >
+        <v-card-title>
+          <v-row dense>
+            <v-col cols="11">
+              <CardTitle text="DOCUMENTO" subvalue />
+            </v-col>
+            <v-col cols="1" class="text-right">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                @click="legacyVehicleDocumentDlg = false"
+              >
+                <v-icon>mdi-close</v-icon>
+                <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <v-card-text v-if="legacyVehicleDocument">
+          <v-form ref="legacyVehicleDocumentForm" @submit.prevent>
+            <v-row dense>
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  v-if="!isAddingNewDocumentType"
+                  label="Tipo"
+                  v-model="legacyVehicleDocument.document_type_id"
+                  :items="documentTypes"
+                  :loading="documentTypesLoading"
+                  item-value="id"
+                  item-title="name"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.required"
+                  autocomplete="off"
+                />
+                <v-text-field
+                  v-else
+                  ref="newDocumentTypeInputRef"
+                  label="Nuevo tipo"
+                  v-model="newDocumentTypeName"
+                  variant="outlined"
+                  density="compact"
+                  :rules="rules.textRequired"
+                  autocomplete="off"
+                  maxlength="50"
+                  @keydown.enter.prevent="addNewDocumentType"
+                >
+                  <template #append-inner>
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="small"
+                      color="error"
+                      @click="cancelAddingNewDocumentType"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="small"
+                      color="success"
+                      :loading="isSavingNewDocumentType"
+                      @click="addNewDocumentType"
+                    >
+                      <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-file-input
+                  label="Archivo (PDF)"
+                  v-model="legacyVehicleDocument.document_doc"
+                  variant="outlined"
+                  density="compact"
+                  prepend-icon=""
+                  show-size
+                  accept=".pdf"
+                  :rules="rules.fileRequired"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-text-field
+                  label="Observaciones"
+                  v-model="legacyVehicleDocument.note"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  maxlength="50"
+                  counter
+                  :rules="rules.textRequired"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  icon
+                  size="x-small"
+                  color="success"
+                  @click.prevent="legacyVehicleDocumentAdd()"
+                  :loading="legacyVehicleDocumentLdg"
+                  :disabled="isAddingNewDocumentType"
+                >
+                  <v-icon>mdi-check</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Continuar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="legacyVehicleInvoiceDlg"
+      persistent
+      scrim="black"
+      max-width="1200"
+    >
+      <v-card
+        :loading="legacyVehicleInvoiceLdg"
+        :disabled="legacyVehicleInvoiceLdg"
+        flat
+      >
+        <v-card-title>
+          <v-row dense>
+            <v-col cols="11">
+              <CardTitle text="FACTURA" subvalue />
+            </v-col>
+            <v-col cols="1" class="text-right">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                @click="legacyVehicleInvoiceDlg = false"
+              >
+                <v-icon>mdi-close</v-icon>
+                <v-tooltip activator="parent" location="left">Cerrar</v-tooltip>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <v-card-text v-if="legacyVehicleInvoice">
+          <v-form ref="legacyVehicleInvoiceForm" @submit.prevent>
+            <v-row dense>
+              <v-col cols="12" md="6">
+                <v-file-input
+                  label="Archivo (PDF)"
+                  v-model="legacyVehicleInvoice.document_doc"
+                  variant="outlined"
+                  density="compact"
+                  prepend-icon=""
+                  show-size
+                  accept=".pdf"
+                  :rules="rules.fileRequired"
+                />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field
+                  label="Observaciones"
+                  v-model="legacyVehicleInvoice.note"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  maxlength="50"
+                  counter
+                  :rules="rules.textRequired"
+                  autocomplete="off"
+                />
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  icon
+                  size="x-small"
+                  color="success"
+                  @click.prevent="legacyVehicleInvoiceAdd()"
+                  :loading="legacyVehicleInvoicetLdg"
+                >
+                  <v-icon>mdi-check</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Continuar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -869,6 +1224,8 @@ const item = ref(null);
 const legacyVehicleTrades = ref([]);
 const legacyVehicleInvestors = ref([]);
 const legacyVehicleExpenses = ref([]);
+const legacyVehicleDocuments = ref([]);
+const legacyVehicleInvoices = ref([]);
 const regDialog = ref(false);
 const rules = getRules();
 
@@ -880,11 +1237,8 @@ const investors = ref([]);
 const investorsLoading = ref(true);
 const expenseTypes = ref([]);
 const expenseTypesLoading = ref(true);
-
-const isAddingNewExpenseType = ref(false);
-const newExpenseTypeName = ref("");
-const newExpenseTypeInputRef = ref(null);
-const isSavingNewExpenseType = ref(false);
+const documentTypes = ref([]);
+const documentTypesLoading = ref(true);
 
 const getCatalogs = async () => {
   let endpoint = null;
@@ -930,6 +1284,17 @@ const getCatalogs = async () => {
   } finally {
     expenseTypesLoading.value = false;
   }
+
+  try {
+    endpoint = `${URL_API}/document_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    documentTypes.value = getRsp(response).data.items;
+    documentTypes.value.push({ id: 0, name: "OTRO" });
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    documentTypesLoading.value = false;
+  }
 };
 
 const getItem = async () => {
@@ -967,6 +1332,26 @@ const getItem = async () => {
       ...getHdrs(store.getAuth?.token),
     });
     legacyVehicleExpenses.value = getRsp(response).data.items;
+
+    endpoint = `${URL_API}/${routeName}/legacy_vehicle_documents`;
+    response = await axios.get(endpoint, {
+      params: {
+        legacy_vehicle_id: itemId.value,
+        is_active: 1,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    legacyVehicleDocuments.value = getRsp(response).data.items;
+
+    endpoint = `${URL_API}/${routeName}/legacy_vehicle_invoices`;
+    response = await axios.get(endpoint, {
+      params: {
+        legacy_vehicle_id: itemId.value,
+        is_active: 1,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    legacyVehicleInvoices.value = getRsp(response).data.items;
 
     endpoint = `${URL_API}/${routeName}/${itemId.value}`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
@@ -1172,7 +1557,11 @@ const legacyVehicleExpenseLdg = ref(false);
 const legacyVehicleExpenseDlg = ref(false);
 const legacyVehicleExpenseForm = ref(null);
 
-// expense type
+const isAddingNewExpenseType = ref(false);
+const newExpenseTypeName = ref("");
+const newExpenseTypeInputRef = ref(null);
+const isSavingNewExpenseType = ref(false);
+
 watch(
   () => legacyVehicleExpense.value?.expense_type_id,
   (newExpenseTypeId) => {
@@ -1187,21 +1576,6 @@ watch(
     }
   }
 );
-
-const legacyVehicleExpenseAddDlg = () => {
-  isAddingNewExpenseType.value = false;
-  newExpenseTypeName.value = "";
-  legacyVehicleExpense.value = {
-    id: null,
-    legacy_vehicle_id: itemId.value,
-    expense_type_id: null,
-    note: null,
-    expense_date: currentDate.value,
-    amount: null,
-  };
-  legacyVehicleExpenseLdg.value = false;
-  legacyVehicleExpenseDlg.value = true;
-};
 
 const addNewExpenseType = async () => {
   if (!newExpenseTypeName.value || newExpenseTypeName.value.trim() === "") {
@@ -1257,6 +1631,21 @@ const cancelAddingNewExpenseType = () => {
   legacyVehicleExpense.value.expense_type_id = null;
 };
 
+const legacyVehicleExpenseAddDlg = () => {
+  isAddingNewExpenseType.value = false;
+  newExpenseTypeName.value = "";
+  legacyVehicleExpense.value = {
+    id: null,
+    legacy_vehicle_id: itemId.value,
+    expense_type_id: null,
+    note: null,
+    expense_date: currentDate.value,
+    amount: null,
+  };
+  legacyVehicleExpenseLdg.value = false;
+  legacyVehicleExpenseDlg.value = true;
+};
+
 const legacyVehicleExpenseAdd = async () => {
   const { valid } = await legacyVehicleExpenseForm.value.validate();
   if (!valid) return;
@@ -1293,6 +1682,219 @@ const legacyVehicleExpenseRemove = async (id) => {
   isLoading.value = true;
   try {
     const endpoint = `${URL_API}/${routeName}/legacy_vehicle_expenses/${id}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("success", response.msg);
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// legacyVehicleDocument
+const legacyVehicleDocument = ref(null);
+const legacyVehicleDocumentLdg = ref(false);
+const legacyVehicleDocumentDlg = ref(false);
+const legacyVehicleDocumentForm = ref(null);
+
+const isAddingNewDocumentType = ref(false);
+const newDocumentTypeName = ref("");
+const newDocumentTypeInputRef = ref(null);
+const isSavingNewDocumentType = ref(false);
+
+watch(
+  () => legacyVehicleDocument.value?.document_type_id,
+  (newDocumentTypeId) => {
+    if (!legacyVehicleDocument.value) return;
+
+    if (newDocumentTypeId === 0) {
+      isAddingNewDocumentType.value = true;
+    } else {
+      isAddingNewDocumentType.value = false;
+      newDocumentTypeName.value = "";
+      newDocumentTypeInputRef.value?.resetValidation();
+    }
+  }
+);
+
+const addNewDocumentType = async () => {
+  if (!newDocumentTypeName.value || newDocumentTypeName.value.trim() === "") {
+    alert?.show("red-darken-1", "Por favor, ingresa el nombre del nuevo tipo");
+    return;
+  }
+
+  const confirmed = await confirm?.show(
+    `¿Confirma agregar el nuevo tipo "${newDocumentTypeName.value}"?`
+  );
+  if (!confirmed) return;
+
+  isSavingNewDocumentType.value = true;
+  try {
+    const payload = {
+      name: newDocumentTypeName.value.trim(),
+    };
+    const endpoint = `${URL_API}/document_types`;
+    const response = await axios.post(
+      endpoint,
+      payload,
+      getHdrs(store.getAuth?.token)
+    );
+    const newDocumentTypeId = getRsp(response).data.item.id;
+
+    alert?.show("green-darken-1", "Nuevo tipo agregado con éxito");
+
+    const getEndpoint = `${URL_API}/document_types/${newDocumentTypeId}`;
+    const getResponse = await axios.get(
+      getEndpoint,
+      getHdrs(store.getAuth?.token)
+    );
+    const newDocumentType = getRsp(getResponse).data.item;
+
+    const otroOption = documentTypes.value.pop();
+    documentTypes.value = [...documentTypes.value, newDocumentType, otroOption];
+    legacyVehicleDocument.value.document_type_id = newDocumentType.id;
+
+    newDocumentTypeName.value = "";
+    isAddingNewDocumentType.value = false;
+    newDocumentTypeInputRef.value?.resetValidation();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isSavingNewDocumentType.value = false;
+  }
+};
+
+const cancelAddingNewDocumentType = () => {
+  isAddingNewDocumentType.value = false;
+  newDocumentTypeName.value = "";
+  newDocumentTypeInputRef.value?.resetValidation();
+  legacyVehicleDocument.value.document_type_id = null;
+};
+
+const legacyVehicleDocumentAddDlg = () => {
+  isAddingNewDocumentType.value = false;
+  newDocumentTypeName.value = "";
+  legacyVehicleDocument.value = {
+    id: null,
+    is_active: 1,
+    legacy_vehicle_id: itemId.value,
+    document_type_id: null,
+    document_path: null,
+    document_doc: null,
+    document_dlt: false,
+    note: null,
+  };
+  legacyVehicleDocumentLdg.value = false;
+  legacyVehicleDocumentDlg.value = true;
+};
+
+const legacyVehicleDocumentAdd = async () => {
+  const { valid } = await legacyVehicleDocumentForm.value.validate();
+  if (!valid) return;
+
+  const confirmed = await confirm?.show(`¿Confirma agregar?`);
+  if (!confirmed) return;
+
+  legacyVehicleDocumentLdg.value = true;
+
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_documents`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        getFormData(legacyVehicleDocument.value),
+        getHdrs(store.getAuth?.token, true)
+      )
+    );
+
+    alert?.show("success", response.msg);
+    legacyVehicleDocumentDlg.value = false;
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    legacyVehicleDocumentLdg.value = false;
+  }
+};
+
+const legacyVehicleDocumentRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  isLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_documents/${id}`;
+    const response = getRsp(
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    );
+    alert?.show("success", response.msg);
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// legacyVehicleInvoice
+const legacyVehicleInvoice = ref(null);
+const legacyVehicleInvoiceLdg = ref(false);
+const legacyVehicleInvoiceDlg = ref(false);
+const legacyVehicleInvoiceForm = ref(null);
+
+const legacyVehicleInvoiceAddDlg = () => {
+  legacyVehicleInvoice.value = {
+    id: null,
+    is_active: 1,
+    legacy_vehicle_id: itemId.value,
+    document_path: null,
+    document_doc: null,
+    document_dlt: false,
+    note: null,
+  };
+  legacyVehicleInvoiceLdg.value = false;
+  legacyVehicleInvoiceDlg.value = true;
+};
+
+const legacyVehicleInvoiceAdd = async () => {
+  const { valid } = await legacyVehicleInvoiceForm.value.validate();
+  if (!valid) return;
+
+  const confirmed = await confirm?.show(`¿Confirma agregar?`);
+  if (!confirmed) return;
+
+  legacyVehicleInvoiceLdg.value = true;
+
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_invoices`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        getFormData(legacyVehicleInvoice.value),
+        getHdrs(store.getAuth?.token, true)
+      )
+    );
+
+    alert?.show("success", response.msg);
+    legacyVehicleInvoiceDlg.value = false;
+    getItem();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    legacyVehicleInvoiceLdg.value = false;
+  }
+};
+
+const legacyVehicleInvoiceRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  isLoading.value = true;
+  try {
+    const endpoint = `${URL_API}/${routeName}/legacy_vehicle_invoices/${id}`;
     const response = getRsp(
       await axios.delete(endpoint, getHdrs(store.getAuth?.token))
     );

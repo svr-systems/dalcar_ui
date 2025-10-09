@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-caption font-weight-bold">{{ label }}</div>
+    <div v-if="label" class="text-caption font-weight-bold">{{ label }}</div>
 
     <div>
       <div v-if="value" class="d-inline-flex align-center ga-1">
