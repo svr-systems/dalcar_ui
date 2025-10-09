@@ -329,7 +329,7 @@
                       {{ legacyVehicleInvoice.note }}
                     </td>
                     <td>
-                      <VisDoc :value="legacyVehicleInvoice.document_b64" />
+                      <VisDoc :value="legacyVehicleInvoice.document_b64" :preview="true" />
                     </td>
                     <td class="text-right">
                       <v-btn
