@@ -86,7 +86,8 @@
                 </v-col>
                 <v-col cols="12" md="3">
                   <VisVal
-                    label="Días limite de pago" :value="item.payment_days"
+                    label="Días limite de pago"
+                    :value="item.payment_days"
                   />
                 </v-col>
               </v-row>
@@ -110,13 +111,16 @@
                 v-for="(vendor_bank, i) of item.vendor_banks"
                 :key="i"
               >
-                <v-col cols="12" md="4">
-                  <VisVal label="Banco" :value="vendor_bank.bank_id" />
+                <v-col cols="12" md="3">
+                  <VisVal label="Banco" :value="vendor_bank.bank.name" />
                 </v-col>
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
+                  <VisVal label="Titular" :value="vendor_bank.account_holder" />
+                </v-col>
+                <v-col cols="12" md="3">
                   <VisVal label="CLABE" :value="vendor_bank.clabe_number" />
                 </v-col>
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
                   <VisVal label="Cuenta" :value="vendor_bank.account_number" />
                 </v-col>
               </v-row>
@@ -163,7 +167,6 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
-import VisDoc from "@/components/VisDoc.vue";
 
 // Constantes fijas
 const routeName = "vendors";

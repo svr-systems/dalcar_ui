@@ -1,13 +1,11 @@
-// Nombre de la aplicación
-export const APP_NAME = "DALCAR";
+export const APP_NAME = import.meta.env.VITE_APP_NAME;
+export const APP_VERSION = import.meta.env.VITE_APP_VERSION;
 
-// Versión actual de la aplicación
-export const APP_VERSION = "1.25.10.06";
+const HOSTNAME = window.location.hostname;
+const IS_LOCAL = ["localhost", "127.0.0.1", "::1"].includes(HOSTNAME);
+const ENV_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-// URL base del backend
-const BASE_URL = "https://apidev.dalcar.com.mx";
-// const BASE_URL = "https://api.dalcar.com.mx";
-// const BASE_URL = 'http://127.0.0.1:8000' // local
+const BASE_DOMAIN = IS_LOCAL ? ENV_BASE_URL : HOSTNAME;
 
-// URL base para consumo de API REST
+export const BASE_URL = `https://api${BASE_DOMAIN}`;
 export const URL_API = `${BASE_URL}/api`;

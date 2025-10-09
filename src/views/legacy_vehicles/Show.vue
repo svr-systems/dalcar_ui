@@ -155,19 +155,19 @@
                   <VisVal label="Procedencia" :value="item.origin_type?.name" />
                 </v-col>
 
-                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                   <VisVal label="Pedimento" :value="item.pediment_number" />
                 </v-col>
 
-                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                   <VisVal label="Fecha" :value="item.pediment_date" />
                 </v-col>
 
-                <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                   <VisVal label="Aduana" :value="item.custom_office?.name" />
                 </v-col>
 
-                <v-col v-if="item.origin_type_id == 2" cols="12" md="12">
+                <v-col v-if="item.origin_type_id > 1" cols="12" md="12">
                   <VisVal label="Observaciones" :value="item.pediment_notes" />
                 </v-col>
               </v-row>

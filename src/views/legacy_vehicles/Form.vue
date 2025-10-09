@@ -420,7 +420,7 @@
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                     <v-text-field
                       label="Pedimento"
                       v-model="item.pediment_number"
@@ -434,7 +434,7 @@
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                     <InpDate
                       label="Fecha"
                       v-model="item.pediment_date"
@@ -443,7 +443,7 @@
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id == 2" cols="12" md="3">
+                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
                     <v-autocomplete
                       v-if="!isAddingNewCustomOffice"
                       label="Aduana"
@@ -493,7 +493,7 @@
                     </v-text-field>
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id == 2" cols="12">
+                  <v-col v-if="item.origin_type_id > 1" cols="12">
                     <v-text-field
                       label="Observaciones*"
                       v-model="item.pediment_notes"

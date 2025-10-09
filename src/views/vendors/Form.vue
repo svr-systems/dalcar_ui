@@ -87,49 +87,74 @@
                 </v-row>
               </v-card-title>
               <v-card-text>
-                <v-row
-                  dense
-                  v-for="(vendor_bank, i) of item.vendor_banks"
+                <template
+                  v-for="(vendor_bank, i) in item.vendor_banks"
                   :key="i"
                 >
-                  <v-col cols="12" md="4">
-                    <v-autocomplete
-                      label="Banco"
-                      v-model="vendor_bank.bank_id"
-                      :items="banks"
-                      :loading="banksLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      label="CLABE"
-                      v-model="vendor_bank.clabe_number"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="18"
-                      counter
-                      :rules="rules.textRequired"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      label="Cuenta"
-                      v-model="vendor_bank.account_number"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="20"
-                      counter
-                      :rules="rules.textRequired"
-                    />
-                  </v-col>
-                </v-row>
+                  <v-row dense v-if="vendor_bank.is_active">
+                    <v-col cols="12" md="3">
+                      <v-autocomplete
+                        label="Banco"
+                        v-model="vendor_bank.bank_id"
+                        :items="banks"
+                        :loading="banksLoading"
+                        item-value="id"
+                        item-title="name"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        label="Titular"
+                        v-model="vendor_bank.account_holder"
+                        type="text"
+                        variant="outlined"
+                        density="compact"
+                        maxlength="100"
+                        counter
+                        :rules="rules.textRequired"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        label="CLABE"
+                        v-model="vendor_bank.clabe_number"
+                        type="text"
+                        variant="outlined"
+                        density="compact"
+                        maxlength="18"
+                        counter
+                        :rules="rules.textRequired"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="2">
+                      <v-text-field
+                        label="Cuenta"
+                        v-model="vendor_bank.account_number"
+                        type="text"
+                        variant="outlined"
+                        density="compact"
+                        maxlength="20"
+                        counter
+                        :rules="rules.textRequired"
+                      />
+                    </v-col>
+
+                    <v-col cols="1" class="text-right pt-2">
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click="bankRemove(i)"
+                      >
+                        <v-icon size="x-small">mdi-minus</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </template>
                 <v-row dense>
                   <v-col cols="12">
                     <v-btn size="x-small" color="warning" @click="bankAdd()">
@@ -166,12 +191,10 @@
 </template>
 
 <script setup>
-// Importaciones de librerías externas
 import { ref, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
-// Importaciones internas del proyecto
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
@@ -179,21 +202,17 @@ import { getDecodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
 import { getObj } from "@/utils/helpers";
 
-// Componentes
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 
-// Constantes fijas
 const routeName = "vendors";
 
-// Estado y referencias
 const alert = inject("alert");
 const confirm = inject("confirm");
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-// Estado reactivo
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 const isStoreMode = ref(!itemId.value);
 const isLoading = ref(true);
@@ -205,7 +224,6 @@ const typesLoading = ref(true);
 const banks = ref([]);
 const banksLoading = ref(true);
 
-// Obtener catálogos
 const getCatalogs = async () => {
   let endpoint = null;
   let response = null;
@@ -231,7 +249,6 @@ const getCatalogs = async () => {
   }
 };
 
-// Obtener datos
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
@@ -242,7 +259,6 @@ const getItem = async () => {
       payment_days: null,
       vendor_banks: [],
     };
-    bankAdd();
     isLoading.value = false;
   } else {
     try {
@@ -263,12 +279,20 @@ const bankAdd = async () => {
     is_active: 1,
     vendor_id: null,
     bank_id: null,
+    account_holder: null,
     clabe_number: null,
     account_number: null,
   });
 };
 
-// Agregar o editar
+const bankRemove = async (i) => {
+  if (item.value.vendor_banks[i].id === null) {
+    item.value.vendor_banks.splice(i, 1);
+  } else {
+    item.value.vendor_banks[i].is_active = 0;
+  }
+};
+
 const handleAction = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) {
@@ -289,7 +313,7 @@ const handleAction = async () => {
       !isStoreMode.value ? `/${payload.id}` : ""
     }`;
     const response = getRsp(
-      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token, true))
+      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
     );
 
     alert?.show("success", response.msg);
@@ -307,7 +331,6 @@ const handleAction = async () => {
   }
 };
 
-// Inicialización
 onMounted(() => {
   getCatalogs();
   getItem();
