@@ -14,13 +14,6 @@
           <v-tooltip activator="parent" location="right">Ver</v-tooltip>
         </v-avatar>
 
-        <v-btn
-          v-if="preview"
-          icon variant="text" size="x-small" @click.prevent="openPreview">
-          <v-icon>mdi-eye</v-icon>
-          <v-tooltip activator="parent" location="right">Vista previa</v-tooltip>
-        </v-btn>
-
         <v-btn icon variant="text" size="x-small" @click.prevent="docDwd">
           <v-icon>mdi-download</v-icon>
           <v-tooltip activator="parent" location="right">Descargar</v-tooltip>
@@ -82,10 +75,6 @@ const props = defineProps({
   label: String,
   value: Object,
   img: Boolean,
-  preview: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 // Estado
@@ -100,10 +89,6 @@ const docDwd = () => {
   link.setAttribute("target", "_blank");
   link.download = `doc_${getDateTime("", "", "")}.${props.value?.ext || "bin"}`;
   link.click();
-};
-
-const openPreview = () => {
-  window.open(docUrl.value, "_blank");
 };
 
 // Inicialización

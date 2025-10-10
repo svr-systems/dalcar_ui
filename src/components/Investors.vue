@@ -1,6 +1,6 @@
 <template>
   <v-col cols="12">
-    <v-card>
+    <v-card :loading="isLoading">
       <v-card-title>
         <v-row dense>
           <v-col cols="11">
@@ -171,7 +171,7 @@ const investors = ref([]);
 const investorsLoading = ref(true);
 const rules = getRules();
 
-const emit = defineEmits(["refresh"]);
+const isLoading = ref(true);
 const props = defineProps({
   legacyVehicleId: {
     type: String,
@@ -196,6 +196,10 @@ const getInvestors = async () => {
 };
 
 const getLegacyVehicleInvestors = async () => {
+  let endpoint = null;
+  let response = null;
+
+  isLoading.value = true;
   try {
     const endpoint = `${URL_API}/${routeName}/legacy_vehicle_investors`;
     const response = await axios.get(endpoint, {
@@ -208,6 +212,8 @@ const getLegacyVehicleInvestors = async () => {
     legacyVehicleInvestors.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
+  }finally {
+    isLoading.value = false;
   }
 };
 
@@ -250,7 +256,6 @@ const legacyVehicleInvestorAdd = async () => {
     alert?.show("success", response.msg);
     legacyVehicleInvestorDlg.value = false;
     getLegacyVehicleInvestors();
-    emit("refresh");
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -269,7 +274,6 @@ const legacyVehicleInvestorRemove = async (id) => {
     );
     alert?.show("success", response.msg);
     getLegacyVehicleInvestors();
-    emit("refresh");
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   }
