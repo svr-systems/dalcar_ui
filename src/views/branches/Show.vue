@@ -44,95 +44,11 @@
           </v-alert>
         </v-col>
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle :text="'DATOS GENERALES | ' + item.uiid" sub />
-                </v-col>
-                <v-col cols="1" class="text-right">
-                  <v-btn
-                    v-if="store.getAuth?.user?.role_id === 1"
-                    icon
-                    variant="flat"
-                    size="x-small"
-                    @click.prevent="regDialog = true"
-                  >
-                    <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left">Registro</v-tooltip>
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-title>
+        <BranchesGeneral :item="item" @show-reg-dialog="regDialog = true" />
 
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12">
-                  <VisVal label="Nombre" :value="item.name" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <Address :item="item" />
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="DOMICILIO" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="8">
-                  <VisVal
-                    label="Dirección (calle | núm. exterior | núm. interior)"
-                    :value="item.address"
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Colonia" :value="item.address_neighborhood" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Código postal" :value="item.address_zip" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Estado" :value="item.address_town.state.name" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Municipio" :value="item.address_town.name" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="CONTACTO" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="8">
-                  <VisVal label="E-mail" :value="item.email" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Teléfono" :value="item.phone" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <Contact :item="item" />
 
         <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
           <v-btn
@@ -171,6 +87,9 @@ import CardTitle from '@/components/CardTitle.vue'
 import DlgReg from '@/components/DlgReg.vue'
 import VisVal from '@/components/VisVal.vue'
 import VisDoc from '@/components/VisDoc.vue'
+import BranchesGeneral from '@/components/BranchesGeneral.vue'
+import Address from '@/components/Address.vue'
+import Contact from '@/components/Contact.vue'
 
 // Constantes fijas
 const routeName = 'branches'

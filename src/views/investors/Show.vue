@@ -52,79 +52,9 @@
           </v-alert>
         </v-col>
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle :text="'DATOS GENERALES | ' + item.uiid" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="6">
-                  <VisVal label="Nombre" :value="item.name" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Apellido paterno"
-                    :value="item.paternal_surname"
-                  />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Apellido materno"
-                    :value="item.maternal_surname"
-                  />
-                </v-col>
-                <v-col cols="12" md="6">
-                  <VisVal label="Tipo" :value="item.investor_type.name" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="E-mail" :value="item.phone" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="E-mail" :value="item.email" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <InvestorsGeneral :item="item" />
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="EMPRESAS" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-            <v-card-text>
-              <v-row
-                dense
-                v-for="(investor_company, i) of item.investor_companies"
-                :key="i"
-              >
-                <v-col cols="12" md="8">
-                  <!-- <VisVal
-                    label="Nombre"
-                    :value="investor_company.company.name"
-                  /> -->
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="Porcentaje de Piso"
-                    :value="investor_company.floor_percentage"
-                  />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <InvestorsCompanies :item="item" />
 
         <v-col
           v-if="item.user.is_active && store.getAuth?.user?.role_id === 1"
@@ -165,6 +95,8 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
+import InvestorsGeneral from "@/components/InvestorsGeneral.vue";
+import InvestorsCompanies from "@/components/InvestorsCompanies.vue";
 
 // Constantes fijas
 const routeName = "investors";

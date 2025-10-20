@@ -46,7 +46,7 @@
 
         <InventoryGeneral :item="item" @show-reg-dialog="regDialog = true" />
 
-        <InventoryFiscal :item="item" />
+        <Fiscal :item="item" />
 
         <v-col v-if="item.active && store.getAuth?.user?.role_id === 1" cols="12">
           <v-btn
@@ -86,7 +86,7 @@ import DlgReg from '@/components/DlgReg.vue'
 import VisVal from '@/components/VisVal.vue'
 import VisDoc from '@/components/VisDoc.vue'
 import InventoryGeneral from '@/components/InventoryGeneral.vue'
-import InventoryFiscal from '@/components/InventoryFiscal.vue'
+import Fiscal from '@/components/Fiscal.vue'
 
 // Constantes fijas
 const routeName = 'inventory'

@@ -52,81 +52,9 @@
           </v-alert>
         </v-col>
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle :text="'DATOS GENERALES | ' + item.uiid" sub />
-                </v-col>
-                <v-col cols="1" class="text-right">
-                  <v-btn
-                    v-if="store.getAuth?.user?.role_id === 1"
-                    icon
-                    variant="flat"
-                    size="x-small"
-                    @click.prevent="regDialog = true"
-                  >
-                    <v-icon>mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left">
-                      Registro
-                    </v-tooltip>
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-title>
+        <VendorsGeneral :item="item" @show-reg-dialog="regDialog = true" />
 
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="6">
-                  <VisVal label="Nombre" :value="item.name" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="Tipo" :value="item.vendor_type.name" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal
-                    label="Días limite de pago"
-                    :value="item.payment_days"
-                  />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-row dense>
-                <v-col cols="11">
-                  <CardTitle text="INFO. BANCARIA" sub />
-                </v-col>
-                <v-col cols="1" class="text-right" />
-              </v-row>
-            </v-card-title>
-            <v-card-text>
-              <v-row
-                dense
-                v-for="(vendor_bank, i) of item.vendor_banks"
-                :key="i"
-              >
-                <v-col cols="12" md="3">
-                  <VisVal label="Banco" :value="vendor_bank.bank.name" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="Titular" :value="vendor_bank.account_holder" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="CLABE" :value="vendor_bank.clabe_number" />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <VisVal label="Cuenta" :value="vendor_bank.account_number" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <VendorsBanking :item="item" />
 
         <v-col
           v-if="item.is_active && store.getAuth?.user?.role_id === 1"
@@ -167,6 +95,8 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
+import VendorsGeneral from "@/components/VendorsGeneral.vue";
+import VendorsBanking from "@/components/VendorsBanking.vue";
 
 // Constantes fijas
 const routeName = "vendors";
