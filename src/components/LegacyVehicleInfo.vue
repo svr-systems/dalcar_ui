@@ -3,25 +3,8 @@
     <v-card>
       <v-card-title>
         <v-row dense>
-          <v-col cols="11">
+          <v-col cols="12">
             <CardTitle :text="`AUTO | ${item.uiid}`" sub />
-          </v-col>
-          <v-col cols="1" class="text-right">
-            <v-btn
-              v-if="item.is_active"
-              icon
-              size="x-small"
-              color="warning"
-              :to="{
-                name: `${routeName}/update`,
-                params: { id: getEncodeId(itemId) },
-              }"
-            >
-              <v-icon>mdi-pencil</v-icon>
-              <v-tooltip activator="parent" location="left">
-                Editar
-              </v-tooltip>
-            </v-btn>
           </v-col>
         </v-row>
       </v-card-title>

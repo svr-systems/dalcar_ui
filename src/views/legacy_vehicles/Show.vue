@@ -36,17 +36,62 @@
           </v-alert>
         </v-col>
 
-        <LegacyVehicleInfo :item="item" :itemId="itemId" />
+        <v-col cols="12">
+          <v-sheet elevation="4">
+            <v-row dense class="pa-3">
+              <v-col cols="11">
+                <v-tabs v-model="tab" color="primary">
+                  <v-tab value="vehicle">AUTO</v-tab>
+                  <v-tab value="acquisition">ADQUISICIÓN</v-tab>
+                  <v-tab value="invoices">FACTURAS</v-tab>
+                  <v-tab value="documents">DOCUMENTOS</v-tab>
+                  <v-tab value="investors">INVERSIONISTAS</v-tab>
+                  <v-tab value="expenses">GASTOS</v-tab>
+                </v-tabs>
+              </v-col>
+              <v-col cols="1" class="text-right">
+                <v-btn
+                  v-if="item.is_active"
+                  icon
+                  size="x-small"
+                  color="warning"
+                  :to="{
+                    name: `${routeName}/update`,
+                    params: { id: getEncodeId(itemId) },
+                  }"
+                >
+                  <v-icon>mdi-pencil</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Editar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
 
-        <Acquisitions :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+            <v-divider></v-divider>
 
-        <Invoices :legacy-vehicle-id="itemId" :is-active="item.is_active" />
-
-        <Documents :legacy-vehicle-id="itemId" :is-active="item.is_active" />
-
-        <Investors :legacy-vehicle-id="itemId" :is-active="item.is_active" />
-
-        <Expenses :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+            <v-tabs-window v-model="tab">
+              <v-tabs-window-item value="vehicle">
+                <LegacyVehicleInfo :item="item" :itemId="itemId" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="acquisition">
+                <Acquisitions :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="invoices">
+                <Invoices :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="documents">
+                <Documents :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="investors">
+                <Investors :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="expenses">
+                <Expenses :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-sheet>
+        </v-col>
 
         <v-col
           v-if="item.is_active && store.getAuth?.user?.role_id === 1"
@@ -109,6 +154,7 @@ const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
 const regDialog = ref(false);
+const tab = ref("vehicle");
 const rules = getRules();
 
 
