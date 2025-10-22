@@ -4,7 +4,7 @@
       <v-card-title>
         <v-row dense>
           <v-col cols="11">
-            <CardTitle text="GASTOS" sub />
+            <CardTitle :text="`GASTOS | ${getAmountFormat(totalExpenses)}`" sub />
           </v-col>
           <v-col cols="1" class="text-right">
             <v-btn
@@ -220,7 +220,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, watch } from "vue";
+import { ref, inject, onMounted, watch, computed } from "vue";
 import axios from "axios";
 
 import { useStore } from "@/store";
@@ -432,6 +432,12 @@ const legacyVehicleExpenseRemove = async (id) => {
     isLoading.value = false;
   }
 };
+
+const totalExpenses = computed(() => {
+  return legacyVehicleExpenses.value.reduce((total, expense) => {
+    return total + (parseFloat(expense.amount) || 0);
+  }, 0);
+});
 
 onMounted(() => {
   getExpenseTypes();

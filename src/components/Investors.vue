@@ -4,7 +4,7 @@
       <v-card-title>
         <v-row dense>
           <v-col cols="11">
-            <CardTitle text="INVERSIONISTAS" sub />
+            <CardTitle :text="`INVERSIONISTAS | ${getPercentFormat(totalPercentages)}`" sub />
           </v-col>
           <v-col cols="1" class="text-right">
             <v-btn
@@ -150,13 +150,20 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed } from "vue";
 import axios from "axios";
 
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getPercentFormat } from "@/utils/formatters";
 import { getRules } from "@/utils/validators";
+
+const totalPercentages = computed(() => {
+  return legacyVehicleInvestors.value.reduce((total, investor) => {
+    return total + (parseFloat(investor.percentages) || 0);
+  }, 0);
+});
 
 import CardTitle from "@/components/CardTitle.vue";
 

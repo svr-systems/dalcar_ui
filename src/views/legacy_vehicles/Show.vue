@@ -36,9 +36,7 @@
           </v-alert>
         </v-col>
 
-        <VehicleInfo :item="item" :item-id="itemId" />
-
-        <OriginInfo :item="item" />
+        <LegacyVehicleInfo :item="item" :itemId="itemId" />
 
         <Acquisitions :legacy-vehicle-id="itemId" :is-active="item.is_active" />
 
@@ -93,8 +91,7 @@ import VisDoc2 from "@/components/VisDoc2.vue";
 import InpDate from "@/components/InpDate.vue";
 import Investors from "@/components/Investors.vue";
 import Expenses from "@/components/Expenses.vue";
-import VehicleInfo from "@/components/VehicleInfo.vue";
-import OriginInfo from "@/components/OriginInfo.vue";
+import LegacyVehicleInfo from "@/components/LegacyVehicleInfo.vue";
 import Acquisitions from "@/components/Acquisitions.vue";
 import Invoices from "@/components/Invoices.vue";
 import Documents from "@/components/Documents.vue";
