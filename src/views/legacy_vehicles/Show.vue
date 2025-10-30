@@ -6,7 +6,23 @@
           <BtnBack :route="{ name: routeName }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
-        <v-col v-if="item" cols="1" class="text-right" />
+        <v-col v-if="item" cols="1" class="text-right">
+          <v-btn
+            v-if="item.is_active"
+            icon
+            size="x-small"
+            color="warning"
+            :to="{
+              name: `${routeName}/update`,
+              params: { id: getEncodeId(itemId) },
+            }"
+          >
+            <v-icon>mdi-pencil</v-icon>
+            <v-tooltip activator="parent" location="left">
+              Editar
+            </v-tooltip>
+          </v-btn>
+        </v-col>
       </v-row>
     </v-card-title>
 
@@ -39,32 +55,18 @@
         <v-col cols="12">
           <v-sheet elevation="4">
             <v-row dense class="pa-3">
-              <v-col cols="11">
-                <v-tabs v-model="tab" color="primary">
+              <v-col cols="12">
+                <v-tabs v-model="tab" color="primary" show-arrows="false">
                   <v-tab value="vehicle">AUTO</v-tab>
                   <v-tab value="acquisition">ADQUISICIÓN</v-tab>
                   <v-tab value="invoices">FACTURAS</v-tab>
                   <v-tab value="documents">DOCUMENTOS</v-tab>
                   <v-tab value="investors">INVERSIONISTAS</v-tab>
                   <v-tab value="expenses">GASTOS</v-tab>
+                  <v-tab value="sale">VENTA</v-tab>
+                  <v-tab value="clients">CLIENTES</v-tab>
+                  <v-tab value="payments">PAGOS</v-tab>
                 </v-tabs>
-              </v-col>
-              <v-col cols="1" class="text-right">
-                <v-btn
-                  v-if="item.is_active"
-                  icon
-                  size="x-small"
-                  color="warning"
-                  :to="{
-                    name: `${routeName}/update`,
-                    params: { id: getEncodeId(itemId) },
-                  }"
-                >
-                  <v-icon>mdi-pencil</v-icon>
-                  <v-tooltip activator="parent" location="left">
-                    Editar
-                  </v-tooltip>
-                </v-btn>
               </v-col>
             </v-row>
 
@@ -88,6 +90,15 @@
               </v-tabs-window-item>
               <v-tabs-window-item value="expenses">
                 <Expenses :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="sale">
+                <LegacyVehiclesSale :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="clients">
+                <LegacyVehiclesClients :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="payments">
+                <LegacyVehiclesPayments :legacy-vehicle-id="itemId" :is-active="item.is_active" />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-sheet>
@@ -140,6 +151,9 @@ import LegacyVehicleInfo from "@/components/LegacyVehicleInfo.vue";
 import Acquisitions from "@/components/Acquisitions.vue";
 import Invoices from "@/components/Invoices.vue";
 import Documents from "@/components/Documents.vue";
+import LegacyVehiclesSale from "@/components/LegacyVehiclesSale.vue";
+import LegacyVehiclesClients from "@/components/LegacyVehiclesClients.vue";
+import LegacyVehiclesPayments from "@/components/LegacyVehiclesPayments.vue";
 
 const routeName = "legacy_vehicles";
 const currentDate = ref(getDateTime("-", "", "", false));
