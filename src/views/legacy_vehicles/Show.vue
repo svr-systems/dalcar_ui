@@ -18,9 +18,7 @@
             }"
           >
             <v-icon>mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="left">
-              Editar
-            </v-tooltip>
+            <v-tooltip activator="parent" location="left"> Editar </v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -56,49 +54,79 @@
           <v-sheet elevation="4">
             <v-row dense class="pa-3">
               <v-col cols="12">
-                <v-tabs v-model="tab" color="primary" show-arrows="false">
+                <v-tabs
+                  v-model="tab"
+                  color="white"
+                  density="compact"
+                  align-tabs="center"
+                  show-arrows="false"
+                >
                   <v-tab value="vehicle">AUTO</v-tab>
                   <v-tab value="acquisition">ADQUISICIÓN</v-tab>
                   <v-tab value="invoices">FACTURAS</v-tab>
                   <v-tab value="documents">DOCUMENTOS</v-tab>
                   <v-tab value="investors">INVERSIONISTAS</v-tab>
                   <v-tab value="expenses">GASTOS</v-tab>
-                  <v-tab value="sale">VENTA</v-tab>
+                  <!-- <v-tab value="sale">VENTA</v-tab>
                   <v-tab value="clients">CLIENTES</v-tab>
-                  <v-tab value="payments">PAGOS</v-tab>
+                  <v-tab value="payments">PAGOS</v-tab> -->
                 </v-tabs>
               </v-col>
             </v-row>
 
-            <v-divider></v-divider>
+            <v-divider />
 
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="vehicle">
                 <LegacyVehicleInfo :item="item" :itemId="itemId" />
               </v-tabs-window-item>
               <v-tabs-window-item value="acquisition">
-                <Acquisitions :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <Acquisitions
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="invoices">
-                <Invoices :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <Invoices
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="documents">
-                <Documents :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <Documents
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="investors">
-                <Investors :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <Investors
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="expenses">
-                <Expenses :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <Expenses
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="sale">
-                <LegacyVehiclesSale :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <LegacyVehiclesSale
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="clients">
-                <LegacyVehiclesClients :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <LegacyVehiclesClients
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
               <v-tabs-window-item value="payments">
-                <LegacyVehiclesPayments :legacy-vehicle-id="itemId" :is-active="item.is_active" />
+                <LegacyVehiclesPayments
+                  :legacy-vehicle-id="itemId"
+                  :is-active="item.is_active"
+                />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-sheet>
@@ -170,7 +198,6 @@ const item = ref(null);
 const regDialog = ref(false);
 const tab = ref("vehicle");
 const rules = getRules();
-
 
 const getItem = async () => {
   let endpoint = null;

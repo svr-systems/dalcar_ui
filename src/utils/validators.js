@@ -44,11 +44,11 @@ export const getRules = () => {
       regexMatch(/(?=.*[!@$%*])/, "Al menos un carácter especial (! @ $ % *)"),
     ],
 
-    fileRequired: [required(), fileRequiredSize(1048576, "1MB")],
-    fileOptional: [fileMaxSize(1048576, "1MB")],
+    fileRequired: [required(), fileRequiredSize(3145728, "3MB")],
+    fileOptional: [fileMaxSize(3145728, "3MB")],
 
-    imageRequired: [required(), fileRequiredSize(2097152, "2MB")],
-    imageOptional: [fileMaxSize(2097152, "2MB")],
+    imageRequired: [required(), fileRequiredSize(3145728, "3MB")],
+    imageOptional: [fileMaxSize(3145728, "3MB")],
 
     fiscalCodeRequired: [
       required(),
