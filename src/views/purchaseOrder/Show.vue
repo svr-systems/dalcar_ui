@@ -2,15 +2,14 @@
   <v-card :loading="isLoading">
     <v-card-title>
       <v-row dense>
-        <v-col cols="10">
+        <v-col cols="11">
           <BtnBack :route="{ name: routeName }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
-        <v-col v-if="item" cols="2" class="text-right">
+        <v-col v-if="item" cols="1" class="text-right">
           <v-btn
             v-if="item.active"
             icon
-            variant="flat"
             size="x-small"
             color="warning"
             :to="{
@@ -37,7 +36,6 @@
               >
                 <v-btn
                   icon
-                  variant="flat"
                   size="x-small"
                   color="success"
                   @click.prevent="restoreItem"
@@ -52,11 +50,39 @@
           </v-alert>
         </v-col>
 
-        <PurchaseOrdersGeneral :item="item" @show-reg-dialog="regDialog = true" />
+        <v-col cols="12">
+          <v-sheet elevation="4">
+            <v-row dense class="pa-3">
+              <v-col cols="12">
+                <v-tabs
+                  v-model="tab"
+                  color="white"
+                  density="compact"
+                  align-tabs="center"
+                  show-arrows="false"
+                >
+                  <v-tab value="vehicle">AUTO</v-tab>
+                  <v-tab value="invoices">FACTURAS</v-tab>
+                  <v-tab value="documents">DOCUMENTOS</v-tab>
+                </v-tabs>
+              </v-col>
+            </v-row>
 
-        <Autos :item="item" />
+            <v-divider />
 
-        <Payments :item="item" />
+            <v-tabs-window v-model="tab">
+              <v-tabs-window-item value="vehicle">
+                <PurchaseOrderInfo :item="item" :itemId="itemId" @show-reg-dialog="regDialog = true" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="invoices">
+                <PurchaseOrderInvoices :legacy-vehicle-id="itemId" :is-active="item.active ? 1 : 0" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="documents">
+                <PurchaseOrderDocuments :legacy-vehicle-id="itemId" :is-active="item.active ? 1 : 0" />
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-sheet>
+        </v-col>
 
         <v-col
           v-if="item.active && store.getAuth?.user?.role_id === 1"
@@ -64,7 +90,6 @@
         >
           <v-btn
             icon
-            variant="flat"
             size="x-small"
             color="red-darken-1"
             @click.prevent="deleteItem"
@@ -98,9 +123,9 @@ import CardTitle from "@/components/CardTitle.vue";
 import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
 import VisDoc from "@/components/VisDoc.vue";
-import PurchaseOrdersGeneral from "@/components/PurchaseOrdersGeneral.vue";
-import Autos from "@/components/Autos.vue";
-import Payments from "@/components/Payments.vue";
+import PurchaseOrderInfo from "@/components/PurchaseOrderInfo.vue";
+import PurchaseOrderInvoices from "@/components/PurchaseOrderInvoices.vue";
+import PurchaseOrderDocuments from "@/components/PurchaseOrderDocuments.vue";
 
 // Constantes fijas
 const routeName = "purchaseOrders";
@@ -117,6 +142,7 @@ const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
 const regDialog = ref(false);
+const tab = ref("vehicle");
 
 // Obtener registro
 const getItem = async () => {
