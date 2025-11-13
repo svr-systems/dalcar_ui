@@ -54,8 +54,6 @@
 
         <UsersGeneral :item="item" @show-reg-dialog="regDialog = true" />
 
-        <UsersAccount :item="item" />
-
         <v-col
           v-if="item.is_active && store.getAuth?.user?.role_id === 1"
           cols="12"

@@ -37,7 +37,7 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       label="Nombre"
-                      v-model="item.name"
+                      v-model="item.user.name"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -49,7 +49,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Apellido paterno"
-                      v-model="item.paternal_surname"
+                      v-model="item.user.paternal_surname"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -61,7 +61,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Apellido materno*"
-                      v-model="item.maternal_surname"
+                      v-model="item.user.maternal_surname"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -86,7 +86,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Teléfono"
-                      v-model="item.phone"
+                      v-model="item.user.phone"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -98,7 +98,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="E-mail"
-                      v-model="item.email"
+                      v-model="item.user.email"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -211,6 +211,7 @@ import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
 import { getObj } from "@/utils/helpers";
+import { getUserObj } from "@/utils/objects";
 
 // Componentes
 import BtnBack from "@/components/BtnBack.vue";
@@ -269,13 +270,8 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       id: null,
-      name: null,
-      paternal_surname: null,
-      maternal_surname: null,
-      phone: null,
-      email: null,
+      user: getUserObj(),
       investor_type_id: null,
-      role_id: 4,
       investor_companies: [
         {
           id: null,

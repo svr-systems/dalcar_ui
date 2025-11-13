@@ -24,13 +24,22 @@
       <v-card-text>
         <v-row dense>
           <v-col cols="12" md="3">
+            <VisVal label="Rol" :value="item.role?.name" />
+          </v-col>
+          <v-col cols="12" md="3">
             <VisVal label="Nombre" :value="item.name" />
           </v-col>
           <v-col cols="12" md="3">
-            <VisVal label="A. paterno" :value="item.surname_p" />
+            <VisVal label="A. paterno" :value="item.paternal_surname" />
           </v-col>
           <v-col cols="12" md="3">
-            <VisVal label="A. materno" :value="item.surname_m" />
+            <VisVal label="A. materno" :value="item.maternal_surname" />
+          </v-col>
+          <v-col cols="12" md="3">
+            <VisVal label="Teléfono" :value="item.phone" />
+          </v-col>
+          <v-col cols="12" md="3">
+            <VisVal label="E-mail" :value="item.email" />
           </v-col>
           <v-col cols="12" md="3">
             <VisDoc label="Fotografía" :value="item.avatar_b64" img />

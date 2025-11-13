@@ -16,10 +16,10 @@
           :key="i"
         >
           <v-col cols="12" md="8">
-            <!-- <VisVal
+            <VisVal
               label="Nombre"
               :value="investor_company.company.name"
-            /> -->
+            />
           </v-col>
           <v-col cols="12" md="4">
             <VisVal

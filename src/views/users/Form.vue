@@ -235,7 +235,7 @@ const getItem = async () => {
     isLoading.value = false;
   } else {
     try {
-      const endpoint = `${URL_API}/system/${routeName}/${itemId.value}`;
+      const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
       const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
     } catch (err) {
@@ -263,30 +263,24 @@ const handleAction = async () => {
   const payload = getObj(item.value, isStoreMode.value);
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}${
-    //   !isStoreMode.value ? `/${payload.id}` : ""
-    // }`;
-    // const response = getRsp(
-    //   await axios.post(
-    //     endpoint,
-    //     getFormData(payload),
-    //     getHdrs(store.getAuth?.token, true)
-    //   )
-    // );
+    const endpoint = `${URL_API}/${routeName}${
+      !isStoreMode.value ? `/${payload.id}` : ""
+    }`;
+    const response = getRsp(
+      await axios.post(
+        endpoint,
+        getFormData(payload),
+        getHdrs(store.getAuth?.token, true)
+      )
+    );
 
-    // alert?.show("success", response.msg);
-
-    // router.push({
-    //   name: `${routeName}/show`,
-    //   params: {
-    //     id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
-    //   },
-    // });
-
-    alert?.show("success", "Registro agregado correctamente");
+    alert?.show("success", response.msg);
 
     router.push({
-      name: `${routeName}`,
+      name: `${routeName}/show`,
+      params: {
+        id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
+      },
     });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
