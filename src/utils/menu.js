@@ -4,7 +4,7 @@
  */
 export const menuItems = [
   { title: "Inicio", icon: "mdi-home", link: "home" },
-  { title: "Inventario", icon: "mdi-package-variant-closed", link: "inventory" },
+  { title: "Ordenes de compra", icon: "mdi-cash-multiple", link: "purchase_orders" },
   { title: "Historico", icon: "mdi-car-clock", link: "legacy_vehicles" },
   { title: "Proveedores", icon: "mdi-account-group", link: "vendors" },
   { title: "Inversionistas", icon: "mdi-handshake", link: "investors" },

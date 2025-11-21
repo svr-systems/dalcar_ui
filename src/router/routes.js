@@ -4,6 +4,49 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
+  //purchase_orders
+  {
+    path: "/ordenes_compra",
+    name: "purchase_orders",
+    component: () => import("@/views/purchase_orders/List.vue"),
+    meta: {
+      title: "Ordenes de compra",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/ordenes_compra/agregar",
+    name: "purchase_orders/store",
+    component: () => import("@/views/purchase_orders/Form.vue"),
+    meta: {
+      title: "Orden de compra | Agregar",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/ordenes_compra/:id",
+    name: "purchase_orders/show",
+    component: () => import("@/views/purchase_orders/Show.vue"),
+    props: true,
+    meta: {
+      title: "Orden de compra",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/ordenes_compra/:id/editar",
+    name: "purchase_orders/update",
+    component: () => import("@/views/purchase_orders/Form.vue"),
+    props: true,
+    meta: {
+      title: "Orden de compra | Editar",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
   // purchase order
   {
     path: "/orden_compra",
