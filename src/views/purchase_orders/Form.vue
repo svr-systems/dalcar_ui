@@ -35,23 +35,7 @@
 
               <v-card-text>
                 <v-row dense>
-                  <v-col cols="12" md="3">
-                    <v-autocomplete
-                      label="Proveedor"
-                      v-model="item.vendor_id"
-                      :items="vendors"
-                      :loading="vendorsLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.required"
-                      autocomplete="off"
-                      @update:modelValue="setPurchaseOrderPayments"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <InpDate
                       label="Fecha de compra"
                       v-model="item.order_date"
@@ -60,30 +44,7 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="3">
-                    <InpDate
-                      label="Fecha limite de pago"
-                      v-model="item.due_date"
-                      :rules="rules.required"
-                      :min="item.order_date"
-                      :disabled="item.order_date == null"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      label="Referencia"
-                      v-model="item.reference"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="40"
-                      counter
-                      autocomplete="off"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" md="4">
                     <v-text-field
                       :label="
                         'Total a pagar ' + getAmountFormat(item.total_amount)
@@ -98,10 +59,103 @@
                     />
                   </v-col>
 
+                  <v-col cols="12" md="4">
+                    <v-autocomplete
+                      label="Proveedor"
+                      v-model="item.vendor_id"
+                      :items="vendors"
+                      :loading="vendorsLoading"
+                      item-value="id"
+                      item-title="name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
+                      autocomplete="off"
+                      :disabled="
+                        item.total_amount == null || item.order_date == null
+                      "
+                      @update:modelValue="getVendor"
+                    />
+                  </v-col>
+                </v-row>
+
+                <v-row v-if="vendor" dense>
+                  <v-col cols="12" md="4">
+                    <VisVal
+                      label="Fecha limite de pago"
+                      :value="item.due_date"
+                    />
+                  </v-col>
+
+                  <v-col v-if="vendor.requires_reference" cols="12" md="4">
+                    <v-text-field
+                      label="Referencia"
+                      v-model="item.reference"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="40"
+                      counter
+                      autocomplete="off"
+                      :rules="rules.required"
+                    />
+                  </v-col>
+
+                  <v-col
+                    v-if="vendor.requires_statement"
+                    cols="12"
+                    md="4"
+                    class="d-flex"
+                  >
+                    <v-file-input
+                      label="Estado de cuenta"
+                      v-model="item.statement_doc"
+                      variant="outlined"
+                      density="compact"
+                      prepend-icon=""
+                      show-size
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      :rules="rules.fileRequired"
+                      :disabled="item.statement_dlt"
+                    />
+                    <div
+                      v-if="
+                        !isStoreMode &&
+                        item.statement_path &&
+                        !item.statement_doc
+                      "
+                    >
+                      <BtnDwd
+                        :value="item.statement_b64"
+                        :disabled="item.statement_dlt"
+                      />
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="small"
+                        :color="item.statement_dlt ? 'error' : undefined"
+                        @click.prevent="
+                          item.statement_dlt = !item.statement_dlt
+                        "
+                      >
+                        <v-icon size="small">
+                          mdi-delete{{ item.statement_dlt ? "-off" : "" }}
+                        </v-icon>
+                        <v-tooltip activator="parent" location="bottom">
+                          {{
+                            item.statement_dlt
+                              ? "Revertir eliminación"
+                              : "Eliminar"
+                          }}
+                        </v-tooltip>
+                      </v-btn>
+                    </div>
+                  </v-col>
+
                   <v-col cols="12">
                     <v-text-field
                       label="Observaciones*"
-                      v-model="item.notes"
+                      v-model="item.note"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -116,7 +170,7 @@
             </v-card>
           </v-col>
 
-          <v-col cols="12">
+          <v-col v-if="vendor && !vendor.uses_payment_link" cols="12">
             <v-card>
               <v-card-title>
                 <v-row dense>
@@ -165,11 +219,12 @@
                         'Monto a pagar ' +
                         getAmountFormat(purchase_order_payment.amount)
                       "
-                      v-model="item.amount"
+                      v-model="purchase_order_payment.amount"
                       type="number"
                       variant="outlined"
                       density="compact"
                       min="0"
+                      :max="item.total_amount"
                       :rules="rules.required"
                       autocomplete="off"
                     />
@@ -189,8 +244,9 @@
                 @click.prevent="handleAction"
                 :loading="isLoading"
                 :disabled="
-                  item.vendor_id == null ||
-                  item.purchase_order_payments.length == 0
+                  vendor == null ||
+                  (!vendor.uses_payment_link &&
+                    item.purchase_order_payments.length == 0)
                 "
               >
                 <v-icon>mdi-check</v-icon>
@@ -207,7 +263,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, watch } from "vue";
+import { ref, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -216,14 +272,14 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getRules } from "@/utils/validators";
-import { getObj } from "@/utils/helpers";
+import { getObj, getFormData } from "@/utils/helpers";
 import { getAmountFormat } from "@/utils/formatters";
 
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import InpDate from "@/components/InpDate.vue";
-import InpYear from "@/components/InpYear.vue";
 import VisVal from "@/components/VisVal.vue";
+import BtnDwd from "@/components/BtnDwd.vue";
 
 const routeName = "purchase_orders";
 
@@ -242,6 +298,7 @@ const rules = getRules();
 
 const vendors = ref([]);
 const vendorsLoading = ref(true);
+const vendor = ref(null);
 
 const banks = ref([]);
 const banksLoading = ref(true);
@@ -275,12 +332,14 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       branch_id: 1,
-      vendor_id: null,
+      total_amount: null,
       order_date: null,
+      vendor_id: null,
       due_date: null,
       reference: null,
-      total_amount: null,
       statement_path: null,
+      statement_doc: null,
+      statement_dlt: false,
       note: null,
       purchase_order_payments: [],
     };
@@ -290,6 +349,7 @@ const getItem = async () => {
       const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
       const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
       item.value = getRsp(response).data.item;
+      getVendor();
     } catch (err) {
       alert?.show("red-darken-1", getErr(err));
     } finally {
@@ -298,13 +358,23 @@ const getItem = async () => {
   }
 };
 
-const setPurchaseOrderPayments = async () => {
+const getVendor = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/${routeName}/purchase_order_payments/${item.value.vendor_id}`;
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    item.value.purchase_order_payments = getRsp(response).data.items;
+    const endpoint = `${URL_API}/${routeName}/vendor`;
+    const response = await axios.get(endpoint, {
+      params: {
+        id: item.value.vendor_id,
+        order_date: item.value.order_date,
+        total_amount: item.value.total_amount,
+      },
+      ...getHdrs(store.getAuth?.token),
+    });
+    vendor.value = getRsp(response).data.item.vendor;
+    item.value.due_date = getRsp(response).data.item.due_date;
+    item.value.purchase_order_payments =
+      getRsp(response).data.item.purchase_order_payments;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -315,7 +385,7 @@ const setPurchaseOrderPayments = async () => {
 const handleAction = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) {
-    alert?.show("red-darken-1", "Revisa los detalles señalados");
+    alert?.show("red-darken-1", "BtnDwd los detalles señalados");
     return;
   }
 
@@ -332,19 +402,23 @@ const handleAction = async () => {
       !isStoreMode.value ? `/${payload.id}` : ""
     }`;
     const response = getRsp(
-      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
+      await axios.post(
+        endpoint,
+        getFormData(payload),
+        getHdrs(store.getAuth?.token, true)
+      )
     );
 
     alert?.show("success", response.msg);
 
-    router.push({
-      name: `${routeName}/show`,
-      params: {
-        id: getEncodeId(
-          isStoreMode.value ? response.data.item.id : itemId.value
-        ),
-      },
-    });
+    // router.push({
+    //   name: `${routeName}/show`,
+    //   params: {
+    //     id: getEncodeId(
+    //       isStoreMode.value ? response.data.item.id : itemId.value
+    //     ),
+    //   },
+    // });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {

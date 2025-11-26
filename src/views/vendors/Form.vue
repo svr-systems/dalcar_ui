@@ -71,6 +71,33 @@
                       :rules="rules.required"
                     />
                   </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="¿Usa liga de pago?"
+                      v-model="item.uses_payment_link"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="¿Requiere referencia?"
+                      v-model="item.requires_reference"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="¿Requiere estado de cuenta?"
+                      v-model="item.requires_statement"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
                 </v-row>
               </v-card-text>
             </v-card>
@@ -257,6 +284,9 @@ const getItem = async () => {
       name: null,
       vendor_type_id: null,
       payment_days: null,
+      uses_payment_link: false,
+      requires_reference: false,
+      requires_statement: false,
       vendor_banks: [],
     };
     isLoading.value = false;

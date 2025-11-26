@@ -94,6 +94,25 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
+            <template #item.total_amount="{ item }">
+              {{ getAmountFormat(item.total_amount) }}
+            </template>
+
+            <template #item.days_remaining="{ item }">
+              <span
+                v-if="item.days_remaining != null"
+                :class="
+                  item.days_remaining < 1
+                    ? 'text-red'
+                    : item.days_remaining < 3
+                    ? 'text-orange'
+                    : ''
+                "
+              >
+                {{ item.days_remaining }}
+              </span>
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
@@ -154,6 +173,12 @@ const filterOptions = [{ id: 0, name: "TODOS" }];
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
   { title: "UUID", key: "uiid" },
+  { title: "F. de compra", key: "order_date" },
+  { title: "Total a pagar", key: "total_amount" },
+  { title: "Proveedor", key: "vendor.name" },
+  { title: "F. limite de pago", key: "due_date" },
+  { title: "Venc. días", key: "days_remaining" },
+  { title: "F. de pago", key: "paid_at" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 

@@ -67,9 +67,9 @@
                   <v-tab value="documents">DOCUMENTOS</v-tab>
                   <v-tab value="investors">INVERSIONISTAS</v-tab>
                   <v-tab value="expenses">GASTOS</v-tab>
-                  <!-- <v-tab value="sale">VENTA</v-tab>
+                  <v-tab value="sale">VENTA</v-tab>
                   <v-tab value="clients">CLIENTES</v-tab>
-                  <v-tab value="payments">PAGOS</v-tab> -->
+                  <v-tab value="payments">PAGOS</v-tab>
                 </v-tabs>
               </v-col>
             </v-row>

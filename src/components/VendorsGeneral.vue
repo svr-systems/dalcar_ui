@@ -30,9 +30,28 @@
             <VisVal label="Tipo" :value="item.vendor_type.name" />
           </v-col>
           <v-col cols="12" md="3">
+            <VisVal label="Días limite de pago" :value="item.payment_days" />
+          </v-col>
+
+          <v-col cols="12" md="3">
             <VisVal
-              label="Días limite de pago"
-              :value="item.payment_days"
+              label="¿Usa liga de pago?"
+              :value="item.uses_payment_link"
+              bool
+            />
+          </v-col>
+          <v-col cols="12" md="3">
+            <VisVal
+              label="¿Requiere referencia?"
+              :value="item.requires_reference"
+              bool
+            />
+          </v-col>
+          <v-col cols="12" md="3">
+            <VisVal
+              label="¿Requiere estado de cuenta?"
+              :value="item.requires_statement"
+              bool
             />
           </v-col>
         </v-row>
