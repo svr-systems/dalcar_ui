@@ -527,7 +527,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, watch } from "vue";
+import { ref, inject, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -544,7 +544,7 @@ import CardTitle from "@/components/CardTitle.vue";
 import InpDate from "@/components/InpDate.vue";
 import InpYear from "@/components/InpYear.vue";
 
-const routeName = "vehicles";
+const routeName = "purchase_orders/vehicles";
 const currentDate = ref(getDateTime("-", "", "", false));
 const currentYear = ref(getCurrentYear());
 
@@ -554,6 +554,7 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
+const purchaseOrderId = ref(getDecodeId(route.params.purchase_order_id));
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 const isStoreMode = ref(!itemId.value);
 const isLoading = ref(true);
@@ -600,6 +601,14 @@ const isAddingNewTransmission = ref(false);
 const newTransmissionName = ref("");
 const newTransmissionInputRef = ref(null);
 const isSavingNewTransmission = ref(false);
+
+const backParams = computed(() => {
+  const params = { purchase_order_id: $route.params.purchase_order_id };
+  if (!isStoreMode.value) {
+    params.vehicle_id = $route.params.vehicle_id;
+  }
+  return params;
+});
 
 const isAddingNewCustomOffice = ref(false);
 const newCustomOfficeName = ref("");
@@ -1335,9 +1344,8 @@ const handleAction = async () => {
     router.push({
       name: `${routeName}/show`,
       params: {
-        id: getEncodeId(
-          isStoreMode.value ? response.data.item.id : itemId.value
-        ),
+        purchase_order_id: $route.params.purchase_order_id,
+        vehicle_id: isStoreMode.value ? response.data.item.id : itemId.value,
       },
     });
   } catch (err) {

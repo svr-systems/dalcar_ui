@@ -5,7 +5,10 @@
         <v-col cols="10">
           <BtnBack
             :route="{
-              name: 'purchase_orders',
+              name: 'purchase_orders/show',
+              params: {
+                id: getEncodeId($route.params.purchase_order_id),
+              },
             }"
           />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
@@ -16,7 +19,7 @@
             variant="flat"
             size="x-small"
             color="success"
-            :to="{ name: `${routeName}/store` }"
+            :to="{ name: `${routeName}/store`, params: { purchase_order_id: $route.params.purchase_order_id } }"
           >
             <v-icon>mdi-plus</v-icon>
             <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
@@ -108,7 +111,7 @@
                   :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
-                    params: { id: getEncodeId(item.id) },
+                    params: { purchase_order_id: $route.params.purchase_order_id, id: item.id },
                   }"
                 >
                   <v-icon>mdi-eye</v-icon>
@@ -141,7 +144,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import { getAmountFormat } from "@/utils/formatters";
 
 // Constantes
-const routeName = "vehicles";
+const routeName = "purchase_orders/vehicles";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();

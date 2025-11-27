@@ -14,7 +14,7 @@
             color="warning"
             :to="{
               name: `${routeName}/update`,
-              params: { id: getEncodeId(itemId) },
+              params: { purchase_order_id: $route.params.purchase_order_id, id: itemId },
             }"
           >
             <v-icon>mdi-pencil</v-icon>
@@ -183,7 +183,7 @@ import LegacyVehiclesSale from "@/components/LegacyVehiclesSale.vue";
 import LegacyVehiclesClients from "@/components/LegacyVehiclesClients.vue";
 import LegacyVehiclesPayments from "@/components/LegacyVehiclesPayments.vue";
 
-const routeName = "vehicles";
+const routeName = "purchase_orders/vehicles";
 const currentDate = ref(getDateTime("-", "", "", false));
 
 const alert = inject("alert");
@@ -192,6 +192,7 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
+const purchaseOrderId = ref(getDecodeId(route.params.purchase_order_id));
 const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
@@ -226,7 +227,7 @@ const deleteItem = async () => {
       await axios.delete(endpoint, getHdrs(store.getAuth?.token))
     );
     alert?.show("success", response.msg);
-    router.push({ name: routeName });
+    router.push({ name: routeName, params: { purchase_order_id: $route.params.purchase_order_id } });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {

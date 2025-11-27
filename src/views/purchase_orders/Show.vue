@@ -141,7 +141,8 @@
                     size="x-small"
                     color="warning"
                     :to="{
-                      name: 'vehicles',
+                      name: 'purchase_orders/vehicles',
+                      params: { purchase_order_id: $route.params.id },
                     }"
                   >
                     <v-icon>mdi-pencil</v-icon>
