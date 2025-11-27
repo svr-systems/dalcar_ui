@@ -4,6 +4,49 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
+  //vehicles
+  {
+    path: "/vehiculos",
+    name: "vehicles",
+    component: () => import("@/views/vehicles/List.vue"),
+    meta: {
+      title: "Vehiculos",
+      icon: "mdi-car",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/vehiculos/agregar",
+    name: "vehicles/store",
+    component: () => import("@/views/vehicles/Form.vue"),
+    meta: {
+      title: "Vehiculo | Agregar",
+      icon: "mdi-car",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/vehiculos/:id",
+    name: "vehicles/show",
+    component: () => import("@/views/vehicles/Show.vue"),
+    props: true,
+    meta: {
+      title: "Vehiculo",
+      icon: "mdi-car",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/vehiculos/:id/editar",
+    name: "vehicles/update",
+    component: () => import("@/views/vehicles/Form.vue"),
+    props: true,
+    meta: {
+      title: "Vehiculo | Editar",
+      icon: "mdi-car",
+      middleware: Auth,
+    },
+  },
   //purchase_orders
   {
     path: "/ordenes_compra",
