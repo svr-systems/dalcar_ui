@@ -4,38 +4,50 @@ import Public from "./middleware/Public";
 
 const routes = [
   //USR SYSTEM
-  //purchase_orders
+  //purchase_orders/investors
   {
-    path: "/ordenes_compra",
-    name: "purchase_orders",
-    component: () => import("@/views/purchase_orders/List.vue"),
+    path: "/ordenes_compra/:purchase_order_id/inversionistas",
+    name: "purchase_orders/investors",
+    component: () => import("@/views/purchase_orders_investors/List.vue"),
     meta: {
-      title: "Ordenes de compra",
-      icon: "mdi-cash-multiple",
+      title: "Orden de compra | Inversionistas",
+      icon: "mdi-handshake",
       middleware: Auth,
     },
   },
   {
-    path: "/ordenes_compra/agregar",
-    name: "purchase_orders/store",
-    component: () => import("@/views/purchase_orders/Form.vue"),
+    path: "/ordenes_compra/:purchase_order_id/inversionistas/agregar",
+    name: "purchase_orders/investors/store",
+    component: () => import("@/views/purchase_orders_investors/Form.vue"),
     meta: {
-      title: "Orden de compra | Agregar",
-      icon: "mdi-cash-multiple",
+      title: "Orden de compra | Inversionista | Agregar",
+      icon: "mdi-handshake",
       middleware: Auth,
     },
   },
   {
-    path: "/ordenes_compra/:id",
-    name: "purchase_orders/show",
-    component: () => import("@/views/purchase_orders/Show.vue"),
+    path: "/ordenes_compra/:purchase_order_id/inversionistas/:id",
+    name: "purchase_orders/investors/show",
+    component: () => import("@/views/purchase_orders_investors/Show.vue"),
     props: true,
     meta: {
-      title: "Orden de compra",
-      icon: "mdi-cash-multiple",
+      title: "Orden de compra | Inversionista",
+      icon: "mdi-handshake",
       middleware: Auth,
     },
   },
+  {
+    path: "/ordenes_compra/:purchase_order_id/inversionistas/:id/editar",
+    name: "purchase_orders/investors/update",
+    component: () => import("@/views/purchase_orders_investors/Form.vue"),
+    props: true,
+    meta: {
+      title: "Orden de compra | Inversionista | Editar",
+      icon: "mdi-handshake",
+      middleware: Auth,
+    },
+  },
+  //purchase_orders/vehicles
   {
     path: "/ordenes_compra/:purchase_order_id/vehiculos",
     name: "purchase_orders/vehicles",
@@ -75,6 +87,38 @@ const routes = [
     meta: {
       title: "Orden de compra | Vehículo | Editar",
       icon: "mdi-car",
+      middleware: Auth,
+    },
+  },
+  //purchase_orders
+  {
+    path: "/ordenes_compra",
+    name: "purchase_orders",
+    component: () => import("@/views/purchase_orders/List.vue"),
+    meta: {
+      title: "Ordenes de compra",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/ordenes_compra/agregar",
+    name: "purchase_orders/store",
+    component: () => import("@/views/purchase_orders/Form.vue"),
+    meta: {
+      title: "Orden de compra | Agregar",
+      icon: "mdi-cash-multiple",
+      middleware: Auth,
+    },
+  },
+  {
+    path: "/ordenes_compra/:id",
+    name: "purchase_orders/show",
+    component: () => import("@/views/purchase_orders/Show.vue"),
+    props: true,
+    meta: {
+      title: "Orden de compra",
+      icon: "mdi-cash-multiple",
       middleware: Auth,
     },
   },

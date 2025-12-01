@@ -191,6 +191,165 @@
           </v-card>
         </v-col>
 
+        <v-col cols="12">
+          <v-card :loading="isLoading">
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle
+                    :text="`INVERSIONISTAS | ${getPercentFormat(
+                      totalPercentages
+                    )}`"
+                    sub
+                  />
+                </v-col>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    v-if="item.is_active"
+                    icon
+                    variant="flat"
+                    size="x-small"
+                    color="warning"
+                    :to="{
+                      name: 'purchase_orders/investors',
+                      params: { purchase_order_id: $route.params.id },
+                    }"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                    <v-tooltip activator="parent" location="left"
+                      >Editar</v-tooltip
+                    >
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <v-table density="compact" striped="even">
+                <thead>
+                  <tr>
+                    <th width="40">#</th>
+                    <th>Nombre</th>
+                    <th width="40">%</th>
+                    <th width="40" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(purchaseOrderInvestor, i) in purchaseOrderInvestors"
+                    :key="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      {{ purchaseOrderInvestor.investor.user.full_name }}
+                    </td>
+                    <td>{{ purchaseOrderInvestor.percentages }}</td>
+                    <td class="text-right">
+                      <v-btn
+                        v-if="item.is_active"
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click.prevent="
+                          purchaseOrderInvestorRemove(purchaseOrderInvestor.id)
+                        "
+                      >
+                        <v-icon>mdi-minus</v-icon>
+                        <v-tooltip activator="parent" location="left">
+                          Eliminar
+                        </v-tooltip>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-dialog
+          v-model="purchaseOrderInvestorDlg"
+          persistent
+          scrim="black"
+          max-width="1200"
+        >
+          <v-card
+            :loading="purchaseOrderInvestorLdg"
+            :disabled="purchaseOrderInvestorLdg"
+            flat
+          >
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="INVERSIONISTA" subvalue />
+                </v-col>
+                <v-col cols="1" class="text-right">
+                  <v-btn
+                    icon
+                    variant="text"
+                    size="x-small"
+                    @click="purchaseOrderInvestorDlg = false"
+                  >
+                    <v-icon>mdi-close</v-icon>
+                    <v-tooltip activator="parent" location="left"
+                      >Cerrar</v-tooltip
+                    >
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-title>
+
+            <v-card-text v-if="purchaseOrderInvestor">
+              <v-form ref="purchaseOrderInvestorForm" @submit.prevent>
+                <v-row dense>
+                  <v-col cols="12" md="10">
+                    <v-autocomplete
+                      label="Nombre"
+                      v-model="purchaseOrderInvestor.investor_id"
+                      :items="investors"
+                      :loading="investorsLoading"
+                      item-value="id"
+                      item-title="full_name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      label="Porcentaje %"
+                      v-model="purchaseOrderInvestor.percentages"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      min="0"
+                      :rules="rules.required"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" class="text-right">
+                    <v-btn
+                      icon
+                      size="x-small"
+                      color="success"
+                      @click.prevent="purchaseOrderInvestorAdd()"
+                      :loading="purchaseOrderInvestorLdg"
+                    >
+                      <v-icon>mdi-check</v-icon>
+                      <v-tooltip activator="parent" location="left">
+                        Continuar
+                      </v-tooltip>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+
         <v-col
           v-if="item.is_active && store.getAuth?.user?.role_id === 1"
           cols="12"
@@ -214,17 +373,16 @@
 </template>
 
 <script setup>
-// Importaciones externas
 import { ref, computed, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
-// Importaciones internas
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getDecodeId, getEncodeId } from "@/utils/coders";
-import { getAmountFormat } from "@/utils/formatters";
+import { getAmountFormat, getPercentFormat } from "@/utils/formatters";
+import { getRules } from "@/utils/validators";
 
 import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
@@ -232,7 +390,6 @@ import DlgReg from "@/components/DlgReg.vue";
 import VisVal from "@/components/VisVal.vue";
 import VisDoc2 from "@/components/VisDoc2.vue";
 
-// Constantes
 const routeName = "purchase_orders";
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -240,22 +397,28 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-// Estado
 const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
 const regDialog = ref(false);
 const vehicles = ref([]);
 
-// Cargar vehículos
+const purchaseOrderInvestors = ref([]);
+const investors = ref([]);
+const investorsLoading = ref(true);
+const rules = getRules();
+
+const totalPercentages = computed(() => {
+  return purchaseOrderInvestors.value.reduce((total, investor) => {
+    return total + (parseFloat(investor.percentages) || 0);
+  }, 0);
+});
+
 const getVehicles = async () => {
   isLoading.value = true;
   vehicles.value = [];
 
   try {
-    // const endpoint = `${URL_API}/purchase_orders/${itemId.value}/vehicles?is_active=${isActive.value}&filter=${filter.value}`;
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    // vehicles.value = getRsp(response).data.items;
     vehicles.value = [
       {
         id: 24,
@@ -559,6 +722,142 @@ const getVehicles = async () => {
   }
 };
 
+const getPurchaseOrderInvestors = async () => {
+  // const endpoint = `${URL_API}/purchase_orders/purchase_order_investors`;
+  // const response = await axios.get(endpoint, {
+  //   params: {
+  //     purchase_order_id: itemId.value,
+  //     is_active: 1,
+  //   },
+  //   ...getHdrs(store.getAuth?.token),
+  // });
+  // purchaseOrderInvestors.value = getRsp(response).data.items;
+  purchaseOrderInvestors.value = [
+    {
+      id: 20,
+      investor_id: 1,
+      percentages: "50.00",
+      investor: {
+        user_id: 2,
+        user: {
+          name: "LORENA",
+          paternal_surname: "MACIAS",
+          maternal_surname: null,
+          full_name: "LORENA MACIAS",
+        },
+      },
+    },
+    {
+      id: 21,
+      investor_id: 2,
+      percentages: "50.00",
+      investor: {
+        user_id: 3,
+        user: {
+          name: "CARLOS",
+          paternal_surname: "MACIAS",
+          maternal_surname: null,
+          full_name: "CARLOS MACIAS",
+        },
+      },
+    },
+  ];
+};
+
+const getInvestors = async () => {
+  // const endpoint = `${URL_API}/investors?is_active=1&filter=0`;
+  // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+  // investors.value = getRsp(response).data.items;
+  try {
+    investors.value = [
+      {
+        id: 1,
+        full_name: "LORENA MACIAS",
+        user_id: 2,
+      },
+      {
+        id: 2,
+        full_name: "CARLOS MACIAS",
+        user_id: 3,
+      },
+    ];
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    investorsLoading.value = false;
+  }
+};
+
+const purchaseOrderInvestor = ref(null);
+const purchaseOrderInvestorLdg = ref(false);
+const purchaseOrderInvestorDlg = ref(false);
+const purchaseOrderInvestorForm = ref(null);
+
+const purchaseOrderInvestorAddDlg = () => {
+  purchaseOrderInvestor.value = {
+    id: null,
+    purchase_order_id: itemId.value,
+    investor_id: null,
+    percentages: null,
+  };
+  purchaseOrderInvestorLdg.value = false;
+  purchaseOrderInvestorDlg.value = true;
+};
+
+const purchaseOrderInvestorAdd = async () => {
+  const { valid } = await purchaseOrderInvestorForm.value.validate();
+  if (!valid) return;
+
+  const confirmed = await confirm?.show(`¿Confirma agregar?`);
+  if (!confirmed) return;
+
+  purchaseOrderInvestorLdg.value = true;
+
+  try {
+    purchaseOrderInvestorDlg.value = false;
+    getPurchaseOrderInvestors();
+
+    // const endpoint = `${URL_API}/${routeName}/purchase_order_investors`;
+    // const response = getRsp(
+    //   await axios.post(
+    //     endpoint,
+    //     purchaseOrderInvestor.value,
+    //     getHdrs(store.getAuth?.token)
+    //   )
+    // );
+
+    // alert?.show("success", response.msg);
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    purchaseOrderInvestorLdg.value = false;
+  }
+};
+
+const purchaseOrderInvestorRemove = async (id) => {
+  const confirmed = await confirm?.show("¿Confirma eliminar el registro?");
+  if (!confirmed) return;
+
+  try {
+    const index = purchaseOrderInvestors.value.findIndex(
+      (item) => item.id === id
+    );
+    if (index > -1) {
+      purchaseOrderInvestors.value.splice(index, 1);
+    }
+
+    alert?.show("success", "Registro eliminado correctamente");
+    getPurchaseOrderInvestors();
+
+    // const endpoint = `${URL_API}/${routeName}/purchase_order_investors/${id}`;
+    // const response = getRsp(
+    //   await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+    // );
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  }
+};
+
 const getItem = async () => {
   isLoading.value = true;
   try {
@@ -618,5 +917,7 @@ const restoreItem = async () => {
 onMounted(() => {
   getItem();
   getVehicles();
+  getPurchaseOrderInvestors();
+  getInvestors();
 });
 </script>
