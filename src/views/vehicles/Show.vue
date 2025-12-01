@@ -3,7 +3,7 @@
     <v-card-title>
       <v-row dense>
         <v-col cols="11">
-          <BtnBack :route="{ name: routeName }" />
+          <BtnBack :route="{ name: routeName, params: { purchase_order_id: getEncodeId(purchaseOrderId) } }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
         <v-col v-if="item" cols="1" class="text-right">
@@ -14,7 +14,7 @@
             color="warning"
             :to="{
               name: `${routeName}/update`,
-              params: { purchase_order_id: $route.params.purchase_order_id, id: itemId },
+              params: { purchase_order_id: getEncodeId(purchaseOrderId), id: getEncodeId(itemId) },
             }"
           >
             <v-icon>mdi-pencil</v-icon>
@@ -227,7 +227,7 @@ const deleteItem = async () => {
       await axios.delete(endpoint, getHdrs(store.getAuth?.token))
     );
     alert?.show("success", response.msg);
-    router.push({ name: routeName, params: { purchase_order_id: $route.params.purchase_order_id } });
+    router.push({ name: routeName, params: { purchase_order_id: getEncodeId(purchaseOrderId) } });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {

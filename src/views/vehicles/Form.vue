@@ -6,6 +6,10 @@
           <BtnBack
             :route="{
               name: routeName + (!isStoreMode ? '/show' : ''),
+              params: {
+                purchase_order_id: getEncodeId(purchaseOrderId),
+                id: getEncodeId(itemId),
+              },
             }"
           />
           <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />

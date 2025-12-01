@@ -5,8 +5,11 @@
         <v-col cols="10">
           <BtnBack
             :route="{
-              name: routeName,
-              params: { purchase_order_id: $route.params.purchase_order_id },
+              name: routeName + (!isStoreMode ? '/show' : ''),
+              params: {
+                purchase_order_id: getEncodeId(purchaseOrderId),
+                id: getEncodeId(itemId),
+              },
             }"
           />
           <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
@@ -218,14 +221,17 @@ const handleAction = async () => {
     //   await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
     // );
 
-    // alert?.show("success", response.msg);
+    alert?.show("success", response.msg);
 
-    // router.push({
-    //   name: routeName,
-    //   params: {
-    //     purchase_order_id: route.params.purchase_order_id,
-    //   },
-    // });
+    router.push({
+      name: `${routeName}/show`,
+      params: {
+        purchase_order_id: route.params.purchase_order_id,
+        id: getEncodeId(
+          isStoreMode.value ? response.data.item.id : itemId.value
+        ),
+      },
+    });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
