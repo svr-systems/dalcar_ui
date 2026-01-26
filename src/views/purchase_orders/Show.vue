@@ -46,7 +46,10 @@
 
                 <v-btn
                   v-if="
-                    item && item.is_active && store.getAuth?.user?.role_id === 1
+                    item &&
+                    item.is_active &&
+                    !item.paid_at &&
+                    store.getAuth?.user?.role_id === 1
                   "
                   icon
                   variant="outlined"
@@ -66,7 +69,7 @@
                 />
 
                 <v-btn
-                  v-if="item && item.is_active"
+                  v-if="item && item.is_active && !item.paid_at"
                   icon
                   variant="outlined"
                   size="x-small"
