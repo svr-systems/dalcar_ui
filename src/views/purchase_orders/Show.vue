@@ -199,9 +199,19 @@
         </v-col>
 
         <v-col cols="12">
+          <PurchaseOrderVehicles
+            :purchase_order_id="itemId"
+            :purchase_order_vehicles_amount="purchaseOrderVehiclesAmount"
+            :total_amount_pending="isTotalAmountPending"
+            @closed="handleChildClosed"
+          />
+        </v-col>
+
+        <v-col cols="12">
           <PurchaseOrderReceipts
             :purchase_order_id="itemId"
-            @closed="(payload) => payload?.refresh && getItem()"
+            :total_amount_pending="isTotalAmountPending"
+            @closed="handleChildClosed"
           />
         </v-col>
       </v-row>
@@ -210,7 +220,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -226,6 +236,7 @@ import VisVal from "@/components/VisVal.vue";
 import BtnFilePreview from "@/components/BtnFilePreview.vue";
 import BtnRecordInfo from "@/components/BtnRecordInfo.vue";
 import PurchaseOrderReceipts from "@/views/purchase_orders/purchaseOrderReceipts.vue";
+import PurchaseOrderVehicles from "./PurchaseOrderVehicles.vue";
 
 const routeName = "purchase_orders";
 
@@ -238,6 +249,20 @@ const route = useRoute();
 const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
+
+const purchaseOrderVehiclesAmount = computed(
+  () => item.value?.purchase_order_vehicles_amount ?? 0,
+);
+
+const isTotalAmountPending = computed(
+  () => item.value?.total_amount_pending ?? true,
+);
+
+const handleChildClosed = (payload) => {
+  if (payload?.refresh) {
+    getItem();
+  }
+};
 
 const getItem = async () => {
   item.value = null;

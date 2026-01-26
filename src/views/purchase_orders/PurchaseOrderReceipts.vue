@@ -8,7 +8,10 @@
       <div>
         <v-btn
           v-if="
-            purchaseOrder && purchaseOrder.is_active && !purchaseOrder.paid_at
+            purchaseOrder &&
+            purchaseOrder.is_active &&
+            !purchaseOrder.paid_at &&
+            !total_amount_pending
           "
           icon
           variant="outlined"
@@ -186,6 +189,10 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+  total_amount_pending: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const emit = defineEmits(["closed"]);
@@ -209,7 +216,7 @@ const getItems = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/purchase_orders/${routeName}/${props.purchase_order_id}`;
+    const endpoint = `${URL_API}/purchase_orders/${props.purchase_order_id}/${routeName}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     const data = getRsp(response).data;
 
