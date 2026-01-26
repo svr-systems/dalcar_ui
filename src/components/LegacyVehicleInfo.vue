@@ -3,8 +3,24 @@
     <v-card>
       <v-card-title>
         <v-row dense>
-          <v-col cols="12">
+          <v-col cols="11">
             <CardTitle :text="`AUTO | ${item.uiid}`" sub />
+          </v-col>
+          <v-col cols="1" class="text-right">
+            <v-btn
+              v-if="item.is_active"
+              icon
+              variant="text"
+              size="x-small"
+              color="warning"
+              :to="{
+                name: `${routeName}/update`,
+                params: { id: getEncodeId(itemId) },
+              }"
+            >
+              <v-icon>mdi-pencil</v-icon>
+              <v-tooltip activator="parent" location="left"> Editar </v-tooltip>
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-title>
@@ -18,9 +34,7 @@
           <v-col cols="12" md="3">
             <VisVal
               label="Marca"
-              :value="
-                item.vehicle_version.vehicle_model.vehicle_brand.name
-              "
+              :value="item.vehicle_version.vehicle_model.vehicle_brand.name"
             />
           </v-col>
 
@@ -32,10 +46,7 @@
           </v-col>
 
           <v-col cols="12" md="3">
-            <VisVal
-              label="Año"
-              :value="item.vehicle_version.model_year"
-            />
+            <VisVal label="Año" :value="item.vehicle_version.model_year" />
           </v-col>
 
           <v-col cols="12" md="3">

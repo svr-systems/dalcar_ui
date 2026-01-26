@@ -34,7 +34,7 @@ export const getFormData = (data) => {
 
     formData.append(
       key,
-      value == null || isEmpty ? "" : isObject ? JSON.stringify(value) : value
+      value == null || isEmpty ? "" : isObject ? JSON.stringify(value) : value,
     );
   }
 

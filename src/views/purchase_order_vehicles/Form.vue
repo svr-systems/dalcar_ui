@@ -28,7 +28,7 @@
                   <v-col cols="11">
                     <CardTitle
                       :text="`AUTO${
-                        isStoreMode ? '' : ' | ' + (item.uiid || '')
+                        isStoreMode ? '' : ' | ' + (item.vehicle.uiid || '')
                       }`"
                       sub
                     />
@@ -39,13 +39,13 @@
 
               <v-card-text>
                 <v-row dense>
-
                   <v-col cols="12" md="3">
                     <v-autocomplete
                       v-if="!isAddingNewBrand"
                       label="Marca"
                       v-model="
-                        item.vehicle_version.vehicle_model.vehicle_brand_id
+                        item.vehicle.vehicle_version.vehicle_model
+                          .vehicle_brand_id
                       "
                       :items="vehicleBrands"
                       :loading="vehicleBrandsLoading"
@@ -96,7 +96,7 @@
                     <v-autocomplete
                       v-if="!isAddingNewModel"
                       label="Modelo"
-                      v-model="item.vehicle_version.vehicle_model_id"
+                      v-model="item.vehicle.vehicle_version.vehicle_model_id"
                       :items="vehicleModels"
                       :loading="vehicleModelsLoading"
                       item-value="id"
@@ -145,7 +145,7 @@
                   <v-col cols="12" md="3">
                     <InpYear
                       label="Año"
-                      v-model="item.vehicle_version.model_year"
+                      v-model="item.vehicle.vehicle_version.model_year"
                       :rules="rules.yearRequired"
                       :maxYear="currentYear"
                       :minYear="currentYear - 40"
@@ -156,7 +156,7 @@
                     <v-autocomplete
                       v-if="!isAddingNewVersion"
                       label="Versión"
-                      v-model="item.vehicle_version_id"
+                      v-model="item.vehicle.vehicle_version_id"
                       :items="vehicleVersions"
                       :loading="vehicleVersionsLoading"
                       item-value="id"
@@ -206,7 +206,7 @@
                     <v-select
                       v-if="!isAddingNewColor"
                       label="Color"
-                      v-model="item.vehicle_color_id"
+                      v-model="item.vehicle.vehicle_color_id"
                       :items="vehicleColors"
                       :loading="vehicleColorsLoading"
                       item-value="id"
@@ -256,7 +256,7 @@
                     <v-select
                       v-if="!isAddingNewTransmission"
                       label="Transmisión"
-                      v-model="item.vehicle_transmission_id"
+                      v-model="item.vehicle.vehicle_transmission_id"
                       :items="vehicleTransmissions"
                       :loading="vehicleTransmissionsLoading"
                       item-value="id"
@@ -305,7 +305,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="VIN"
-                      v-model="item.vin"
+                      v-model="item.vehicle.vin"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -319,7 +319,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Motor*"
-                      v-model="item.engine_number"
+                      v-model="item.vehicle.engine_number"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -333,7 +333,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="REPUVE*"
-                      v-model="item.repuve"
+                      v-model="item.vehicle.repuve"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -347,7 +347,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Clave vehicular*"
-                      v-model="item.vehicle_key"
+                      v-model="item.vehicle.vehicle_key"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -361,7 +361,7 @@
                   <v-col cols="12" md="3">
                     <v-text-field
                       label="Número de pasajeros"
-                      v-model="item.passenger_capacity"
+                      v-model="item.vehicle.passenger_capacity"
                       type="number"
                       variant="outlined"
                       density="compact"
@@ -375,7 +375,7 @@
                   <v-col cols="12">
                     <v-text-field
                       label="Observaciones*"
-                      v-model="item.notes"
+                      v-model="item.vehicle.notes"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -406,7 +406,7 @@
                   <v-col cols="12" md="3">
                     <v-select
                       label="Procedencia"
-                      v-model="item.origin_type_id"
+                      v-model="item.vehicle.origin_type_id"
                       :items="originTypes"
                       item-value="id"
                       item-title="name"
@@ -416,10 +416,14 @@
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
+                  <v-col
+                    v-if="item.vehicle.origin_type_id > 1"
+                    cols="12"
+                    md="3"
+                  >
                     <v-text-field
                       label="Pedimento"
-                      v-model="item.pediment_number"
+                      v-model="item.vehicle.pediment_number"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -430,20 +434,28 @@
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
+                  <v-col
+                    v-if="item.vehicle.origin_type_id > 1"
+                    cols="12"
+                    md="3"
+                  >
                     <InpDate
                       label="Fecha"
-                      v-model="item.pediment_date"
+                      v-model="item.vehicle.pediment_date"
                       :rules="rules.required"
                       :before="true"
                     />
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id > 1" cols="12" md="3">
+                  <v-col
+                    v-if="item.vehicle.origin_type_id > 1"
+                    cols="12"
+                    md="3"
+                  >
                     <v-autocomplete
                       v-if="!isAddingNewCustomOffice"
                       label="Aduana"
-                      v-model="item.custom_office_id"
+                      v-model="item.vehicle.custom_office_id"
                       :items="customsOffices"
                       :loading="customsOfficesLoading"
                       item-value="id"
@@ -489,10 +501,10 @@
                     </v-text-field>
                   </v-col>
 
-                  <v-col v-if="item.origin_type_id > 1" cols="12">
+                  <v-col v-if="item.vehicle.origin_type_id > 1" cols="12">
                     <v-text-field
                       label="Observaciones*"
-                      v-model="item.pediment_notes"
+                      v-model="item.vehicle.pediment_notes"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -500,6 +512,83 @@
                       counter
                       :rules="rules.textOptional"
                       autocomplete="off"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="PAGO" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :label="
+                        'Monto factura ' + getAmountFormat(item.invoice_amount)
+                      "
+                      v-model="item.invoice_amount"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      min="0"
+                      autocomplete="off"
+                      @update:modelValue="updatePurchasePrice()"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :label="
+                        'Comisión ' + getAmountFormat(item.commission_amount)
+                      "
+                      v-model="item.commission_amount"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      min="0"
+                      :rules="rules.required"
+                      autocomplete="off"
+                      @update:modelValue="updatePurchasePrice()"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :label="
+                        'Precio Compra ' + getAmountFormat(item.purchase_price)
+                      "
+                      v-model="item.purchase_price"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      min="0"
+                      :rules="rules.required"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="3">
+                    <v-select
+                      label="IVA"
+                      v-model="item.vat_type_id"
+                      :items="vatTypes"
+                      :loading="vatTypesLoading"
+                      item-value="id"
+                      item-title="name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.required"
                     />
                   </v-col>
                 </v-row>
@@ -548,8 +637,7 @@ import CardTitle from "@/components/CardTitle.vue";
 import InpDate from "@/components/InpDate.vue";
 import InpYear from "@/components/InpYear.vue";
 
-const routeName = "purchase_orders/vehicles";
-const currentDate = ref(getDateTime("-", "", "", false));
+const routeName = "purchase_order_vehicles";
 const currentYear = ref(getCurrentYear());
 
 const alert = inject("alert");
@@ -580,6 +668,8 @@ const originTypes = ref([]);
 const originTypesLoading = ref(true);
 const customsOffices = ref([]);
 const customsOfficesLoading = ref(true);
+const vatTypes = ref([]);
+const vatTypesLoading = ref(true);
 
 const isAddingNewBrand = ref(false);
 const newBrandName = ref("");
@@ -655,6 +745,16 @@ const getCatalogs = async () => {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     customsOfficesLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/vat_types?is_active=1&filter=0`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    vatTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    vatTypesLoading.value = false;
   }
 };
 
@@ -744,28 +844,37 @@ const getVehicleTransmissions = async (brandId) => {
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      branch_id: 1,
-      vehicle_version_id: null,
-      vehicle_version: {
-        vehicle_model_id: null,
-        vehicle_model: {
-          vehicle_brand_id: null,
+      id: null,
+      purchase_order_id: purchaseOrderId.value,
+      vehicle_id: null,
+      vehicle: {
+        branch_id: 1,
+        vehicle_version_id: null,
+        vehicle_version: {
+          vehicle_model_id: null,
+          vehicle_model: {
+            vehicle_brand_id: null,
+          },
+          model_year: null,
         },
-        model_year: null,
+        vehicle_transmission_id: null,
+        vehicle_color_id: null,
+        vin: null,
+        engine_number: null,
+        repuve: null,
+        vehicle_key: null,
+        passenger_capacity: null,
+        notes: null,
+        origin_type_id: null,
+        pediment_number: null,
+        pediment_date: null,
+        custom_office_id: null,
+        pediment_notes: null,
       },
-      vehicle_color_id: null,
-      vehicle_transmission_id: null,
-      vin: null,
-      engine_number: null,
-      repuve: null,
-      vehicle_key: null,
-      notes: null,
-      origin_type_id: null,
-      pediment_number: null,
-      pediment_date: null,
-      custom_office_id: null,
-      pediment_notes: null,
-      passenger_capacity: null,
+      purchase_price: null,
+      commission_amount: null,
+      vat_type_id: null,
+      invoice_amount: null,
     };
     isLoading.value = false;
   } else {
@@ -783,7 +892,7 @@ const getItem = async () => {
 
 // vehicle_brand_id
 watch(
-  () => item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id,
+  () => item.value?.vehicle.vehicle_version?.vehicle_model?.vehicle_brand_id,
   (newBrandId, oldBrandId) => {
     if (!item.value) return;
 
@@ -807,9 +916,9 @@ watch(
       vehicleModels.value = [];
       vehicleColors.value = [];
       vehicleTransmissions.value = [];
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-      item.value.vehicle_transmission_id = null;
+      item.value.vehicle.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle.vehicle_color_id = null;
+      item.value.vehicle.vehicle_transmission_id = null;
       return;
     }
 
@@ -817,9 +926,9 @@ watch(
       isAddingNewBrand.value = false;
       newBrandName.value = "";
       newBrandInputRef.value?.resetValidation();
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-      item.value.vehicle_transmission_id = null;
+      item.value.vehicle.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle.vehicle_color_id = null;
+      item.value.vehicle.vehicle_transmission_id = null;
       getVehicleModels(newBrandId);
       getVehicleColors(newBrandId);
       getVehicleTransmissions(newBrandId);
@@ -829,9 +938,9 @@ watch(
       vehicleModels.value = [];
       vehicleColors.value = [];
       vehicleTransmissions.value = [];
-      item.value.vehicle_version.vehicle_model_id = null;
-      item.value.vehicle_color_id = null;
-      item.value.vehicle_transmission_id = null;
+      item.value.vehicle.vehicle_version.vehicle_model_id = null;
+      item.value.vehicle.vehicle_color_id = null;
+      item.value.vehicle.vehicle_transmission_id = null;
     }
   }
 );
@@ -873,7 +982,8 @@ const addNewBrand = async () => {
 
     const otroOption = vehicleBrands.value.pop();
     vehicleBrands.value = [...vehicleBrands.value, newBrand, otroOption];
-    item.value.vehicle_version.vehicle_model.vehicle_brand_id = newBrand.id;
+    item.value.vehicle.vehicle_version.vehicle_model.vehicle_brand_id =
+      newBrand.id;
 
     newBrandName.value = "";
     isAddingNewBrand.value = false;
@@ -893,14 +1003,14 @@ const cancelAddingNewBrand = () => {
   isAddingNewBrand.value = false;
   newBrandName.value = "";
   newBrandInputRef.value?.resetValidation();
-  item.value.vehicle_version.vehicle_model.vehicle_brand_id = null;
+  item.value.vehicle.vehicle_version.vehicle_model.vehicle_brand_id = null;
 };
 
 // vehicle_model_id
 watch(
   () => [
-    item.value?.vehicle_version?.vehicle_model_id,
-    item.value?.vehicle_version?.model_year,
+    item.value?.vehicle.vehicle_version?.vehicle_model_id,
+    item.value?.vehicle.vehicle_version?.model_year,
   ],
   ([newModelId, newYear], [oldModelId, oldYear]) => {
     if (!item.value) return;
@@ -918,14 +1028,14 @@ watch(
 
     if (newModelId === 0) {
       isAddingNewModel.value = true;
-      item.value.vehicle_version_id = null;
+      item.value.vehicle.vehicle_version_id = null;
     } else if (newModelId) {
       isAddingNewModel.value = false;
       newModelName.value = "";
       newModelInputRef.value?.resetValidation();
 
       if (isStoreMode.value) {
-        item.value.vehicle_version_id = null;
+        item.value.vehicle.vehicle_version_id = null;
       }
 
       getVehicleVersions(newModelId, newYear);
@@ -933,7 +1043,7 @@ watch(
       isAddingNewModel.value = false;
       newModelName.value = "";
       if (isStoreMode.value) {
-        item.value.vehicle_version_id = null;
+        item.value.vehicle.vehicle_version_id = null;
       }
     }
   }
@@ -958,7 +1068,7 @@ const addNewModel = async () => {
     const payload = {
       name: newModelName.value.trim(),
       vehicle_brand_id:
-        item.value.vehicle_version.vehicle_model.vehicle_brand_id,
+        item.value.vehicle.vehicle_version.vehicle_model.vehicle_brand_id,
     };
     const endpoint = `${URL_API}/vehicle_models`;
     const response = await axios.post(
@@ -979,7 +1089,7 @@ const addNewModel = async () => {
 
     const otroOption = vehicleModels.value.pop();
     vehicleModels.value = [...vehicleModels.value, newModel, otroOption];
-    item.value.vehicle_version.vehicle_model_id = newModel.id;
+    item.value.vehicle.vehicle_version.vehicle_model_id = newModel.id;
 
     newModelName.value = "";
     isAddingNewModel.value = false;
@@ -995,12 +1105,12 @@ const cancelAddingNewModel = () => {
   isAddingNewModel.value = false;
   newModelName.value = "";
   newModelInputRef.value?.resetValidation();
-  item.value.vehicle_version.vehicle_model_id = null;
+  item.value.vehicle.vehicle_version.vehicle_model_id = null;
 };
 
 // vehicle_version_id
 watch(
-  () => item.value?.vehicle_version_id,
+  () => item.value?.vehicle.vehicle_version_id,
   (newVersionId) => {
     if (!item.value) return;
     if (newVersionId === 0) {
@@ -1031,8 +1141,8 @@ const addNewVersion = async () => {
   try {
     const payload = {
       name: newVersionName.value.trim(),
-      vehicle_model_id: item.value.vehicle_version.vehicle_model_id,
-      model_year: item.value.vehicle_version.model_year,
+      vehicle_model_id: item.value.vehicle.vehicle_version.vehicle_model_id,
+      model_year: item.value.vehicle.vehicle_version.model_year,
     };
     const endpoint = `${URL_API}/vehicle_versions`;
     const response = await axios.post(
@@ -1053,7 +1163,7 @@ const addNewVersion = async () => {
 
     const otroOption = vehicleVersions.value.pop();
     vehicleVersions.value = [...vehicleVersions.value, newVersion, otroOption];
-    item.value.vehicle_version_id = newVersion.id;
+    item.value.vehicle.vehicle_version_id = newVersion.id;
 
     newVersionName.value = "";
     isAddingNewVersion.value = false;
@@ -1069,12 +1179,12 @@ const cancelAddingNewVersion = () => {
   isAddingNewVersion.value = false;
   newVersionName.value = "";
   newVersionInputRef.value?.resetValidation();
-  item.value.vehicle_version_id = null;
+  item.value.vehicle.vehicle_version_id = null;
 };
 
 // vehicle_color_id
 watch(
-  () => item.value?.vehicle_color_id,
+  () => item.value?.vehicle.vehicle_color_id,
   (newColorId) => {
     if (!item.value) return;
     if (newColorId === 0) {
@@ -1096,7 +1206,8 @@ const addNewColor = async () => {
     return;
   }
 
-  const brandId = item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id;
+  const brandId =
+    item.value?.vehicle.vehicle_version?.vehicle_model?.vehicle_brand_id;
 
   if (!brandId) {
     alert?.show(
@@ -1136,7 +1247,7 @@ const addNewColor = async () => {
 
     const otroOption = vehicleColors.value.pop();
     vehicleColors.value = [...vehicleColors.value, newColor, otroOption];
-    item.value.vehicle_color_id = newColor.id;
+    item.value.vehicle.vehicle_color_id = newColor.id;
 
     newColorName.value = "";
     isAddingNewColor.value = false;
@@ -1152,12 +1263,12 @@ const cancelAddingNewColor = () => {
   isAddingNewColor.value = false;
   newColorName.value = "";
   newColorInputRef.value?.resetValidation();
-  item.value.vehicle_color_id = null;
+  item.value.vehicle.vehicle_color_id = null;
 };
 
 // vehicle_transmission_id
 watch(
-  () => item.value?.vehicle_transmission_id,
+  () => item.value?.vehicle.vehicle_transmission_id,
   (newTransmissionId) => {
     if (!item.value) return;
     if (newTransmissionId === 0) {
@@ -1180,7 +1291,8 @@ const addNewTransmission = async () => {
     return;
   }
 
-  const brandId = item.value?.vehicle_version?.vehicle_model?.vehicle_brand_id;
+  const brandId =
+    item.value?.vehicle.vehicle_version?.vehicle_model?.vehicle_brand_id;
 
   if (!brandId) {
     alert?.show(
@@ -1224,7 +1336,7 @@ const addNewTransmission = async () => {
       newTransmission,
       otroOption,
     ];
-    item.value.vehicle_transmission_id = newTransmission.id;
+    item.value.vehicle.vehicle_transmission_id = newTransmission.id;
 
     newTransmissionName.value = "";
     isAddingNewTransmission.value = false;
@@ -1240,12 +1352,12 @@ const cancelAddingNewTransmission = () => {
   isAddingNewTransmission.value = false;
   newTransmissionName.value = "";
   newTransmissionInputRef.value?.resetValidation();
-  item.value.vehicle_transmission_id = null;
+  item.value.vehicle.vehicle_transmission_id = null;
 };
 
 // custom_office_id
 watch(
-  () => item.value?.custom_office_id,
+  () => item.value?.vehicle.custom_office_id,
   (newCustomOfficeId) => {
     if (!item.value) return;
     if (newCustomOfficeId === 0) {
@@ -1301,7 +1413,7 @@ const addNewCustomOffice = async () => {
       newCustomOffice,
       otroOption,
     ];
-    item.value.custom_office_id = newCustomOffice.id;
+    item.value.vehicle.custom_office_id = newCustomOffice.id;
 
     newCustomOfficeName.value = "";
     isAddingNewCustomOffice.value = false;
@@ -1317,7 +1429,7 @@ const cancelAddingNewCustomOffice = () => {
   isAddingNewCustomOffice.value = false;
   newCustomOfficeName.value = "";
   newCustomOfficeInputRef.value?.resetValidation();
-  item.value.custom_office_id = null;
+  item.value.vehicle.custom_office_id = null;
 };
 
 const handleAction = async () => {
@@ -1328,7 +1440,7 @@ const handleAction = async () => {
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
+    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} vehiculo?`
   );
   if (!confirmed) return;
 
@@ -1348,8 +1460,10 @@ const handleAction = async () => {
     router.push({
       name: `${routeName}/show`,
       params: {
-        purchase_order_id: $route.params.purchase_order_id,
-        vehicle_id: isStoreMode.value ? response.data.item.id : itemId.value,
+        purchase_order_id: getEncodeId(purchaseOrderId.value),
+        id: getEncodeId(
+          isStoreMode.value ? response.data.item.id : itemId.value
+        ),
       },
     });
   } catch (err) {
@@ -1359,7 +1473,14 @@ const handleAction = async () => {
   }
 };
 
-// Inicialización
+const updatePurchasePrice = () => {
+  const invoice = Number(item.value.invoice_amount || 0);
+  const commission = Number(item.value.commission_amount || 0);
+
+  const total = invoice + commission;
+  item.value.purchase_price = total.toFixed(2);
+};
+
 onMounted(() => {
   getCatalogs();
   getItem();

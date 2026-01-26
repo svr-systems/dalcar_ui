@@ -6,21 +6,7 @@
           <BtnBack :route="{ name: routeName }" />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
-        <v-col v-if="item" cols="1" class="text-right">
-          <v-btn
-            v-if="item.is_active"
-            icon
-            size="x-small"
-            color="warning"
-            :to="{
-              name: `${routeName}/update`,
-              params: { id: getEncodeId(itemId) },
-            }"
-          >
-            <v-icon>mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="left"> Editar </v-tooltip>
-          </v-btn>
-        </v-col>
+        <v-col v-if="item" cols="1" class="text-right" />
       </v-row>
     </v-card-title>
 

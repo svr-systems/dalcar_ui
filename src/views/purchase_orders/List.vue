@@ -1,10 +1,11 @@
 <template>
-  <v-card elevation="24" :disabled="isLoading">
+  <v-card elevation="24" :disabled="isLoading" :loading="isLoading">
     <v-card-title>
       <v-row dense>
         <v-col cols="10">
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
+
         <v-col cols="2" class="text-right">
           <v-btn
             icon
@@ -14,7 +15,9 @@
             :to="{ name: `${routeName}/store` }"
           >
             <v-icon>mdi-plus</v-icon>
-            <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
+            <v-tooltip activator="parent" location="bottom">
+              Agregar
+            </v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -22,6 +25,7 @@
 
     <v-card-text>
       <v-row dense>
+        <!-- Filtros -->
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
             <v-col
@@ -41,13 +45,14 @@
                 :disabled="!isItemsEmpty"
               />
             </v-col>
+
             <v-col cols="12" md="3" class="pb-0">
               <v-select
-                v-model="filter"
+                v-model="paymentFilter"
                 label="Filtro"
                 variant="outlined"
                 density="compact"
-                :items="filterOptions"
+                :items="paymentFilterOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -81,6 +86,7 @@
           </v-btn>
         </v-col>
 
+        <!-- Tabla -->
         <v-col cols="12">
           <v-data-table
             density="compact"
@@ -105,12 +111,13 @@
                   item.days_remaining < 1
                     ? 'text-red'
                     : item.days_remaining < 3
-                    ? 'text-orange'
-                    : ''
+                      ? 'text-orange'
+                      : ''
                 "
               >
                 {{ item.days_remaining }}
               </span>
+              <span v-else>-</span>
             </template>
 
             <template #item.action="{ item }">
@@ -148,10 +155,11 @@ import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId } from "@/utils/coders";
-import CardTitle from "@/components/CardTitle.vue";
 import { getAmountFormat } from "@/utils/formatters";
+import CardTitle from "@/components/CardTitle.vue";
 
 const routeName = "purchase_orders";
+
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
@@ -160,15 +168,19 @@ const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
 const isActive = ref(1);
-const filter = ref(0);
+const paymentFilter = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
+  { id: 0, name: "ELIMINADOS" },
 ];
-const filterOptions = [{ id: 0, name: "TODOS" }];
+
+const paymentFilterOptions = [
+  { id: 1, name: "PENDIENTES" },
+  { id: 2, name: "PAGADAS" },
+];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
@@ -176,7 +188,7 @@ const headers = [
   { title: "F. de compra", key: "order_date" },
   { title: "Total a pagar", key: "total_amount" },
   { title: "Proveedor", key: "vendor.name" },
-  { title: "F. limite de pago", key: "due_date" },
+  { title: "F. límite de pago", key: "due_date" },
   { title: "Venc. días", key: "days_remaining" },
   { title: "F. de pago", key: "paid_at" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
@@ -187,7 +199,7 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${filter.value}`;
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}&filter=${paymentFilter.value}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {

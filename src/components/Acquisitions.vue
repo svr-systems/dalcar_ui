@@ -29,25 +29,36 @@
             <tr>
               <th width="40">#</th>
               <th>Proveedor</th>
-              <th>Precio Compra</th>
+              <th>Monto Factura</th>
               <th>Comisión</th>
+              <th>Precio Compra</th>
               <th>Precio Venta</th>
               <th>IVA</th>
-              <th>Monto Factura</th>
               <th>Observaciones</th>
               <th width="40" />
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(legacyVehicleTrade, i) in legacyVehicleTrades"
-              :key="i"
-            >
+            <tr v-for="(legacyVehicleTrade, i) in legacyVehicleTrades" :key="i">
               <td>{{ i + 1 }}</td>
               <td>
                 {{
                   legacyVehicleTrade.vendor
                     ? legacyVehicleTrade.vendor.name
+                    : "-"
+                }}
+              </td>
+              <td>
+                {{
+                  legacyVehicleTrade.invoice_amount
+                    ? getAmountFormat(legacyVehicleTrade.invoice_amount)
+                    : "-"
+                }}
+              </td>
+              <td>
+                {{
+                  legacyVehicleTrade.commission_amount
+                    ? getAmountFormat(legacyVehicleTrade.commission_amount)
                     : "-"
                 }}
               </td>
@@ -60,34 +71,16 @@
               </td>
               <td>
                 {{
-                  legacyVehicleTrade.commission_amount
-                    ? getAmountFormat(
-                        legacyVehicleTrade.commission_amount
-                      )
-                    : "-"
-                }}
-              </td>
-              <td>
-                {{
                   legacyVehicleTrade.sale_price
                     ? getAmountFormat(legacyVehicleTrade.sale_price)
                     : "-"
                 }}
               </td>
               <td>{{ legacyVehicleTrade.vat_type.name }}</td>
-              <td>
-                {{
-                  legacyVehicleTrade.invoice_amount
-                    ? getAmountFormat(legacyVehicleTrade.invoice_amount)
-                    : "-"
-                }}
-              </td>
               <td>{{ legacyVehicleTrade.note }}</td>
               <td class="text-right">
                 <v-btn
-                  v-if="
-                    isActive && legacyVehicleTrades.length - 1 == i
-                  "
+                  v-if="isActive && legacyVehicleTrades.length - 1 == i"
                   icon
                   variant="text"
                   size="x-small"
@@ -159,6 +152,40 @@
               <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
                 <v-text-field
                   :label="
+                    'Monto factura ' +
+                    getAmountFormat(legacyVehicleTrade.invoice_amount)
+                  "
+                  v-model="legacyVehicleTrade.invoice_amount"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                  @update:modelValue="updatePurchasePrice()"
+                />
+              </v-col>
+
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
+                <v-text-field
+                  :label="
+                    'Comisión ' +
+                    getAmountFormat(legacyVehicleTrade.commission_amount)
+                  "
+                  v-model="legacyVehicleTrade.commission_amount"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  :rules="rules.required"
+                  autocomplete="off"
+                  @update:modelValue="updatePurchasePrice()"
+                />
+              </v-col>
+
+              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
+                <v-text-field
+                  :label="
                     'Precio Compra ' +
                     getAmountFormat(legacyVehicleTrade.purchase_price)
                   "
@@ -187,22 +214,6 @@
                 />
               </v-col>
 
-              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
-                <v-text-field
-                  :label="
-                    'Comisión ' +
-                    getAmountFormat(legacyVehicleTrade.commission_amount)
-                  "
-                  v-model="legacyVehicleTrade.commission_amount"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  min="0"
-                  :rules="rules.required"
-                  autocomplete="off"
-                />
-              </v-col>
-
               <v-col cols="12" md="3">
                 <v-select
                   label="IVA"
@@ -214,22 +225,6 @@
                   variant="outlined"
                   density="compact"
                   :rules="rules.required"
-                />
-              </v-col>
-
-              <v-col v-if="legacyVehicleTrade.is_purchase" cols="12" md="3">
-                <v-text-field
-                  :label="
-                    'Monto factura ' +
-                    getAmountFormat(legacyVehicleTrade.invoice_amount)
-                  "
-                  v-model="legacyVehicleTrade.invoice_amount"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  min="0"
-                  :rules="rules.required"
-                  autocomplete="off"
                 />
               </v-col>
 
@@ -429,6 +424,14 @@ const legacyVehicleTradeRemove = async (id) => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const updatePurchasePrice = () => {
+  const invoice = Number(legacyVehicleTrade.value.invoice_amount || 0);
+  const commission = Number(legacyVehicleTrade.value.commission_amount || 0);
+
+  const total = invoice + commission;
+  legacyVehicleTrade.value.purchase_price = total.toFixed(2);
 };
 
 onMounted(() => {

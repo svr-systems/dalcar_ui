@@ -119,7 +119,7 @@
                   :key="i"
                 >
                   <v-row dense v-if="vendor_bank.is_active">
-                    <v-col cols="12" md="3">
+                    <v-col cols="12" md="4">
                       <v-autocomplete
                         label="Banco"
                         v-model="vendor_bank.bank_id"
@@ -132,7 +132,7 @@
                         :rules="rules.required"
                       />
                     </v-col>
-                    <v-col cols="12" md="3">
+                    <v-col cols="12" md="4">
                       <v-text-field
                         label="Titular"
                         v-model="vendor_bank.account_holder"
@@ -144,7 +144,7 @@
                         :rules="rules.textRequired"
                       />
                     </v-col>
-                    <v-col cols="12" md="3">
+                    <v-col cols="12" md="4">
                       <v-text-field
                         label="CLABE"
                         v-model="vendor_bank.clabe_number"
@@ -156,7 +156,7 @@
                         :rules="rules.textRequired"
                       />
                     </v-col>
-                    <v-col cols="12" md="2">
+                    <v-col cols="12" md="4">
                       <v-text-field
                         label="Cuenta"
                         v-model="vendor_bank.account_number"
@@ -168,7 +168,26 @@
                         :rules="rules.textRequired"
                       />
                     </v-col>
-
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        label="Convenio CIE*"
+                        v-model="vendor_bank.cie_code"
+                        type="text"
+                        variant="outlined"
+                        density="compact"
+                        maxlength="20"
+                        counter
+                      />
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-switch
+                        label="¿Para comisiones?"
+                        v-model="vendor_bank.is_commission"
+                        color="info"
+                        density="compact"
+                        class="ml-1"
+                      />
+                    </v-col>
                     <v-col cols="1" class="text-right pt-2">
                       <v-btn
                         icon
@@ -179,6 +198,9 @@
                       >
                         <v-icon size="x-small">mdi-minus</v-icon>
                       </v-btn>
+                    </v-col>
+                    <v-col v-if="item.vendor_banks.length > 1" cols="12" class="mb-3">
+                      <v-divider />
                     </v-col>
                   </v-row>
                 </template>
@@ -312,6 +334,8 @@ const bankAdd = async () => {
     account_holder: null,
     clabe_number: null,
     account_number: null,
+    cie_code: null,
+    is_commission: false,
   });
 };
 

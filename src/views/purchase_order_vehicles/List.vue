@@ -3,7 +3,14 @@
     <v-card-title>
       <v-row dense>
         <v-col cols="10">
-          <BtnBack :route="{ name: 'inventory' }" />
+          <BtnBack
+            :route="{
+              name: 'purchase_orders/show',
+              params: {
+                id: getEncodeId(purchaseOrderId),
+              },
+            }"
+          />
           <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
         </v-col>
         <v-col cols="2" class="text-right">
@@ -12,7 +19,10 @@
             variant="flat"
             size="x-small"
             color="success"
-            :to="{ name: `${routeName}/store` }"
+            :to="{
+              name: `${routeName}/store`,
+              params: { purchase_order_id: getEncodeId(purchaseOrderId) },
+            }"
           >
             <v-icon>mdi-plus</v-icon>
             <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
@@ -32,11 +42,11 @@
               class="pb-0"
             >
               <v-select
+                v-model="isActive"
                 label="Mostrar"
-                v-model="active"
                 variant="outlined"
                 density="compact"
-                :items="activeOptions"
+                :items="isActiveOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -44,8 +54,8 @@
             </v-col>
             <v-col cols="12" md="3" class="pb-0">
               <v-select
-                label="Filtro"
                 v-model="filter"
+                label="Filtro"
                 variant="outlined"
                 density="compact"
                 :items="filterOptions"
@@ -59,8 +69,8 @@
 
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
-            label="Buscar"
             v-model="search"
+            label="Buscar"
             type="text"
             variant="outlined"
             density="compact"
@@ -95,22 +105,37 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
+            <template #item.invoice_amount="{ item }">
+              {{ getAmountFormat(item.invoice_amount) }}
+            </template>
+
+            <template #item.commission_amount="{ item }">
+              {{ getAmountFormat(item.commission_amount) }}
+            </template>
+
+            <template #item.purchase_price="{ item }">
+              {{ getAmountFormat(item.purchase_price) }}
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.active ? '' : 'error'"
+                  :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
-                    params: { id: getEncodeId(item.id) },
+                    params: {
+                      purchase_order_id: getEncodeId(purchaseOrderId),
+                      id: getEncodeId(item.id),
+                    },
                   }"
                 >
                   <v-icon>mdi-eye</v-icon>
-                  <v-tooltip activator="parent" location="left"
-                    >Detalle</v-tooltip
-                  >
+                  <v-tooltip activator="parent" location="left">
+                    Detalle
+                  </v-tooltip>
                 </v-btn>
               </div>
             </template>
@@ -122,65 +147,64 @@
 </template>
 
 <script setup>
-// Importaciones de librerías externas
-import { ref, inject, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { ref, computed, inject, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 
-// Importaciones internas del proyecto
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getEncodeId } from "@/utils/coders";
+import { getDecodeId, getEncodeId } from "@/utils/coders";
+import { getAmountFormat } from "@/utils/formatters";
+
+import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-// Componentes
-import CardTitle from "@/components/CardTitle.vue";
-
-// Estado y referencias
+const routeName = "purchase_order_vehicles";
 const alert = inject("alert");
 const store = useStore();
-const router = useRouter();
 const route = useRoute();
 
-// Estado reactivo
+const purchaseOrderId = ref(getDecodeId(route.params.purchase_order_id));
 const isLoading = ref(false);
 const items = ref([]);
-const isItemsEmpty = computed(() => items.value.length === 0);
-const headers = ref([]);
 const search = ref("");
-const active = ref(1);
-const activeOptions = ref([]);
+const isActive = ref(1);
 const filter = ref(0);
-const filterOptions = ref([]);
 
-// Constantes fijas
-const routeName = "purchaseOrders";
+const isItemsEmpty = computed(() => items.value.length === 0);
 
-// Cargar registros
+const isActiveOptions = [
+  { id: 1, name: "ACTIVOS" },
+  { id: 0, name: "INACTIVOS" },
+];
+const filterOptions = [{ id: 0, name: "TODOS" }];
+
+const headers = [
+  { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
+  {
+    title: "Marca",
+    key: "vehicle.vehicle_version.vehicle_model.vehicle_brand.name",
+  },
+  { title: "Modelo", key: "vehicle.vehicle_version.vehicle_model.name" },
+  { title: "Año", key: "vehicle.vehicle_version.model_year" },
+  { title: "Versión", key: "vehicle.vehicle_version.name" },
+  { title: "Color", key: "vehicle.vehicle_color.name" },
+  { title: "VIN", key: "vehicle.vin" },
+  { title: "Monto de factura", key: "invoice_amount" },
+  { title: "Comisión", key: "commission_amount" },
+  { title: "Precio compra", key: "purchase_price" },
+  { title: "", key: "action", filterable: false, sortable: false, width: 60 },
+];
+
 const getItems = async () => {
   isLoading.value = true;
   items.value = [];
 
   try {
-    // const endpoint = `${URL_API}/system/${routeName}?active=${active.value}&filter=${filter.value}`
-    // const response = await axios.get(endpoint, getHdrs(store.getAuth?.token))
-    // items.value = getRsp(response).data.items
-    items.value = [
-      {
-        id: 1,
-        active: true,
-        key: 0,
-        name: "PROVEEDOR PRUEBA",
-        type: "TIPO 1",
-        folio: "PO-0001",
-        date: "2025-08-25",
-        amount: 250000,
-        cars: 3,
-        providers: "PROVEEDOR PRUEBA",
-        status: "PENDIENTE",
-      },
-    ];
+    const endpoint = `${URL_API}/${routeName}?purchase_order_id=${purchaseOrderId.value}&is_active=${isActive.value}&filter=${filter.value}`;
+    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    items.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -188,26 +212,7 @@ const getItems = async () => {
   }
 };
 
-// Inicializar
 onMounted(() => {
-  headers.value = [
-    { title: "#", key: "id", filterable: false, sortable: false, width: 60 },
-    { title: "Folio", key: "folio" },
-    { title: "Fecha", key: "date" },
-    { title: "Monto", key: "amount" },
-    { title: "Automóviles", key: "cars" },
-    { title: "Proveedores", key: "providers" },
-    { title: "Estado", key: "status" },
-    { title: "", key: "action", filterable: false, sortable: false, width: 60 },
-  ];
-
-  activeOptions.value = [
-    { id: 1, name: "ACTIVOS" },
-    { id: 0, name: "INACTIVOS" },
-  ];
-
-  filterOptions.value = [{ id: 0, name: "TODOS" }];
-
   getItems();
 });
 </script>
