@@ -33,7 +33,7 @@
                   v-if="
                     item &&
                     !item.is_active &&
-                    store.getAuth?.user?.role_id === 1
+                    [1, 4].includes(store.getAuth?.user?.role_id)
                   "
                   icon
                   variant="outlined"
@@ -53,7 +53,7 @@
                     item &&
                     item.is_active &&
                     !item.paid_at &&
-                    store.getAuth?.user?.role_id === 1
+                    [1, 4].includes(store.getAuth?.user?.role_id)
                   "
                   icon
                   variant="outlined"
@@ -68,7 +68,7 @@
                 </v-btn>
 
                 <BtnRecordInfo
-                  v-if="item && store.getAuth?.user?.role_id === 1"
+                  v-if="item && [1, 4].includes(store.getAuth?.user?.role_id)"
                   :item="item"
                 />
 
@@ -77,7 +77,7 @@
                     item &&
                     item.is_active &&
                     !item.paid_at &&
-                    store.getAuth?.user?.role_id === 1
+                    [1, 4].includes(store.getAuth?.user?.role_id)
                   "
                   icon
                   variant="outlined"

@@ -25,7 +25,7 @@
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
             <v-col
-              v-if="store.getAuth?.user?.role_id === 1"
+              v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
               cols="12"
               md="3"
               class="pb-0"

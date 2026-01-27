@@ -32,7 +32,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
               <v-col
-                v-if="store.getAuth?.user?.role_id === 1"
+                v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
                 class="shrink text-right"
               >
                 <v-btn
@@ -55,7 +55,7 @@
         <UsersGeneral :item="item" @show-reg-dialog="regDialog = true" />
 
         <v-col
-          v-if="item.is_active && store.getAuth?.user?.role_id === 1"
+          v-if="item.is_active && [1, 4].includes(store.getAuth?.user?.role_id)"
           cols="12"
         >
           <v-btn
@@ -136,7 +136,7 @@ const deleteItem = async () => {
   try {
     const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
     );
     alert?.show("red-darken-1", response.msg);
     router.push({ name: routeName });
@@ -159,8 +159,8 @@ const restoreItem = async () => {
       await axios.post(
         endpoint,
         { id: itemId.value },
-        getHdrs(store.getAuth?.token)
-      )
+        getHdrs(store.getAuth?.token),
+      ),
     );
     item.value = response.data.item;
     alert?.show("success", response.msg);

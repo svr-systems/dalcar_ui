@@ -24,7 +24,12 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="store.getAuth?.user?.role_id === 1" cols="12" md="3" class="pb-0">
+            <v-col
+              v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
+              cols="12"
+              md="3"
+              class="pb-0"
+            >
               <v-select
                 label="Mostrar"
                 v-model="active"
@@ -71,7 +76,7 @@
             :loading="isItemsEmpty && isLoading"
             @click.prevent="isItemsEmpty ? getItems() : (items = [])"
           >
-            {{ isItemsEmpty ? 'Aplicar' : 'Cambiar' }} filtros
+            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
             <v-icon right>mdi-filter</v-icon>
           </v-btn>
         </v-col>
@@ -96,10 +101,15 @@
                   variant="text"
                   size="x-small"
                   :color="item.active ? '' : 'error'"
-                  :to="{ name: `${routeName}/show`, params: { id: getEncodeId(item.id) } }"
+                  :to="{
+                    name: `${routeName}/show`,
+                    params: { id: getEncodeId(item.id) },
+                  }"
                 >
                   <v-icon>mdi-eye</v-icon>
-                  <v-tooltip activator="parent" location="left">Detalle</v-tooltip>
+                  <v-tooltip activator="parent" location="left"
+                    >Detalle</v-tooltip
+                  >
                 </v-btn>
               </div>
             </template>
@@ -112,43 +122,43 @@
 
 <script setup>
 // Importaciones de librerías externas
-import { ref, inject, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+import { ref, inject, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
 
 // Importaciones internas del proyecto
-import { useStore } from '@/store'
-import { URL_API } from '@/utils/config'
-import { getHdrs, getErr, getRsp } from '@/utils/http'
-import { getEncodeId } from '@/utils/coders'
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getEncodeId } from "@/utils/coders";
 
 // Componentes
-import CardTitle from '@/components/CardTitle.vue'
+import CardTitle from "@/components/CardTitle.vue";
 
 // Estado y referencias
-const alert = inject('alert')
-const store = useStore()
-const router = useRouter()
-const route = useRoute()
+const alert = inject("alert");
+const store = useStore();
+const router = useRouter();
+const route = useRoute();
 
 // Estado reactivo
-const isLoading = ref(false)
-const items = ref([])
-const isItemsEmpty = computed(() => items.value.length === 0)
-const headers = ref([])
-const search = ref('')
-const active = ref(1)
-const activeOptions = ref([])
-const filter = ref(0)
-const filterOptions = ref([])
+const isLoading = ref(false);
+const items = ref([]);
+const isItemsEmpty = computed(() => items.value.length === 0);
+const headers = ref([]);
+const search = ref("");
+const active = ref(1);
+const activeOptions = ref([]);
+const filter = ref(0);
+const filterOptions = ref([]);
 
 // Constantes fijas
-const routeName = 'branches'
+const routeName = "branches";
 
 // Cargar registros
 const getItems = async () => {
-  isLoading.value = true
-  items.value = []
+  isLoading.value = true;
+  items.value = [];
 
   try {
     // const endpoint = `${URL_API}/system/${routeName}?active=${active.value}&filter=${filter.value}`
@@ -159,31 +169,31 @@ const getItems = async () => {
         id: 1,
         active: true,
         key: 0,
-        name: 'QUERETARO',
+        name: "QUERETARO",
       },
-    ]
+    ];
   } catch (err) {
-    alert?.show('red-darken-1', getErr(err))
+    alert?.show("red-darken-1", getErr(err));
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Inicializar
 onMounted(() => {
   headers.value = [
-    { title: '#', key: 'key', filterable: false, sortable: false, width: 60 },
-    { title: 'Nombre', key: 'name' },
-    { title: '', key: 'action', filterable: false, sortable: false, width: 60 },
-  ]
+    { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
+    { title: "Nombre", key: "name" },
+    { title: "", key: "action", filterable: false, sortable: false, width: 60 },
+  ];
 
   activeOptions.value = [
-    { id: 1, name: 'ACTIVOS' },
-    { id: 0, name: 'INACTIVOS' },
-  ]
+    { id: 1, name: "ACTIVOS" },
+    { id: 0, name: "INACTIVOS" },
+  ];
 
-  filterOptions.value = [{ id: 0, name: 'TODOS' }]
+  filterOptions.value = [{ id: 0, name: "TODOS" }];
 
-  getItems()
-})
+  getItems();
+});
 </script>

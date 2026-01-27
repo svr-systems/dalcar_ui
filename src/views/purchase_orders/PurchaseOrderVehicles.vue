@@ -18,7 +18,7 @@
             purchaseOrder &&
             purchaseOrder.is_active &&
             total_amount_pending &&
-            store.getAuth?.user?.role_id === 1
+            [1, 4].includes(store.getAuth?.user?.role_id)
           "
           icon
           variant="outlined"
@@ -74,7 +74,7 @@
                   <v-btn
                     v-if="
                       !purchaseOrder.paid_at &&
-                      store.getAuth?.user?.role_id === 1
+                      [1, 4].includes(store.getAuth?.user?.role_id)
                     "
                     icon
                     variant="text"

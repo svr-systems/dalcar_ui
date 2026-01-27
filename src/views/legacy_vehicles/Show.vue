@@ -17,7 +17,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
               <v-col
-                v-if="store.getAuth?.user?.role_id === 1"
+                v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
                 class="shrink text-right"
               >
                 <v-btn
@@ -119,7 +119,7 @@
         </v-col>
 
         <v-col
-          v-if="item.is_active && store.getAuth?.user?.role_id === 1"
+          v-if="item.is_active && [1, 4].includes(store.getAuth?.user?.role_id)"
           cols="12"
         >
           <v-btn
@@ -209,7 +209,7 @@ const deleteItem = async () => {
   try {
     const endpoint = `${URL_API}/${routeName}/${itemId.value}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
     );
     alert?.show("success", response.msg);
     router.push({ name: routeName });
@@ -231,8 +231,8 @@ const restoreItem = async () => {
       await axios.post(
         endpoint,
         { id: itemId.value },
-        getHdrs(store.getAuth?.token)
-      )
+        getHdrs(store.getAuth?.token),
+      ),
     );
     item.value = response.data.item;
     alert?.show("success", response.msg);
@@ -290,8 +290,8 @@ const legacyVehicleTradeAdd = async () => {
       await axios.post(
         endpoint,
         legacyVehicleTrade.value,
-        getHdrs(store.getAuth?.token)
-      )
+        getHdrs(store.getAuth?.token),
+      ),
     );
 
     alert?.show("success", response.msg);
@@ -312,7 +312,7 @@ const legacyVehicleTradeRemove = async (id) => {
   try {
     const endpoint = `${URL_API}/${routeName}/legacy_vehicles_trades/${id}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
     );
     alert?.show("success", response.msg);
     getItem();
@@ -346,7 +346,7 @@ watch(
       newDocumentTypeName.value = "";
       newDocumentTypeInputRef.value?.resetValidation();
     }
-  }
+  },
 );
 
 const addNewDocumentType = async () => {
@@ -356,7 +356,7 @@ const addNewDocumentType = async () => {
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma agregar el nuevo tipo "${newDocumentTypeName.value}"?`
+    `¿Confirma agregar el nuevo tipo "${newDocumentTypeName.value}"?`,
   );
   if (!confirmed) return;
 
@@ -369,7 +369,7 @@ const addNewDocumentType = async () => {
     const response = await axios.post(
       endpoint,
       payload,
-      getHdrs(store.getAuth?.token)
+      getHdrs(store.getAuth?.token),
     );
     const newDocumentTypeId = getRsp(response).data.item.id;
 
@@ -378,7 +378,7 @@ const addNewDocumentType = async () => {
     const getEndpoint = `${URL_API}/document_types/${newDocumentTypeId}`;
     const getResponse = await axios.get(
       getEndpoint,
-      getHdrs(store.getAuth?.token)
+      getHdrs(store.getAuth?.token),
     );
     const newDocumentType = getRsp(getResponse).data.item;
 
@@ -435,8 +435,8 @@ const legacyVehicleDocumentAdd = async () => {
       await axios.post(
         endpoint,
         getFormData(legacyVehicleDocument.value),
-        getHdrs(store.getAuth?.token, true)
-      )
+        getHdrs(store.getAuth?.token, true),
+      ),
     );
 
     alert?.show("success", response.msg);
@@ -457,7 +457,7 @@ const legacyVehicleDocumentRemove = async (id) => {
   try {
     const endpoint = `${URL_API}/${routeName}/legacy_vehicle_documents/${id}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
     );
     alert?.show("success", response.msg);
     getItem();
@@ -503,8 +503,8 @@ const legacyVehicleInvoiceAdd = async () => {
       await axios.post(
         endpoint,
         getFormData(legacyVehicleInvoice.value),
-        getHdrs(store.getAuth?.token, true)
-      )
+        getHdrs(store.getAuth?.token, true),
+      ),
     );
 
     alert?.show("success", response.msg);
@@ -525,7 +525,7 @@ const legacyVehicleInvoiceRemove = async (id) => {
   try {
     const endpoint = `${URL_API}/${routeName}/legacy_vehicle_invoices/${id}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token))
+      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
     );
     alert?.show("success", response.msg);
     getItem();

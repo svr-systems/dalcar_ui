@@ -8,7 +8,7 @@
           </v-col>
           <v-col cols="1" class="text-right">
             <v-btn
-              v-if="store.getAuth?.user?.role_id === 1"
+              v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
               icon
               variant="flat"
               size="x-small"

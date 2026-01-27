@@ -83,7 +83,7 @@
 
               <div class="d-flex align-center ga-1">
                 <BtnRecordInfo
-                  v-if="item && store.getAuth?.user?.role_id === 1"
+                  v-if="item && [1, 4].includes(store.getAuth?.user?.role_id)"
                   :item="item"
                 />
 
