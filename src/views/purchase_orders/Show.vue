@@ -30,7 +30,11 @@
 
               <div class="d-flex align-center ga-1">
                 <v-btn
-                  v-if="item && !item.is_active"
+                  v-if="
+                    item &&
+                    !item.is_active &&
+                    store.getAuth?.user?.role_id === 1
+                  "
                   icon
                   variant="outlined"
                   size="x-small"
@@ -69,7 +73,12 @@
                 />
 
                 <v-btn
-                  v-if="item && item.is_active && !item.paid_at"
+                  v-if="
+                    item &&
+                    item.is_active &&
+                    !item.paid_at &&
+                    store.getAuth?.user?.role_id === 1
+                  "
                   icon
                   variant="outlined"
                   size="x-small"
@@ -201,17 +210,19 @@
         <v-col cols="12">
           <PurchaseOrderVehicles
             :purchase_order_id="itemId"
-            :purchase_order_vehicles_amount="purchaseOrderVehiclesAmount"
-            :total_amount_pending="isTotalAmountPending"
-            @closed="handleChildClosed"
+            :purchase_order_vehicles_amount="
+              item ? item.purchase_order_vehicles_amount : 0
+            "
+            :total_amount_pending="item ? item.total_amount_pending : true"
+            @closed="(payload) => payload?.refresh && getItem()"
           />
         </v-col>
 
         <v-col cols="12">
           <PurchaseOrderReceipts
             :purchase_order_id="itemId"
-            :total_amount_pending="isTotalAmountPending"
-            @closed="handleChildClosed"
+            :total_amount_pending="item ? item.total_amount_pending : true"
+            @closed="(payload) => payload?.refresh && getItem()"
           />
         </v-col>
       </v-row>

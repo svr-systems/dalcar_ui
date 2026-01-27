@@ -15,7 +15,10 @@
       <div>
         <v-btn
           v-if="
-            purchaseOrder && purchaseOrder.is_active && total_amount_pending
+            purchaseOrder &&
+            purchaseOrder.is_active &&
+            total_amount_pending &&
+            store.getAuth?.user?.role_id === 1
           "
           icon
           variant="outlined"
@@ -36,21 +39,24 @@
           <v-table density="compact" striped="even">
             <thead class="font-weight-light text-caption text-medium-emphasis">
               <tr>
+                <th>Monto de factura</th>
+                <th>Comisión</th>
+                <th>Precio compra</th>
                 <th>Marca</th>
                 <th>Modelo</th>
                 <th>Año</th>
                 <th>Versión</th>
                 <th>Color</th>
                 <th>VIN</th>
-                <th>Monto de factura</th>
-                <th>Comisión</th>
-                <th>Precio compra</th>
                 <th />
               </tr>
             </thead>
 
             <tbody>
               <tr v-for="(vehicleItem, i) in vehicles" :key="i">
+                <td>{{ getAmountFormat(vehicleItem.invoice_amount) }}</td>
+                <td>{{ getAmountFormat(vehicleItem.commission_amount) }}</td>
+                <td>{{ getAmountFormat(vehicleItem.purchase_price) }}</td>
                 <td>
                   {{
                     vehicleItem.vehicle.vehicle_version.vehicle_model
@@ -64,12 +70,12 @@
                 <td>{{ vehicleItem.vehicle.vehicle_version.name }}</td>
                 <td>{{ vehicleItem.vehicle.vehicle_color.name }}</td>
                 <td>{{ vehicleItem.vehicle.vin }}</td>
-                <td>{{ getAmountFormat(vehicleItem.invoice_amount) }}</td>
-                <td>{{ getAmountFormat(vehicleItem.commission_amount) }}</td>
-                <td>{{ getAmountFormat(vehicleItem.purchase_price) }}</td>
                 <td class="text-right">
                   <v-btn
-                    v-if="!purchaseOrder.paid_at"
+                    v-if="
+                      !purchaseOrder.paid_at &&
+                      store.getAuth?.user?.role_id === 1
+                    "
                     icon
                     variant="text"
                     size="x-small"
@@ -94,7 +100,8 @@
     v-model="formIsDialogOpen"
     transition="dialog-bottom-transition"
     scrim="black"
-    max-width="1000"
+    max-width="1100"
+    persistent
   >
     <v-card :disabled="formIsLoading" :loading="formIsLoading">
       <v-card-title class="d-flex align-center justify-space-between">
@@ -117,6 +124,88 @@
       <v-card-text v-if="formItem">
         <v-form ref="formRef" @submit.prevent>
           <v-row>
+            <!-- Pago -->
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>
+                  <v-row dense>
+                    <v-col cols="11">
+                      <CardTitle text="PAGO" sub />
+                    </v-col>
+                    <v-col cols="1" class="text-right" />
+                  </v-row>
+                </v-card-title>
+
+                <v-card-text>
+                  <v-row dense>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        :label="
+                          'Monto factura ' +
+                          getAmountFormat(formItem.invoice_amount)
+                        "
+                        v-model="formItem.invoice_amount"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        min="0"
+                        autocomplete="off"
+                        @update:modelValue="updatePurchasePrice"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        :label="
+                          'Comisión ' +
+                          getAmountFormat(formItem.commission_amount)
+                        "
+                        v-model="formItem.commission_amount"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        min="0"
+                        :rules="rules.required"
+                        autocomplete="off"
+                        @update:modelValue="updatePurchasePrice"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        :label="
+                          'Precio Compra ' +
+                          getAmountFormat(formItem.purchase_price)
+                        "
+                        v-model="formItem.purchase_price"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        min="0"
+                        :rules="rules.required"
+                        autocomplete="off"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                      <v-select
+                        label="IVA"
+                        v-model="formItem.vat_type_id"
+                        :items="vatTypes"
+                        :loading="vatTypesLoading"
+                        item-value="id"
+                        item-title="name"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <!-- Detalle -->
             <v-col cols="12">
               <v-card>
                 <v-card-title>
@@ -491,27 +580,17 @@
                       />
                     </v-col>
                   </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
 
-            <!-- Procedencia -->
-            <v-col cols="12">
-              <v-card>
-                <v-card-title>
+                  <v-divider class="my-3" />
+
                   <v-row dense>
-                    <v-col cols="11">
+                    <v-col cols="12">
                       <CardTitle text="PROCEDENCIA" sub />
                     </v-col>
-                    <v-col cols="1" class="text-right" />
-                  </v-row>
-                </v-card-title>
 
-                <v-card-text>
-                  <v-row dense>
                     <v-col cols="12" md="3">
                       <v-select
-                        label="Procedencia"
+                        label="Tipo"
                         v-model="formItem.vehicle.origin_type_id"
                         :items="originTypes"
                         item-value="id"
@@ -618,87 +697,6 @@
                         counter
                         :rules="rules.textOptional"
                         autocomplete="off"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
-
-            <!-- Pago -->
-            <v-col cols="12">
-              <v-card>
-                <v-card-title>
-                  <v-row dense>
-                    <v-col cols="11">
-                      <CardTitle text="PAGO" sub />
-                    </v-col>
-                    <v-col cols="1" class="text-right" />
-                  </v-row>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-row dense>
-                    <v-col cols="12" md="3">
-                      <v-text-field
-                        :label="
-                          'Monto factura ' +
-                          getAmountFormat(formItem.invoice_amount)
-                        "
-                        v-model="formItem.invoice_amount"
-                        type="number"
-                        variant="outlined"
-                        density="compact"
-                        min="0"
-                        autocomplete="off"
-                        @update:modelValue="updatePurchasePrice"
-                      />
-                    </v-col>
-
-                    <v-col cols="12" md="3">
-                      <v-text-field
-                        :label="
-                          'Comisión ' +
-                          getAmountFormat(formItem.commission_amount)
-                        "
-                        v-model="formItem.commission_amount"
-                        type="number"
-                        variant="outlined"
-                        density="compact"
-                        min="0"
-                        :rules="rules.required"
-                        autocomplete="off"
-                        @update:modelValue="updatePurchasePrice"
-                      />
-                    </v-col>
-
-                    <v-col cols="12" md="3">
-                      <v-text-field
-                        :label="
-                          'Precio Compra ' +
-                          getAmountFormat(formItem.purchase_price)
-                        "
-                        v-model="formItem.purchase_price"
-                        type="number"
-                        variant="outlined"
-                        density="compact"
-                        min="0"
-                        :rules="rules.required"
-                        autocomplete="off"
-                      />
-                    </v-col>
-
-                    <v-col cols="12" md="3">
-                      <v-select
-                        label="IVA"
-                        v-model="formItem.vat_type_id"
-                        :items="vatTypes"
-                        :loading="vatTypesLoading"
-                        item-value="id"
-                        item-title="name"
-                        variant="outlined"
-                        density="compact"
-                        :rules="rules.required"
                       />
                     </v-col>
                   </v-row>

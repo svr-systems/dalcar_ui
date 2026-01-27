@@ -1,57 +1,17 @@
 <template>
-  <v-card elevation="24" :disabled="isLoading">
-    <v-card-title>
-      <v-row dense>
-        <v-col cols="10">
-          <BtnBack
-            :route="{
-              name: 'purchase_orders/show',
-              params: {
-                id: getEncodeId(purchaseOrderId),
-              },
-            }"
-          />
-          <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-        </v-col>
-        <v-col cols="2" class="text-right">
-          <v-btn
-            icon
-            variant="flat"
-            size="x-small"
-            color="success"
-            :to="{
-              name: `${routeName}/store`,
-              params: { purchase_order_id: getEncodeId(purchaseOrderId) },
-            }"
-          >
-            <v-icon>mdi-plus</v-icon>
-            <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
-          </v-btn>
-        </v-col>
-      </v-row>
+  <v-card elevation="24" :disabled="isLoading" :loading="isLoading">
+    <v-card-title class="d-flex align-center justify-space-between">
+      <div class="d-flex align-center">
+        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
+      </div>
+
+      <div />
     </v-card-title>
 
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col
-              v-if="store.getAuth?.user?.role_id === 1"
-              cols="12"
-              md="3"
-              class="pb-0"
-            >
-              <v-select
-                v-model="isActive"
-                label="Mostrar"
-                variant="outlined"
-                density="compact"
-                :items="isActiveOptions"
-                item-title="name"
-                item-value="id"
-                :disabled="!isItemsEmpty"
-              />
-            </v-col>
             <v-col cols="12" md="3" class="pb-0">
               <v-select
                 v-model="filter"
@@ -88,7 +48,7 @@
             @click.prevent="isItemsEmpty ? getItems() : (items = [])"
           >
             {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon right>mdi-filter</v-icon>
+            <v-icon end>mdi-filter</v-icon>
           </v-btn>
         </v-col>
 
@@ -105,14 +65,6 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.invoice_amount="{ item }">
-              {{ getAmountFormat(item.invoice_amount) }}
-            </template>
-
-            <template #item.commission_amount="{ item }">
-              {{ getAmountFormat(item.commission_amount) }}
-            </template>
-
             <template #item.purchase_price="{ item }">
               {{ getAmountFormat(item.purchase_price) }}
             </template>
@@ -123,13 +75,9 @@
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
-                    params: {
-                      purchase_order_id: getEncodeId(purchaseOrderId),
-                      id: getEncodeId(item.id),
-                    },
+                    params: { id: getEncodeId(item.id) },
                   }"
                 >
                   <v-icon>mdi-eye</v-icon>
@@ -154,45 +102,36 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getDecodeId, getEncodeId } from "@/utils/coders";
 import { getAmountFormat } from "@/utils/formatters";
+import { getEncodeId } from "@/utils/coders";
 
 import CardTitle from "@/components/CardTitle.vue";
-import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "purchase_order_vehicles";
+const routeName = "vehicles";
+
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
 
-const purchaseOrderId = ref(getDecodeId(route.params.purchase_order_id));
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
 const filter = ref(0);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
 const filterOptions = [{ id: 0, name: "TODOS" }];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  {
-    title: "Marca",
-    key: "vehicle.vehicle_version.vehicle_model.vehicle_brand.name",
-  },
-  { title: "Modelo", key: "vehicle.vehicle_version.vehicle_model.name" },
-  { title: "Año", key: "vehicle.vehicle_version.model_year" },
-  { title: "Versión", key: "vehicle.vehicle_version.name" },
-  { title: "Color", key: "vehicle.vehicle_color.name" },
-  { title: "VIN", key: "vehicle.vin" },
-  { title: "Monto de factura", key: "invoice_amount" },
-  { title: "Comisión", key: "commission_amount" },
+  { title: "Fecha de compra", key: "order_date" },
+  { title: "Marca", key: "vehicle_version.vehicle_model.vehicle_brand.name" },
+  { title: "Modelo", key: "vehicle_version.vehicle_model.name" },
+  { title: "Año", key: "vehicle_version.model_year" },
+  { title: "Versión", key: "vehicle_version.name" },
+  { title: "Color", key: "vehicle_color.name" },
+  { title: "VIN", key: "vin" },
+  { title: "UUID", key: "uiid" },
   { title: "Precio compra", key: "purchase_price" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
@@ -202,7 +141,7 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/${routeName}?purchase_order_id=${purchaseOrderId.value}&is_active=${isActive.value}&filter=${filter.value}`;
+    const endpoint = `${URL_API}/${routeName}?filter=${filter.value}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {

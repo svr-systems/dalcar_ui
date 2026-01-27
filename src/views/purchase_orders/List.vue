@@ -8,6 +8,7 @@
 
         <v-col cols="2" class="text-right">
           <v-btn
+            v-if="store.getAuth?.user?.role_id === 1"
             icon
             variant="flat"
             size="x-small"

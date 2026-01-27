@@ -56,6 +56,7 @@
     transition="dialog-bottom-transition"
     scrim="black"
     max-width="1000"
+    persistent
   >
     <v-card :disabled="formIsLoading" :loading="formIsLoading">
       <v-card-title class="d-flex align-center justify-space-between">
