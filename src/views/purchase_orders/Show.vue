@@ -98,22 +98,43 @@
 
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="4">
-                  <VisVal label="Fecha de compra" :value="item?.order_date" />
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Subtotal"
+                    :value="getAmountFormat(item?.subtotal_amount)"
+                  />
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Comisión"
+                    :value="getAmountFormat(item?.commission_amount)"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="3">
+                  <VisVal
+                    label="Garantía"
+                    :value="getAmountFormat(item?.warranty_amount)"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="3">
                   <VisVal
                     label="Total a pagar"
                     :value="getAmountFormat(item?.total_amount)"
                   />
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
+                  <VisVal label="Fecha de compra" :value="item?.order_date" />
+                </v-col>
+
+                <v-col cols="12" md="9">
                   <VisVal label="Proveedor" :value="item?.vendor.name" />
                 </v-col>
 
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="3">
                   <VisVal
                     label="Fecha límite de pago"
                     :value="item?.due_date"
@@ -129,11 +150,11 @@
                   />
                 </v-col>
 
-                <v-col v-if="item?.reference" cols="12" md="4">
+                <v-col v-if="item?.reference" cols="12" md="3">
                   <VisVal label="Referencia" :value="item?.reference" />
                 </v-col>
 
-                <v-col v-if="item?.statement_path" cols="12" md="4">
+                <v-col v-if="item?.statement_path" cols="12" md="3">
                   <BtnFilePreview
                     label="Estado de cuenta"
                     :doc="item?.statement_b64"

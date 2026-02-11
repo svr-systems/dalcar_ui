@@ -188,7 +188,7 @@
                     </v-col>
 
                     <v-col cols="12" md="3">
-                      <v-select
+                      <v-autocomplete
                         label="IVA"
                         v-model="formItem.vat_type_id"
                         :items="vatTypes"
@@ -397,7 +397,7 @@
 
                     <!-- Color -->
                     <v-col cols="12" md="3">
-                      <v-select
+                      <v-autocomplete
                         v-if="!isAddingNewColor"
                         label="Color"
                         v-model="formItem.vehicle.vehicle_color_id"
@@ -448,7 +448,7 @@
 
                     <!-- Transmisión -->
                     <v-col cols="12" md="3">
-                      <v-select
+                      <v-autocomplete
                         v-if="!isAddingNewTransmission"
                         label="Transmisión"
                         v-model="formItem.vehicle.vehicle_transmission_id"
@@ -589,15 +589,15 @@
                     </v-col>
 
                     <v-col cols="12" md="3">
-                      <v-select
+                      <v-autocomplete
                         label="Tipo"
                         v-model="formItem.vehicle.origin_type_id"
                         :items="originTypes"
+                        :loading="originTypesLoading"
                         item-value="id"
                         item-title="name"
                         variant="outlined"
                         density="compact"
-                        :rules="rules.required"
                       />
                     </v-col>
 
@@ -607,14 +607,14 @@
                       md="3"
                     >
                       <v-text-field
-                        label="Pedimento"
+                        label="Pedimento*"
                         v-model="formItem.vehicle.pediment_number"
                         type="text"
                         variant="outlined"
                         density="compact"
                         maxlength="30"
                         counter
-                        :rules="rules.textRequired"
+                        :rules="rules.textOptional"
                         autocomplete="off"
                       />
                     </v-col>
@@ -625,9 +625,8 @@
                       md="3"
                     >
                       <InpDate
-                        label="Fecha"
+                        label="Fecha*"
                         v-model="formItem.vehicle.pediment_date"
-                        :rules="rules.required"
                         :before="true"
                       />
                     </v-col>
@@ -639,7 +638,7 @@
                     >
                       <v-autocomplete
                         v-if="!isAddingNewCustomOffice"
-                        label="Aduana"
+                        label="Aduana*"
                         v-model="formItem.vehicle.custom_office_id"
                         :items="customsOffices"
                         :loading="customsOfficesLoading"
@@ -647,7 +646,6 @@
                         item-title="name"
                         variant="outlined"
                         density="compact"
-                        :rules="rules.required"
                         autocomplete="off"
                       />
                       <v-text-field
@@ -885,6 +883,7 @@ const getCatalogs = async () => {
     endpoint = `${URL_API}/origin_types`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     originTypes.value = getRsp(response).data.items;
+    originTypes.value.push({ id: null, name: "*PENDIENTE" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -895,7 +894,8 @@ const getCatalogs = async () => {
     endpoint = `${URL_API}/custom_offices?is_active=1&filter=0`;
     response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     customsOffices.value = getRsp(response).data.items;
-    customsOffices.value.push({ id: 0, name: "OTRO" });
+    customsOffices.value.push({ id: 0, name: "*OTRO" });
+    customsOffices.value.push({ id: null, name: "*PENDIENTE" });
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {

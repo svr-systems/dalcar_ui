@@ -158,14 +158,13 @@
                     </v-col>
                     <v-col cols="12" md="4">
                       <v-text-field
-                        label="Cuenta"
+                        label="Cuenta*"
                         v-model="vendor_bank.account_number"
                         type="text"
                         variant="outlined"
                         density="compact"
                         maxlength="20"
                         counter
-                        :rules="rules.textRequired"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
