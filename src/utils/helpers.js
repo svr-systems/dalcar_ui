@@ -74,3 +74,14 @@ export const extractMultipleNestedProps = (target, arrayKey, nestedKey) => {
   }
   return target;
 };
+
+export const b64ToFile = (file) => {
+  if (!file) return null;
+
+  const byteString = atob(file.cnt);
+  const array = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    array[i] = byteString.charCodeAt(i);
+  }
+  return new File([array], file.name, { type: file.mime });
+};

@@ -1,16 +1,16 @@
 <template>
   <v-card :disabled="isLoading" :loading="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <CardTitle
-          :text="`INVERSIONISTAS${totalPercentages ? ` | ${totalPercentages}%` : ''}`"
-          sub
-        />
-      </div>
+      <div class="d-flex align-center"></div>
 
       <div>
         <v-btn
-          v-if="vehicle && vehicle.is_active && totalPercentages < 100"
+          v-if="
+            [1].includes(store.getAuth?.user?.role_id) &&
+            vehicle &&
+            vehicle.is_active &&
+            total < 100
+          "
           icon
           variant="outlined"
           size="x-small"
@@ -30,7 +30,7 @@
           <v-table density="compact" striped="even">
             <thead class="font-weight-light text-caption text-medium-emphasis">
               <tr>
-                <th>Inversionista</th>
+                <th>Nombre</th>
                 <th>Porcentaje %</th>
                 <th>Monto</th>
                 <th />
@@ -50,6 +50,7 @@
                 </td>
                 <td class="text-right">
                   <v-btn
+                    v-if="[1].includes(store.getAuth?.user?.role_id)"
                     icon
                     variant="text"
                     size="x-small"
@@ -64,9 +65,19 @@
                 </td>
               </tr>
 
-              <tr v-if="items.length === 0">
+              <tr v-if="items.length > 0">
+                <td />
+                <td>
+                  <span class="text-subtitle-1 font-weight-bold">
+                    {{ total ? total : "" }}
+                  </span>
+                </td>
+                <td />
+                <td />
+              </tr>
+              <tr v-else>
                 <td colspan="4" class="text-center text-medium-emphasis">
-                  Sin inversionistas registrados
+                  <small><i>Sin registros</i></small>
                 </td>
               </tr>
             </tbody>
@@ -85,7 +96,7 @@
     <v-card :disabled="formIsLoading" :loading="formIsLoading">
       <v-card-title class="d-flex align-center justify-space-between">
         <div class="d-flex align-center">
-          <CardTitle :text="formIsStoreMode ? 'AGREGAR' : 'EDITAR'" sub />
+          <CardTitle text="INVERSIONISTA" sub />
         </div>
 
         <v-btn
@@ -106,7 +117,7 @@
             <v-col cols="12" md="9">
               <v-autocomplete
                 v-model="formItem.investor_id"
-                label="Inversionista"
+                label="Nombre"
                 :items="investors"
                 :loading="investorsLoading"
                 item-value="id"
@@ -167,25 +178,22 @@
 </template>
 
 <script setup>
-import { inject, ref, computed, onMounted } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 import axios from "axios";
-
 import { useStore } from "@/store";
+
 import { URL_API } from "@/utils/config";
-import { getHdrs, getRsp, getErr } from "@/utils/http";
-import { getRules } from "@/utils/validators";
+import { getErr, getHdrs, getRsp } from "@/utils/http";
 import { getObj } from "@/utils/helpers";
 import { getAmountFormat } from "@/utils/formatters";
+import { getRules } from "@/utils/validators";
 
 import CardTitle from "@/components/CardTitle.vue";
 
 const routeName = "vehicle_investors";
 
 const props = defineProps({
-  vehicle_id: {
-    type: [String, Number],
-    required: true,
-  },
+  vehicle_id: { type: [String, Number], required: true },
 });
 
 const emit = defineEmits(["closed"]);
@@ -208,7 +216,7 @@ const formItem = ref(null);
 const investors = ref([]);
 const investorsLoading = ref(true);
 
-const totalPercentages = computed(() => {
+const total = computed(() => {
   const total = items.value.reduce(
     (acc, cur) => acc + Number(cur.percentages || 0),
     0,
@@ -216,15 +224,36 @@ const totalPercentages = computed(() => {
   return total ? total.toFixed(2) : null;
 });
 
+const endpoints = {
+  investorsIndex: () => `${URL_API}/investors?is_active=1&filter=0`,
+  vehicleInvestorsIndex: () =>
+    `${URL_API}/vehicles/${props.vehicle_id}/${routeName}`,
+  vehicleInvestorsShow: (id) => `${URL_API}/vehicles/${routeName}/${id}`,
+  vehicleInvestorsStoreUpdate: (id = null) =>
+    `${URL_API}/vehicles/${routeName}${id ? `/${id}` : ""}`,
+  vehicleInvestorsDestroy: (id) => `${URL_API}/vehicles/${routeName}/${id}`,
+};
+
+const setFormDefault = () => {
+  formItem.value = {
+    id: null,
+    vehicle_id: props.vehicle_id,
+    investor_id: null,
+    percentages: null,
+  };
+};
+
 const getItems = async () => {
   items.value = [];
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/vehicles/${props.vehicle_id}/${routeName}`;
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-    const data = getRsp(response).data;
+    const response = await axios.get(
+      endpoints.vehicleInvestorsIndex(),
+      getHdrs(store.getAuth?.token),
+    );
 
+    const data = getRsp(response).data;
     vehicle.value = data.vehicle;
     items.value = data.items;
   } catch (err) {
@@ -239,8 +268,11 @@ const getCatalogs = async () => {
   investorsLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/investors?is_active=1&filter=0`;
-    const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    const response = await axios.get(
+      endpoints.investorsIndex(),
+      getHdrs(store.getAuth?.token),
+    );
+
     investors.value = getRsp(response).data.items;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -252,27 +284,27 @@ const getCatalogs = async () => {
 const formOpenDialog = async (id = null) => {
   formItem.value = null;
   formIsStoreMode.value = id == null;
+
   formIsDialogOpen.value = true;
   formIsLoading.value = true;
 
   if (formIsStoreMode.value) {
-    formItem.value = {
-      id: null,
-      vehicle_id: props.vehicle_id,
-      investor_id: null,
-      percentages: null,
-    };
+    setFormDefault();
     formIsLoading.value = false;
-  } else {
-    try {
-      const endpoint = `${URL_API}/vehicles/${routeName}/${id}`;
-      const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
-      formItem.value = getRsp(response).data.item;
-    } catch (err) {
-      alert?.show("red-darken-1", getErr(err));
-    } finally {
-      formIsLoading.value = false;
-    }
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      endpoints.vehicleInvestorsShow(id),
+      getHdrs(store.getAuth?.token),
+    );
+
+    formItem.value = getRsp(response).data.item;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    formIsLoading.value = false;
   }
 };
 
@@ -292,11 +324,14 @@ const formSubmit = async () => {
   const payload = getObj(formItem.value, formIsStoreMode.value);
 
   try {
-    const endpoint = `${URL_API}/vehicles/${routeName}${
-      !formIsStoreMode.value ? `/${payload.id}` : ""
-    }`;
     const response = getRsp(
-      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token)),
+      await axios.post(
+        endpoints.vehicleInvestorsStoreUpdate(
+          formIsStoreMode.value ? null : payload.id,
+        ),
+        payload,
+        getHdrs(store.getAuth?.token),
+      ),
     );
 
     alert?.show("success", response.msg);
@@ -313,16 +348,19 @@ const formSubmit = async () => {
 };
 
 const formDelete = async (id) => {
-  const confirmed = await confirm?.show("¿Confirma eliminar el inversionista?");
+  const confirmed = await confirm?.show("¿Confirma eliminar inversionista?");
   if (!confirmed) return;
 
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/vehicles/${routeName}/${id}`;
     const response = getRsp(
-      await axios.delete(endpoint, getHdrs(store.getAuth?.token)),
+      await axios.delete(
+        endpoints.vehicleInvestorsDestroy(id),
+        getHdrs(store.getAuth?.token),
+      ),
     );
+
     alert?.show("warning", response.msg);
 
     formIsDialogOpen.value = false;

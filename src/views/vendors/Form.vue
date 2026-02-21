@@ -198,7 +198,11 @@
                         <v-icon size="x-small">mdi-minus</v-icon>
                       </v-btn>
                     </v-col>
-                    <v-col v-if="item.vendor_banks.length > 1" cols="12" class="mb-3">
+                    <v-col
+                      v-if="item.vendor_banks.length > 1"
+                      cols="12"
+                      class="mb-3"
+                    >
                       <v-divider />
                     </v-col>
                   </v-row>
@@ -206,6 +210,148 @@
                 <v-row dense>
                   <v-col cols="12">
                     <v-btn size="x-small" color="warning" @click="bankAdd()">
+                      Agregar
+                      <v-icon size="x-small" end>mdi-plus</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="FACTURAS (predeterminadas)" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <template
+                  v-for="(vendor_invoice_type, i) in item.vendor_invoice_types"
+                  :key="i"
+                >
+                  <v-row dense v-if="vendor_invoice_type.is_active">
+                    <v-col cols="12" md="5">
+                      <v-autocomplete
+                        label="Tipo"
+                        v-model="vendor_invoice_type.invoice_type_id"
+                        :items="invoiceTypes"
+                        :loading="invoiceTypesLoading"
+                        item-value="id"
+                        item-title="name"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        label="Días de entrega"
+                        v-model="vendor_invoice_type.delivery_days"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                    <v-col cols="1" class="text-right pt-2">
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click="invoiceTypeRemove(i)"
+                      >
+                        <v-icon size="x-small">mdi-minus</v-icon>
+                      </v-btn>
+                    </v-col>
+                    <v-col
+                      v-if="item.vendor_invoice_types.length > 1"
+                      cols="12"
+                      class="mb-3"
+                    >
+                      <v-divider />
+                    </v-col>
+                  </v-row>
+                </template>
+                <v-row dense>
+                  <v-col cols="12">
+                    <v-btn size="x-small" color="warning" @click="invoiceTypeAdd()">
+                      Agregar
+                      <v-icon size="x-small" end>mdi-plus</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="DOCUMENTOS (predeterminados)" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <template
+                  v-for="(vendor_document_type, i) in item.vendor_document_types"
+                  :key="i"
+                >
+                  <v-row dense v-if="vendor_document_type.is_active">
+                    <v-col cols="12" md="5">
+                      <v-autocomplete
+                        label="Tipo"
+                        v-model="vendor_document_type.document_type_id"
+                        :items="documentTypes"
+                        :loading="documentTypesLoading"
+                        item-value="id"
+                        item-title="name"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        label="Días de entrega"
+                        v-model="vendor_document_type.delivery_days"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        :rules="rules.required"
+                      />
+                    </v-col>
+                    <v-col cols="1" class="text-right pt-2">
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click="documentTypeRemove(i)"
+                      >
+                        <v-icon size="x-small">mdi-minus</v-icon>
+                      </v-btn>
+                    </v-col>
+                    <v-col
+                      v-if="item.vendor_document_types.length > 1"
+                      cols="12"
+                      class="mb-3"
+                    >
+                      <v-divider />
+                    </v-col>
+                  </v-row>
+                </template>
+                <v-row dense>
+                  <v-col cols="12">
+                    <v-btn size="x-small" color="warning" @click="documentTypeAdd()">
                       Agregar
                       <v-icon size="x-small" end>mdi-plus</v-icon>
                     </v-btn>
@@ -267,10 +413,15 @@ const isLoading = ref(true);
 const formRef = ref(null);
 const item = ref(null);
 const rules = getRules();
+
 const types = ref([]);
 const typesLoading = ref(true);
 const banks = ref([]);
 const banksLoading = ref(true);
+const invoiceTypes = ref([]);
+const invoiceTypesLoading = ref(true);
+const documentTypes = ref([]);
+const documentTypesLoading = ref(true);
 
 const getCatalogs = async () => {
   let endpoint = null;
@@ -295,6 +446,26 @@ const getCatalogs = async () => {
   } finally {
     banksLoading.value = false;
   }
+
+  try {
+    endpoint = `${URL_API}/invoice_types?is_active=1`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    invoiceTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    invoiceTypesLoading.value = false;
+  }
+
+  try {
+    endpoint = `${URL_API}/document_types?is_active=1`;
+    response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
+    documentTypes.value = getRsp(response).data.items;
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    documentTypesLoading.value = false;
+  }
 };
 
 const getItem = async () => {
@@ -309,6 +480,8 @@ const getItem = async () => {
       requires_reference: false,
       requires_statement: false,
       vendor_banks: [],
+      vendor_invoice_types: [],
+      vendor_document_types: [],
     };
     isLoading.value = false;
   } else {
@@ -346,6 +519,40 @@ const bankRemove = async (i) => {
   }
 };
 
+const invoiceTypeAdd = async () => {
+  item.value.vendor_invoice_types.push({
+    id: null,
+    is_active: 1,
+    invoice_type_id: null,
+    delivery_days: null,
+  });
+};
+
+const invoiceTypeRemove = async (i) => {
+  if (item.value.vendor_invoice_types[i].id === null) {
+    item.value.vendor_invoice_types.splice(i, 1);
+  } else {
+    item.value.vendor_invoice_types[i].is_active = 0;
+  }
+};
+
+const documentTypeAdd = async () => {
+  item.value.vendor_document_types.push({
+    id: null,
+    is_active: 1,
+    document_type_id: null,
+    delivery_days: null,
+  });
+};
+
+const documentTypeRemove = async (i) => {
+  if (item.value.vendor_document_types[i].id === null) {
+    item.value.vendor_document_types.splice(i, 1);
+  } else {
+    item.value.vendor_document_types[i].is_active = 0;
+  }
+};
+
 const handleAction = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) {
@@ -354,7 +561,7 @@ const handleAction = async () => {
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
+    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`,
   );
   if (!confirmed) return;
 
@@ -366,7 +573,7 @@ const handleAction = async () => {
       !isStoreMode.value ? `/${payload.id}` : ""
     }`;
     const response = getRsp(
-      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token))
+      await axios.post(endpoint, payload, getHdrs(store.getAuth?.token)),
     );
 
     alert?.show("success", response.msg);

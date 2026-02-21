@@ -56,6 +56,88 @@
 
         <VendorsBanking :item="item" />
 
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="FACTURAS (predeterminadas)" sub />
+                </v-col>
+                <v-col cols="1" class="text-right" />
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <template
+                v-for="(vendor_invoice_type, i) in item.vendor_invoice_types"
+                :key="i"
+              >
+                <v-row dense v-if="vendor_invoice_type.is_active">
+                  <v-col cols="12" md="5">
+                    <VisVal
+                      label="Tipo"
+                      :value="vendor_invoice_type.invoice_type?.name"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <VisVal
+                      label="Días de entrega"
+                      :value="vendor_invoice_type.delivery_days"
+                    />
+                  </v-col>
+                  <v-col
+                    v-if="item.vendor_invoice_types.length > 1"
+                    cols="12"
+                    class="mb-3"
+                  >
+                    <v-divider />
+                  </v-col>
+                </v-row>
+              </template>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              <v-row dense>
+                <v-col cols="11">
+                  <CardTitle text="DOCUMENTOS (predeterminados)" sub />
+                </v-col>
+                <v-col cols="1" class="text-right" />
+              </v-row>
+            </v-card-title>
+            <v-card-text>
+              <template
+                v-for="(vendor_document_type, i) in item.vendor_document_types"
+                :key="i"
+              >
+                <v-row dense v-if="vendor_document_type.is_active">
+                  <v-col cols="12" md="5">
+                    <VisVal
+                      label="Tipo"
+                      :value="vendor_document_type.document_type?.name"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <VisVal
+                      label="Días de entrega"
+                      :value="vendor_document_type.delivery_days"
+                    />
+                  </v-col>
+                  <v-col
+                    v-if="item.vendor_document_types.length > 1"
+                    cols="12"
+                    class="mb-3"
+                  >
+                    <v-divider />
+                  </v-col>
+                </v-row>
+              </template>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
         <v-col
           v-if="item.is_active && [1, 4].includes(store.getAuth?.user?.role_id)"
           cols="12"

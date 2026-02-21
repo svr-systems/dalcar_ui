@@ -13,7 +13,7 @@ const routes = [
     meta: {
       title: "Autos",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles([1, 4, 6])],
     },
   },
   {
@@ -24,7 +24,7 @@ const routes = [
     meta: {
       title: "Auto",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles([1, 4, 6])],
     },
   },
   //purchase_orders

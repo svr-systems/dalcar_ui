@@ -19,7 +19,7 @@
               <div class="d-flex align-center">
                 <CardTitle
                   :text="
-                    'PAGO | ' +
+                    'ORDEN DE COMPRA | ' +
                     (item?.purchase_order_vehicle.purchase_order_uiid || '')
                   "
                   sub
@@ -67,6 +67,22 @@
                     :value="item?.purchase_order_vehicle.vat_type.name"
                   />
                 </v-col>
+                <v-col
+                  v-if="
+                    item?.purchase_order_vehicle?.purchase_order?.statement_b64
+                  "
+                  cols="12"
+                  md="3"
+                >
+                  <BtnFilePreview
+                    label="Estado de cuenta"
+                    :doc="
+                      item?.purchase_order_vehicle?.purchase_order
+                        ?.statement_b64
+                    "
+                    tooltip="Ver"
+                  />
+                </v-col>
               </v-row>
             </v-card-text>
           </v-card>
@@ -88,7 +104,11 @@
                 />
 
                 <Form
-                  v-if="item && item.is_active"
+                  v-if="
+                    [1].includes(store.getAuth?.user?.role_id) &&
+                    item &&
+                    item.is_active
+                  "
                   :item="item"
                   @saved="getItem"
                 />
@@ -171,7 +191,10 @@
                 </v-col>
 
                 <v-col cols="12" md="3">
-                  <VisVal label="Procedencia" :value="item?.origin_type.name" />
+                  <VisVal
+                    label="Procedencia"
+                    :value="item?.origin_type?.name"
+                  />
                 </v-col>
 
                 <v-col v-if="item?.origin_type_id > 1" cols="12" md="3">
@@ -193,13 +216,47 @@
             </v-card-text>
           </v-card>
         </v-col>
-      </v-row>
-      <v-row>
+
         <v-col cols="12">
-          <VehicleInvestors
-            :vehicle_id="itemId"
-            @closed="(payload) => payload?.refresh && getItem()"
-          />
+          <v-tabs v-model="tab" density="compact" align-tabs="center">
+            <v-tab v-for="tab in tabs" :key="tab.value" :value="tab.value">
+              {{ tab.label }}
+              <span v-if="item" :class="tab.count ? '' : 'text-warning'">
+                ({{ tab.count }})
+              </span>
+              <v-progress-circular v-else :size="14" :width="1" indeterminate />
+            </v-tab>
+          </v-tabs>
+
+          <v-tabs-window v-model="tab">
+            <v-tabs-window-item :value="1">
+              <VehicleInvestors
+                :vehicle_id="itemId"
+                @closed="(payload) => payload?.refresh && getItem()"
+              />
+            </v-tabs-window-item>
+
+            <v-tabs-window-item :value="2">
+              <VehicleExpenses
+                :vehicle_id="itemId"
+                @closed="(payload) => payload?.refresh && getItem()"
+              />
+            </v-tabs-window-item>
+
+            <v-tabs-window-item :value="3">
+              <VehicleInvoices
+                :vehicle_id="itemId"
+                @closed="(payload) => payload?.refresh && getItem()"
+              />
+            </v-tabs-window-item>
+
+            <v-tabs-window-item :value="4">
+              <VehicleDocuments
+                :vehicle_id="itemId"
+                @closed="(payload) => payload?.refresh && getItem()"
+              />
+            </v-tabs-window-item>
+          </v-tabs-window>
         </v-col>
       </v-row>
     </v-card-text>
@@ -207,7 +264,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
 
@@ -222,7 +279,11 @@ import CardTitle from "@/components/CardTitle.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnRecordInfo from "@/components/BtnRecordInfo.vue";
 import Form from "./Form.vue";
+import BtnFilePreview from "@/components/BtnFilePreview.vue";
 import VehicleInvestors from "./VehicleInvestors.vue";
+import VehicleExpenses from "./VehicleExpenses.vue";
+import VehicleInvoices from "./VehicleInvoices.vue";
+import VehicleDocuments from "./VehicleDocuments.vue";
 
 const routeName = "vehicles";
 
@@ -233,6 +294,30 @@ const route = useRoute();
 const itemId = ref(getDecodeId(route.params.id));
 const isLoading = ref(true);
 const item = ref(null);
+const tab = ref(1);
+
+const tabs = computed(() => [
+  {
+    value: 1,
+    label: "INVERSIONISTAS",
+    count: item.value?.total?.vehicle_investors ?? 0,
+  },
+  {
+    value: 2,
+    label: "GASTOS",
+    count: item.value?.total?.vehicle_expenses ?? 0,
+  },
+  {
+    value: 3,
+    label: "FACTURAS",
+    count: item.value?.total?.vehicle_invoices ?? 0,
+  },
+  {
+    value: 4,
+    label: "DOCUMENTOS",
+    count: item.value?.total?.vehicle_documents ?? 0,
+  },
+]);
 
 const getItem = async () => {
   item.value = null;
