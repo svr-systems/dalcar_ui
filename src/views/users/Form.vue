@@ -149,6 +149,59 @@
             </v-card>
           </v-col>
 
+          <v-col v-if="item.role_id == 3" cols="12">
+            <v-card>
+              <v-card-title>
+                <v-row dense>
+                  <v-col cols="11">
+                    <CardTitle text="NOTIFICACIONES" sub />
+                  </v-col>
+                  <v-col cols="1" class="text-right" />
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="Creación de órdenes de pago"
+                      v-model="item.receives_po_emails"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="Nuevo vehículo en inventario"
+                      v-model="item.receives_vehicle_emails"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="Vence calendarización de facturas"
+                      v-model="item.receives_invoice_calendar_emails"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-switch
+                      label="Vence calendarización de documentos"
+                      v-model="item.receives_document_calendar_emails"
+                      color="info"
+                      density="compact"
+                      class="ml-1"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
           <v-col cols="12">
             <div class="text-right">
               <v-btn
@@ -255,7 +308,7 @@ const handleAction = async () => {
   }
 
   const confirmed = await confirm?.show(
-    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`
+    `¿Confirma ${isStoreMode.value ? "agregar" : "editar"} registro?`,
   );
   if (!confirmed) return;
 
@@ -270,8 +323,8 @@ const handleAction = async () => {
       await axios.post(
         endpoint,
         getFormData(payload),
-        getHdrs(store.getAuth?.token, true)
-      )
+        getHdrs(store.getAuth?.token, true),
+      ),
     );
 
     alert?.show("success", response.msg);
@@ -279,7 +332,9 @@ const handleAction = async () => {
     router.push({
       name: `${routeName}/show`,
       params: {
-        id: getEncodeId(isStoreMode.value ? response.data.item.id : itemId.value),
+        id: getEncodeId(
+          isStoreMode.value ? response.data.item.id : itemId.value,
+        ),
       },
     });
   } catch (err) {

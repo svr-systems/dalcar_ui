@@ -6,7 +6,7 @@
       <div>
         <v-btn
           v-if="
-            [1].includes(store.getAuth?.user?.role_id) &&
+            [1, 4].includes(store.getAuth?.user?.role_id) &&
             vehicle &&
             vehicle.is_active &&
             total < 100

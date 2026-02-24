@@ -5,7 +5,35 @@
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
-      <div />
+      <div class="d-flex align-center ga-2">
+        <v-btn
+          v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
+          icon
+          variant="flat"
+          size="x-small"
+          color="teal"
+          :to="{ name: 'vehicles/general-catalogs' }"
+        >
+          <v-icon>mdi-notebook-multiple</v-icon>
+          <v-tooltip activator="parent" location="bottom">
+            Catálogos generales
+          </v-tooltip>
+        </v-btn>
+
+        <v-btn
+          v-if="[1, 4].includes(store.getAuth?.user?.role_id)"
+          icon
+          variant="flat"
+          size="x-small"
+          color="info"
+          :to="{ name: 'vehicles/brand-catalogs' }"
+        >
+          <v-icon>mdi-car-wrench</v-icon>
+          <v-tooltip activator="parent" location="bottom">
+            Catálogos por marca
+          </v-tooltip>
+        </v-btn>
+      </div>
     </v-card-title>
 
     <v-card-text>

@@ -14,4 +14,8 @@ export const getUserObj = () => ({
   avatar_doc: null,
   avatar_dlt: false,
   email: null,
+  receives_po_emails: false,
+  receives_vehicle_emails: false,
+  receives_invoice_calendar_emails: false,
+  receives_document_calendar_emails: false,
 });

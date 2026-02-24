@@ -76,7 +76,6 @@
                   v-if="
                     item &&
                     item.is_active &&
-                    !item.paid_at &&
                     [1, 4].includes(store.getAuth?.user?.role_id)
                   "
                   icon
@@ -158,6 +157,14 @@
                   <BtnFilePreview
                     label="Estado de cuenta"
                     :doc="item?.statement_b64"
+                    tooltip="Ver"
+                  />
+                </v-col>
+
+                <v-col v-if="item?.other_path" cols="12" md="3">
+                  <BtnFilePreview
+                    label="Otro*"
+                    :doc="item?.other_b64"
                     tooltip="Ver"
                   />
                 </v-col>
@@ -267,8 +274,8 @@ import CardTitle from "@/components/CardTitle.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnFilePreview from "@/components/BtnFilePreview.vue";
 import BtnRecordInfo from "@/components/BtnRecordInfo.vue";
-import PurchaseOrderReceipts from "@/views/purchase_orders/purchaseOrderReceipts.vue";
 import PurchaseOrderVehicles from "./PurchaseOrderVehicles.vue";
+import PurchaseOrderReceipts from "./PurchaseOrderReceipts.vue";
 
 const routeName = "purchase_orders";
 

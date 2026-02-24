@@ -5,7 +5,7 @@
     <NavBar v-if="auth" />
 
     <v-main>
-      <v-container>
+      <v-container fluid>
         <router-view :key="$route.fullPath" />
       </v-container>
     </v-main>

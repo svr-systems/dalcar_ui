@@ -7,13 +7,33 @@ const routes = [
   //USR SYSTEM
   //vehicles
   {
+    path: "/autos/catalogos/generales",
+    name: "vehicles/general-catalogs",
+    component: () => import("@/views/vehicles/GeneralCatalogs.vue"),
+    meta: {
+      title: "Autos | Catálogos generales",
+      icon: "mdi-notebook-multiple",
+      middleware: [Auth, Roles([1, 4])],
+    },
+  },
+  {
+    path: "/autos/catalogos/marcas",
+    name: "vehicles/brand-catalogs",
+    component: () => import("@/views/vehicles/VehicleBrandCatalogs.vue"),
+    meta: {
+      title: "Autos | Catálogos por marca",
+      icon: "mdi-car-wrench",
+      middleware: [Auth, Roles([1, 4])],
+    },
+  },
+  {
     path: "/autos",
     name: "vehicles",
     component: () => import("@/views/vehicles/List.vue"),
     meta: {
       title: "Autos",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 4, 6])],
+      middleware: [Auth, Roles([1, 3, 4])],
     },
   },
   {
@@ -24,7 +44,7 @@ const routes = [
     meta: {
       title: "Auto",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 4, 6])],
+      middleware: [Auth, Roles([1, 3, 4])],
     },
   },
   //purchase_orders
@@ -35,7 +55,7 @@ const routes = [
     meta: {
       title: "Ordenes de compra",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 4, 6])],
+      middleware: [Auth, Roles([1, 3, 4])],
     },
   },
   {
@@ -56,7 +76,7 @@ const routes = [
     meta: {
       title: "Orden de compra",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 4, 6])],
+      middleware: [Auth, Roles([1, 3, 4])],
     },
   },
   {
@@ -335,7 +355,7 @@ const routes = [
     component: () => import("@/views/general/Home.vue"),
     meta: {
       title: "Inicio",
-      middleware: [Auth, Roles([1, 4, 6])],
+      middleware: [Auth, Roles([1, 3, 4])],
     },
   },
   {

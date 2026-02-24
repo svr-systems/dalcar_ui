@@ -207,6 +207,47 @@
                     </div>
                   </v-col>
 
+                  <v-col cols="12" md="3" class="d-flex">
+                    <v-file-input
+                      label="Otro*"
+                      v-model="item.other_doc"
+                      variant="outlined"
+                      density="compact"
+                      prepend-icon=""
+                      show-size
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      :rules="rules.fileOptional"
+                      :disabled="item.other_dlt"
+                    />
+
+                    <div
+                      v-if="!isStoreMode && item.other_path && !item.other_doc"
+                    >
+                      <BtnDwd
+                        :value="item.other_b64"
+                        :disabled="item.other_dlt"
+                      />
+
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="small"
+                        :color="item.other_dlt ? 'error' : undefined"
+                        @click.prevent="item.other_dlt = !item.other_dlt"
+                      >
+                        <v-icon size="small">
+                          mdi-delete{{ item.other_dlt ? "-off" : "" }}
+                        </v-icon>
+
+                        <v-tooltip activator="parent" location="bottom">
+                          {{
+                            item.other_dlt ? "Revertir eliminación" : "Eliminar"
+                          }}
+                        </v-tooltip>
+                      </v-btn>
+                    </div>
+                  </v-col>
+
                   <v-col cols="12">
                     <v-text-field
                       label="Observaciones*"
@@ -394,6 +435,9 @@ const getItem = async () => {
       statement_path: null,
       statement_doc: null,
       statement_dlt: false,
+      other_path: null,
+      other_doc: null,
+      other_dlt: false,
       note: null,
       purchase_order_payments: [],
     };

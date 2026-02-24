@@ -10,8 +10,9 @@
           v-if="
             purchaseOrder &&
             purchaseOrder.is_active &&
-            !purchaseOrder.paid_at &&
-            !total_amount_pending
+            !total_amount_pending &&
+            (!purchaseOrder.paid_at ||
+              [1, 4].includes(store.getAuth?.user?.role_id))
           "
           icon
           variant="outlined"
@@ -78,64 +79,65 @@
 
       <v-card-text>
         <v-form ref="formRef" @submit.prevent>
-          <v-row
+          <template
             v-for="(purchaseOrderReceipt, i) in purchaseOrderReceipts"
             :key="i"
-            dense
           >
-            <v-col cols="12" md="6">
-              <v-text-field
-                :label="`${i + 1}. Observación`"
-                v-model="purchaseOrderReceipt.note"
-                type="text"
-                variant="outlined"
-                density="compact"
-                maxlength="255"
-                counter
-                :rules="rules.textOptional"
-                autocomplete="off"
-              />
-            </v-col>
+            <v-row v-if="purchaseOrderReceipt?.is_active" dense>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  :label="`${i + 1}. Observación`"
+                  v-model="purchaseOrderReceipt.note"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  maxlength="255"
+                  counter
+                  :rules="rules.textOptional"
+                  autocomplete="off"
+                />
+              </v-col>
 
-            <v-col cols="12" md="5">
-              <v-file-input
-                label="Archivo"
-                v-model="purchaseOrderReceipt.file_doc"
-                variant="outlined"
-                density="compact"
-                prepend-icon=""
-                show-size
-                accept=".pdf,.png,.jpg,.jpeg"
-                :rules="rules.fileRequired"
-              />
-            </v-col>
+              <v-col cols="12" md="5">
+                <v-file-input
+                  label="Archivo"
+                  v-model="purchaseOrderReceipt.file_doc"
+                  variant="outlined"
+                  density="compact"
+                  prepend-icon=""
+                  show-size
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  :rules="rules.fileRequired"
+                />
+              </v-col>
 
-            <v-col
-              cols="12"
-              md="1"
-              class="py-3 d-flex align-start justify-end ga-1"
-            >
-              <BtnFilePreview
-                :file="purchaseOrderReceipt.file_doc"
-                tooltip="Ver"
-                variant="outlined"
-              />
-
-              <v-btn
-                icon
-                variant="outlined"
-                size="x-small"
-                density="comfortable"
-                color="error"
-                @click="formRemoveReceipt(i)"
+              <v-col
+                cols="12"
+                md="1"
+                class="py-3 d-flex align-start justify-end ga-1"
               >
-                <v-icon>mdi-minus</v-icon>
-                <v-tooltip activator="parent" location="left">
-                  Eliminar
-                </v-tooltip>
-              </v-btn>
-            </v-col>
-          </v-row>
+                <BtnFilePreview
+                  :file="purchaseOrderReceipt.file_doc"
+                  tooltip="Ver"
+                  variant="outlined"
+                />
+
+                <v-btn
+                  icon
+                  variant="outlined"
+                  size="x-small"
+                  density="comfortable"
+                  color="error"
+                  @click="formRemoveReceipt(i)"
+                >
+                  <v-icon>mdi-minus</v-icon>
+                  <v-tooltip activator="parent" location="left">
+                    Eliminar
+                  </v-tooltip>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </template>
 
           <v-row dense>
             <v-col cols="12" class="d-flex align-center justify-space-between">
@@ -178,7 +180,11 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getRsp, getErr } from "@/utils/http";
 import { getAmountFormat } from "@/utils/formatters";
 import { getRules } from "@/utils/validators";
-import { extractMultipleNestedProps, getFormData } from "@/utils/helpers";
+import {
+  extractMultipleNestedProps,
+  getFormData,
+  b64ToFile,
+} from "@/utils/helpers";
 
 import CardTitle from "@/components/CardTitle.vue";
 import BtnFilePreview from "@/components/BtnFilePreview.vue";
@@ -233,26 +239,47 @@ const getItems = async () => {
 const formOpenDialog = () => {
   formIsDialogOpen.value = true;
   formIsLoading.value = true;
-  purchaseOrderReceipts.value = [];
 
-  for (const payment of purchaseOrder.value.purchase_order_payments) {
-    formAddReceipt(payment);
+  try {
+    if (items.value.length > 0) {
+      purchaseOrderReceipts.value = items.value.map((x) => ({
+        ...x,
+        file_doc: x?.file_b64 ? b64ToFile(x.file_b64) : null,
+      }));
+
+      return;
+    }
+
+    purchaseOrderReceipts.value = [];
+
+    for (const payment of purchaseOrder.value?.purchase_order_payments) {
+      formAddReceipt(payment);
+    }
+  } finally {
+    formIsLoading.value = false;
   }
-
-  formIsLoading.value = false;
 };
 
 const formAddReceipt = (data = null) => {
   purchaseOrderReceipts.value.push({
     id: null,
+    is_active: 1,
     purchase_order_id: purchaseOrder.value.id,
-    file_doc: null,
     note: data ? `${data.bank.name} ${getAmountFormat(data.amount)}` : null,
+    file_doc: null,
   });
 };
 
 const formRemoveReceipt = (index) => {
-  purchaseOrderReceipts.value.splice(index, 1);
+  const item = purchaseOrderReceipts.value?.[index];
+  if (!item) return;
+
+  if (item.id == null) {
+    purchaseOrderReceipts.value.splice(index, 1);
+    return;
+  }
+
+  item.is_active = 0;
 };
 
 const formSubmit = async () => {
