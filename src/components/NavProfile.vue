@@ -33,9 +33,9 @@
         </v-col>
 
         <v-col cols="12">
-          <span class="font-weight-medium">{{
-            user?.full_name || "Nombre"
-          }}</span>
+          <span class="font-weight-medium">
+            {{ user?.full_name || "Nombre" }}
+          </span>
         </v-col>
 
         <v-col cols="6">
@@ -59,7 +59,7 @@
         </v-col>
 
         <v-col cols="12" class="pt-4">
-          <v-btn block color="transparent" @click="handleAction">
+          <v-btn block color="transparent" @click="handleLogout">
             Cerrar Sesión
             <v-icon end>mdi-logout</v-icon>
           </v-btn>
@@ -78,19 +78,24 @@
 </template>
 
 <script setup>
-// Importaciones
-import { ref, computed, watch } from "vue";
+import { computed, inject, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "@/store";
+import axios from "axios";
 
-// Componentes
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getErr, getHdrs, getRsp } from "@/utils/http";
+
 import BtnTheme from "@/components/BtnTheme.vue";
 import Version from "@/components/Version.vue";
 
-// Estado y props
-const props = defineProps({ modelValue: Boolean });
+const props = defineProps({
+  modelValue: Boolean,
+});
+
 const emit = defineEmits(["update:modelValue"]);
 
+const alert = inject("alert");
 const store = useStore();
 const router = useRouter();
 
@@ -99,16 +104,26 @@ const user = computed(() => store.auth?.user || null);
 
 const dialogModel = computed({
   get: () => props.modelValue,
-  set: (val) => emit("update:modelValue", val),
+  set: (value) => emit("update:modelValue", value),
 });
 
-// Acción de logout
-const handleAction = async () => {
+const handleLogout = async () => {
   isLoading.value = true;
+
   try {
-    //PENDIENTE CERRAR SESIÓN EN BACK
+    const endpoint = `${URL_API}/logout`;
+
+    const response = getRsp(
+      await axios.post(endpoint, null, getHdrs(store.getAuth?.token)),
+    );
+
     store.logoutAction();
     router.push({ name: "login" });
+  } catch (err) {
+    store.logoutAction();
+    router.push({ name: "login" });
+
+    alert?.show("warning", getErr(err));
   } finally {
     isLoading.value = false;
     dialogModel.value = false;

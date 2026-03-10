@@ -5,35 +5,7 @@
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
-      <div class="d-flex align-center ga-2">
-        <v-btn
-          v-if="isAdmin"
-          icon
-          variant="flat"
-          size="x-small"
-          color="teal"
-          :to="{ name: 'vehicles/general-catalogs' }"
-        >
-          <v-icon>mdi-notebook-multiple</v-icon>
-          <v-tooltip activator="parent" location="bottom">
-            Catálogos generales
-          </v-tooltip>
-        </v-btn>
-
-        <v-btn
-          v-if="isAdmin"
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          :to="{ name: 'vehicles/brand-catalogs' }"
-        >
-          <v-icon>mdi-car-wrench</v-icon>
-          <v-tooltip activator="parent" location="bottom">
-            Catálogos por marca
-          </v-tooltip>
-        </v-btn>
-      </div>
+      <div class="d-flex align-center ga-1" />
     </v-card-title>
 
     <v-card-text>
@@ -73,7 +45,7 @@
             size="small"
             :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
             :loading="isItemsEmpty && isLoading"
-            @click.prevent="handleFilters"
+            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
           >
             {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
             <v-icon end>mdi-filter</v-icon>
@@ -93,21 +65,23 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.is_published="{ item }">
+            <template #item.is_approved="{ item }">
               <v-icon
                 size="small"
-                :color="item.is_published ? 'success' : 'orange'"
+                :color="
+                  item.is_approved === null
+                    ? 'warning'
+                    : item.is_approved
+                      ? 'success'
+                      : 'red-darken-1'
+                "
               >
                 mdi-circle
               </v-icon>
             </template>
 
-            <template #item.purchase_price="{ item }">
-              {{ getAmountFormat(item.purchase_price) }}
-            </template>
-
-            <template #item.sale_price="{ item }">
-              {{ getAmountFormat(item.sale_price) }}
+            <template #item.reservation_amount="{ item }">
+              {{ getAmountFormat(item.reservation_amount) }}
             </template>
 
             <template #item.action="{ item }">
@@ -143,12 +117,12 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getErr, getHdrs, getRsp } from "@/utils/http";
-import { getAmountFormat } from "@/utils/formatters";
 import { getEncodeId } from "@/utils/coders";
+import { getAmountFormat } from "@/utils/formatters";
 
 import CardTitle from "@/components/CardTitle.vue";
 
-const routeName = "vehicles";
+const routeName = "vehicle_reservations";
 
 const alert = inject("alert");
 const store = useStore();
@@ -157,26 +131,37 @@ const route = useRoute();
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
-const filter = ref(0);
+const filter = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
-const isAdmin = computed(() => [1, 4].includes(store.getAuth?.user?.role_id));
 
-const filterOptions = [{ id: 0, name: "TODOS" }];
+const filterOptions = [
+  { id: 1, name: "PENDIENTES" },
+  { id: 2, name: "APROBADOS" },
+  { id: 3, name: "RECHAZADOS" },
+];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "Fecha de compra", key: "order_date" },
-  { title: "Marca", key: "vehicle_version.vehicle_model.vehicle_brand.name" },
-  { title: "Modelo", key: "vehicle_version.vehicle_model.name" },
-  { title: "Año", key: "vehicle_version.model_year" },
-  { title: "Versión", key: "vehicle_version.name" },
-  { title: "Color", key: "vehicle_color.name" },
-  { title: "VIN", key: "vin" },
-  { title: "UUID", key: "uiid" },
-  { title: "Publicado", key: "is_published", sortable: false, width: 100 },
-  { title: "Precio compra", key: "purchase_price" },
-  { title: "Precio venta", key: "sale_price" },
+  {
+    title: "",
+    key: "is_approved",
+    filterable: false,
+    sortable: false,
+    width: 60,
+  },
+  { title: "Auto", key: "vehicle_uiid" },
+  { title: "Marca", key: "vehicle_brand_name" },
+  { title: "Modelo", key: "vehicle_model_name" },
+  { title: "Año", key: "vehicle_version_model_year" },
+  { title: "Color", key: "vehicle_color_name" },
+  { title: "Vendedor", key: "seller_user_full_name" },
+  { title: "Cliente", key: "customer_full_name" },
+  { title: "Método pago", key: "payment_method_name" },
+  { title: "Financiera", key: "financier_name" },
+  { title: "Monto", key: "reservation_amount" },
+  { title: "Creado", key: "created_at" },
+  { title: "Vence", key: "expires_at" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -193,15 +178,6 @@ const getItems = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const handleFilters = () => {
-  if (isItemsEmpty.value) {
-    getItems();
-    return;
-  }
-
-  items.value = [];
 };
 
 onMounted(() => {

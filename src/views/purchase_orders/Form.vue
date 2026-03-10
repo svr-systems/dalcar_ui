@@ -146,7 +146,7 @@
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="40"
+                      maxlength="100"
                       counter
                       autocomplete="off"
                       :rules="rules.required"

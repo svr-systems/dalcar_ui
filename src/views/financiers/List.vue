@@ -1,52 +1,37 @@
 <template>
   <v-card elevation="24" :disabled="isLoading" :loading="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
+    <v-card-title>
+      <v-row dense>
+        <v-col cols="10">
+          <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
+        </v-col>
 
-      <div class="d-flex align-center ga-2">
-        <v-btn
-          v-if="isAdmin"
-          icon
-          variant="flat"
-          size="x-small"
-          color="teal"
-          :to="{ name: 'vehicles/general-catalogs' }"
-        >
-          <v-icon>mdi-notebook-multiple</v-icon>
-          <v-tooltip activator="parent" location="bottom">
-            Catálogos generales
-          </v-tooltip>
-        </v-btn>
-
-        <v-btn
-          v-if="isAdmin"
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          :to="{ name: 'vehicles/brand-catalogs' }"
-        >
-          <v-icon>mdi-car-wrench</v-icon>
-          <v-tooltip activator="parent" location="bottom">
-            Catálogos por marca
-          </v-tooltip>
-        </v-btn>
-      </div>
+        <v-col cols="2" class="text-right">
+          <v-btn
+            icon
+            variant="flat"
+            size="x-small"
+            color="success"
+            :to="{ name: `${routeName}/store` }"
+          >
+            <v-icon>mdi-plus</v-icon>
+            <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-card-title>
 
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
+            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
               <v-select
-                v-model="filter"
-                label="Filtro"
+                v-model="isActive"
+                label="Mostrar"
                 variant="outlined"
                 density="compact"
-                :items="filterOptions"
+                :items="isActiveOptions"
                 item-title="name"
                 item-value="id"
                 :disabled="!isItemsEmpty"
@@ -93,29 +78,13 @@
               <b>{{ item.key + 1 }}</b>
             </template>
 
-            <template #item.is_published="{ item }">
-              <v-icon
-                size="small"
-                :color="item.is_published ? 'success' : 'orange'"
-              >
-                mdi-circle
-              </v-icon>
-            </template>
-
-            <template #item.purchase_price="{ item }">
-              {{ getAmountFormat(item.purchase_price) }}
-            </template>
-
-            <template #item.sale_price="{ item }">
-              {{ getAmountFormat(item.sale_price) }}
-            </template>
-
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
                   icon
                   variant="text"
                   size="x-small"
+                  :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
                     params: { id: getEncodeId(item.id) },
@@ -143,12 +112,11 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getErr, getHdrs, getRsp } from "@/utils/http";
-import { getAmountFormat } from "@/utils/formatters";
 import { getEncodeId } from "@/utils/coders";
 
 import CardTitle from "@/components/CardTitle.vue";
 
-const routeName = "vehicles";
+const routeName = "financiers";
 
 const alert = inject("alert");
 const store = useStore();
@@ -157,26 +125,20 @@ const route = useRoute();
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
-const filter = ref(0);
+const isActive = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => [1, 4].includes(store.getAuth?.user?.role_id));
 
-const filterOptions = [{ id: 0, name: "TODOS" }];
+const isActiveOptions = [
+  { id: 1, name: "ACTIVOS" },
+  { id: 0, name: "INACTIVOS" },
+];
 
 const headers = [
   { title: "#", key: "key", filterable: false, sortable: false, width: 60 },
-  { title: "Fecha de compra", key: "order_date" },
-  { title: "Marca", key: "vehicle_version.vehicle_model.vehicle_brand.name" },
-  { title: "Modelo", key: "vehicle_version.vehicle_model.name" },
-  { title: "Año", key: "vehicle_version.model_year" },
-  { title: "Versión", key: "vehicle_version.name" },
-  { title: "Color", key: "vehicle_color.name" },
-  { title: "VIN", key: "vin" },
-  { title: "UUID", key: "uiid" },
-  { title: "Publicado", key: "is_published", sortable: false, width: 100 },
-  { title: "Precio compra", key: "purchase_price" },
-  { title: "Precio venta", key: "sale_price" },
+  { title: "Nombre", key: "name" },
+  { title: "UIID", key: "uiid" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -185,7 +147,7 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/${routeName}?filter=${filter.value}`;
+    const endpoint = `${URL_API}/${routeName}?is_active=${isActive.value}`;
     const response = await axios.get(endpoint, getHdrs(store.getAuth?.token));
     items.value = getRsp(response).data.items;
   } catch (err) {

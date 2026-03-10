@@ -9,6 +9,7 @@
               : ''
           }`"
           sub
+          :class="total_amount_pending ? 'text-orange' : ''"
         />
       </div>
 

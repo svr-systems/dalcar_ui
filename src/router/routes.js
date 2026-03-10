@@ -3,9 +3,45 @@ import Auth from "./middleware/Auth";
 import Public from "./middleware/Public";
 import { Roles } from "./middleware/Roles";
 
+const adminRoles = [1, 2, 4];
+const systemRoles = [1, 2, 3, 4];
+const sellerRoles = [5];
+
 const routes = [
-  //USR SYSTEM
-  //vehicles
+  /**
+   * ===========================================
+   * System
+   * ===========================================
+   */
+
+  /**
+   * Vehicle Reservations
+   */
+  {
+    path: "/apartados",
+    name: "vehicle_reservations",
+    component: () => import("@/views/vehicle_reservations/List.vue"),
+    meta: {
+      title: "Apartados",
+      icon: "mdi-hand-coin",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+  {
+    path: "/apartados/:id",
+    name: "vehicle_reservations/show",
+    component: () => import("@/views/vehicle_reservations/Show.vue"),
+    props: true,
+    meta: {
+      title: "Apartado",
+      icon: "mdi-hand-coin",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+
+  /**
+   * Vehicles
+   */
   {
     path: "/autos/catalogos/generales",
     name: "vehicles/general-catalogs",
@@ -13,7 +49,7 @@ const routes = [
     meta: {
       title: "Autos | Catálogos generales",
       icon: "mdi-notebook-multiple",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -23,7 +59,7 @@ const routes = [
     meta: {
       title: "Autos | Catálogos por marca",
       icon: "mdi-car-wrench",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -33,7 +69,7 @@ const routes = [
     meta: {
       title: "Autos",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 3, 4])],
+      middleware: [Auth, Roles(systemRoles)],
     },
   },
   {
@@ -44,10 +80,13 @@ const routes = [
     meta: {
       title: "Auto",
       icon: "mdi-car",
-      middleware: [Auth, Roles([1, 3, 4])],
+      middleware: [Auth, Roles(systemRoles)],
     },
   },
-  //purchase_orders
+
+  /**
+   * Purchase Orders
+   */
   {
     path: "/ordenes_compra",
     name: "purchase_orders",
@@ -55,7 +94,7 @@ const routes = [
     meta: {
       title: "Ordenes de compra",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 3, 4])],
+      middleware: [Auth, Roles(systemRoles)],
     },
   },
   {
@@ -65,7 +104,7 @@ const routes = [
     meta: {
       title: "Orden de compra | Agregar",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -76,7 +115,7 @@ const routes = [
     meta: {
       title: "Orden de compra",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 3, 4])],
+      middleware: [Auth, Roles(systemRoles)],
     },
   },
   {
@@ -87,10 +126,13 @@ const routes = [
     meta: {
       title: "Orden de compra | Editar",
       icon: "mdi-cash-multiple",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //legacy_vehicles
+
+  /**
+   * Legacy Vehicles
+   */
   {
     path: "/historico",
     name: "legacy_vehicles",
@@ -98,7 +140,7 @@ const routes = [
     meta: {
       title: "Historico",
       icon: "mdi-car-clock",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -108,7 +150,7 @@ const routes = [
     meta: {
       title: "Historico | Agregar",
       icon: "mdi-car-clock",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -119,7 +161,7 @@ const routes = [
     meta: {
       title: "Historico",
       icon: "mdi-car-clock",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -130,10 +172,59 @@ const routes = [
     meta: {
       title: "Historico | Editar",
       icon: "mdi-car-clock",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //vendors
+
+  /**
+   * Financiers
+   */
+  {
+    path: "/financieras",
+    name: "financiers",
+    component: () => import("@/views/financiers/List.vue"),
+    meta: {
+      title: "Financieras",
+      icon: "mdi-bank",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+  {
+    path: "/financieras/agregar",
+    name: "financiers/store",
+    component: () => import("@/views/financiers/Form.vue"),
+    meta: {
+      title: "Financiera | Agregar",
+      icon: "mdi-bank",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+  {
+    path: "/financieras/:id",
+    name: "financiers/show",
+    component: () => import("@/views/financiers/Show.vue"),
+    props: true,
+    meta: {
+      title: "Financiera",
+      icon: "mdi-bank",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+  {
+    path: "/financieras/:id/editar",
+    name: "financiers/update",
+    component: () => import("@/views/financiers/Form.vue"),
+    props: true,
+    meta: {
+      title: "Financiera | Editar",
+      icon: "mdi-bank",
+      middleware: [Auth, Roles(adminRoles)],
+    },
+  },
+
+  /**
+   * Vendors
+   */
   {
     path: "/proveedores",
     name: "vendors",
@@ -141,7 +232,7 @@ const routes = [
     meta: {
       title: "Proveedores",
       icon: "mdi-account-group",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -151,7 +242,7 @@ const routes = [
     meta: {
       title: "Proveedor | Agregar",
       icon: "mdi-account-group",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -162,7 +253,7 @@ const routes = [
     meta: {
       title: "Proveedor",
       icon: "mdi-account-group",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -173,10 +264,13 @@ const routes = [
     meta: {
       title: "Proveedor | Editar",
       icon: "mdi-account-group",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //investors
+
+  /**
+   * Investors
+   */
   {
     path: "/inversionistas",
     name: "investors",
@@ -184,7 +278,7 @@ const routes = [
     meta: {
       title: "Inversionistas",
       icon: "mdi-handshake",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -194,7 +288,7 @@ const routes = [
     meta: {
       title: "Inversionista | Agregar",
       icon: "mdi-handshake",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -205,7 +299,7 @@ const routes = [
     meta: {
       title: "Inversionista",
       icon: "mdi-handshake",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -216,10 +310,13 @@ const routes = [
     meta: {
       title: "Inversionista | Editar",
       icon: "mdi-handshake",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //branches
+
+  /**
+   * Branches
+   */
   {
     path: "/sucursales",
     name: "branches",
@@ -227,7 +324,7 @@ const routes = [
     meta: {
       title: "Sucursales",
       icon: "mdi-domain",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -237,7 +334,7 @@ const routes = [
     meta: {
       title: "Sucursal | Agregar",
       icon: "mdi-domain",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -248,7 +345,7 @@ const routes = [
     meta: {
       title: "Sucursal",
       icon: "mdi-domain",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -259,10 +356,13 @@ const routes = [
     meta: {
       title: "Sucursal | Editar",
       icon: "mdi-domain",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //companies
+
+  /**
+   * Companies
+   */
   {
     path: "/empresas",
     name: "companies",
@@ -270,7 +370,7 @@ const routes = [
     meta: {
       title: "Empresas",
       icon: "mdi-office-building",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -280,7 +380,7 @@ const routes = [
     meta: {
       title: "Empresa | Agregar",
       icon: "mdi-office-building",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -291,7 +391,7 @@ const routes = [
     meta: {
       title: "Empresa",
       icon: "mdi-office-building",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -302,10 +402,13 @@ const routes = [
     meta: {
       title: "Empresa | Editar",
       icon: "mdi-office-building",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //users
+
+  /**
+   * Users
+   */
   {
     path: "/usuarios",
     name: "users",
@@ -313,7 +416,7 @@ const routes = [
     meta: {
       title: "Usuarios",
       icon: "mdi-account",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -323,7 +426,7 @@ const routes = [
     meta: {
       title: "Usuario | Agregar",
       icon: "mdi-account",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -334,7 +437,7 @@ const routes = [
     meta: {
       title: "Usuario",
       icon: "mdi-account",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
   {
@@ -345,17 +448,20 @@ const routes = [
     meta: {
       title: "Usuario | Editar",
       icon: "mdi-account",
-      middleware: [Auth, Roles([1, 4])],
+      middleware: [Auth, Roles(adminRoles)],
     },
   },
-  //GENERAL
+
+  /**
+   * General
+   */
   {
     path: "/inicio",
     name: "home",
     component: () => import("@/views/general/Home.vue"),
     meta: {
       title: "Inicio",
-      middleware: [Auth, Roles([1, 3, 4])],
+      middleware: [Auth],
     },
   },
   {
@@ -367,7 +473,39 @@ const routes = [
       middleware: [Auth],
     },
   },
-  //PUBLIC
+
+  /**
+   * ===========================================
+   * Seller
+   * ===========================================
+   */
+  {
+    path: "/vendedor/autos",
+    name: "seller/vehicles",
+    component: () => import("@/views/seller/vehicles/List.vue"),
+    meta: {
+      title: "Vendedor | Autos",
+      icon: "mdi-car",
+      middleware: [Auth, Roles(sellerRoles)],
+    },
+  },
+  {
+    path: "/vendedor/autos/:id",
+    name: "seller/vehicles/show",
+    component: () => import("@/views/seller/vehicles/Show.vue"),
+    props: true,
+    meta: {
+      title: "Vendedor | Auto",
+      icon: "mdi-car",
+      middleware: [Auth, Roles(sellerRoles)],
+    },
+  },
+
+  /**
+   * ===========================================
+   * Public
+   * ===========================================
+   */
   {
     path: "/iniciar_sesion",
     name: "login",
@@ -416,7 +554,12 @@ const routes = [
       middleware: [Public],
     },
   },
-  //NOT FOUND
+
+  /**
+   * ===========================================
+   * Not Found
+   * ===========================================
+   */
   {
     path: "/:pathMatch(.*)*",
     name: "not_found",
